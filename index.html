@@ -1,0 +1,1776 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Máy tính KPI</title>
+<style>
+  :root{
+    --bg:#FFFFFF; --bg-soft:#F9F8F7; --bg-raised:#F0EFED;
+    --border:#E6E5E3; --border-2:#D9D8D6;
+    --text:#2C2C2B; --text-2:#7D7A75;
+    --radius:10px; --radius-md:6px;
+    --blue:#2783DE; --blue-soft:#E5F2FC;
+    --green:#46A171; --green-soft:#E8F1EC;
+    --orange:#D5803B; --orange-soft:#FBEBDE;
+    --red:#E56458; --red-soft:#FCE9E7;
+    --purple:#8A6BC7; --purple-soft:#EFE9F7;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#191919; --bg-soft:#202020; --bg-raised:#2A2A2A;
+      --border:rgba(255,255,255,.14); --border-2:rgba(255,255,255,.22);
+      --text:#FFFFFF; --text-2:rgba(255,255,255,.65);
+      --blue:#5E9FE8; --blue-soft:rgba(94,159,232,.14);
+      --green:#72BC8F; --green-soft:rgba(114,188,143,.14);
+      --orange:#DE9255; --orange-soft:rgba(222,146,85,.14);
+      --red:#E97366; --red-soft:rgba(233,115,102,.14);
+      --purple:#A889D9; --purple-soft:rgba(168,137,217,.14);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',system-ui,sans-serif;font-size:13.5px;line-height:1.5}
+  .app{max-width:1360px;margin:0 auto;padding:20px}
+  .card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;min-height:0}
+  .card--soft{background:var(--bg-soft);border-color:transparent}
+  .card.tight{padding:12px}
+  h1{font-size:19px;font-weight:600;margin:0 0 2px}
+  h2{font-size:14px;font-weight:600;margin:0 0 10px;letter-spacing:-.01em}
+  h3{font-size:12.5px;font-weight:600;margin:0 0 6px;letter-spacing:.01em;text-transform:uppercase;color:var(--text-2)}
+  .sub{color:var(--text-2);font-size:12px;margin:0 0 10px}
+  .row{display:grid;gap:10px}
+  .row.cols-2{grid-template-columns:repeat(2,1fr)}
+  .row.cols-3{grid-template-columns:repeat(3,1fr)}
+  .row.cols-4{grid-template-columns:repeat(4,1fr)}
+  .row.cols-5{grid-template-columns:repeat(5,1fr)}
+  .row.cols-6{grid-template-columns:repeat(6,1fr)}
+  @media (max-width:900px){
+    .row.cols-3,.row.cols-4,.row.cols-5,.row.cols-6{grid-template-columns:repeat(2,1fr)}
+  }
+
+  /* landscape dashboard grid */
+  .dash{display:grid;grid-template-columns:356px minmax(0,1fr) 356px;gap:16px;align-items:start}
+  @media (max-width:1180px){
+    .dash{grid-template-columns:minmax(300px,1fr) minmax(0,1.8fr)}
+    .dash .col-right{grid-column:1 / -1;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .dash .col-right > .card{margin-bottom:0}
+  }
+  @media (max-width:820px){
+    .dash{grid-template-columns:1fr}
+    .dash .col-right{grid-template-columns:1fr}
+  }
+
+  label{display:block;font-size:11.5px;color:var(--text-2);margin-bottom:3px;font-weight:500}
+  .field{background:var(--bg-soft);border:1px solid var(--border);border-radius:var(--radius-md);padding:7px 9px;width:100%;color:var(--text);font-size:13.5px;font-family:inherit;outline:none;transition:border-color .15s}
+  .field:focus{border-color:var(--blue)}
+  .metric{background:var(--bg-soft);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 13px;min-height:82px;display:flex;flex-direction:column;justify-content:center}
+  .metric .k{font-size:10.5px;color:var(--text-2);margin:0 0 2px;font-weight:500;text-transform:uppercase;letter-spacing:.03em}
+  .metric .v{font-size:20px;font-weight:600;margin:0;letter-spacing:-.02em}
+  .metric .hint{font-size:11px;color:var(--text-2);margin:2px 0 0}
+  .btn{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-md);padding:6px 11px;font-size:12.5px;color:var(--text);cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s}
+  .btn:hover{background:var(--bg-soft);border-color:var(--border-2)}
+  .btn--primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  .btn--primary:hover{background:var(--blue);opacity:.92}
+  .btn--ghost{background:transparent;border-color:transparent;color:var(--text-2)}
+  .btn--ghost:hover{color:var(--text);background:var(--bg-soft)}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;padding:3px 9px;border-radius:99px;font-weight:500}
+  .tag--green{background:var(--green-soft);color:var(--green)}
+  .tag--red{background:var(--red-soft);color:var(--red)}
+  .tag--orange{background:var(--orange-soft);color:var(--orange)}
+  .tag--blue{background:var(--blue-soft);color:var(--blue)}
+  .tag--purple{background:var(--purple-soft);color:var(--purple)}
+
+  .toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+  .toolbar .title{display:flex;align-items:center;gap:10px}
+  .toolbar .title .badge{background:var(--blue-soft);color:var(--blue);border-radius:8px;padding:6px;line-height:0;font-size:16px}
+
+  .switch{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-2);cursor:pointer;user-select:none}
+  .switch input{appearance:none;width:32px;height:18px;background:var(--border);border-radius:99px;position:relative;cursor:pointer;transition:background .15s;flex:none}
+  .switch input::before{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+  .switch input:checked{background:var(--blue)}
+  .switch input:checked::before{transform:translateX(14px)}
+
+  .progress{height:8px;background:var(--bg-soft);border-radius:99px;overflow:hidden;position:relative;margin:6px 0}
+  .progress > span{display:block;height:100%;border-radius:99px;transition:width .3s ease}
+  .progress .marker{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--text-2);opacity:.55;border-radius:2px}
+
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+  .cal .h{font-size:10.5px;color:var(--text-2);text-align:center;padding:2px 0;font-weight:600;letter-spacing:.02em}
+  .cal .d{aspect-ratio:1/1;font-size:11.5px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:5px;cursor:pointer;user-select:none;border:1px solid transparent;background:var(--bg-soft);position:relative;transition:transform .1s}
+  .cal .d.empty{background:transparent;cursor:default}
+  .cal .d:not(.empty):hover{border-color:var(--border-2)}
+  .cal .d.today{background:var(--blue);color:#fff;font-weight:600;box-shadow:0 0 0 2px var(--blue-soft)}
+  .cal .d.off{background:var(--red-soft);color:var(--red)}
+  .cal .d.worked{background:var(--green-soft);color:var(--green)}
+  .cal .d.future{background:var(--bg-soft);color:var(--text-2)}
+  .cal .d .kpi{font-size:8.5px;font-weight:600;margin-top:1px;opacity:.85}
+  .cal .d.today .kpi{opacity:1}
+
+  .legend{display:flex;gap:8px;flex-wrap:wrap;font-size:10.5px;color:var(--text-2)}
+  .legend .sw{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px;vertical-align:middle}
+  .insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+  .insight-card{background:var(--bg-soft);border:1px solid var(--border);border-radius:var(--radius);padding:14px;min-height:88px}
+  .insight-card .label{font-size:10.5px;color:var(--text-2);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+  .insight-card .value{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:2px}
+  .insight-card .note{font-size:11.5px;color:var(--text-2)}
+  @media(max-width:900px){.insight-grid{grid-template-columns:1fr}}
+
+  .chart{width:100%;height:210px;display:block}
+  .chart text{font-size:10px;fill:var(--text-2);font-family:inherit}
+  .chart .grid{stroke:var(--border);stroke-width:1;stroke-dasharray:2 3}
+  .chart .axis{stroke:var(--border-2);stroke-width:1}
+  .chart .target-line{stroke:var(--orange);stroke-width:1.5;stroke-dasharray:4 3;fill:none}
+  .chart .actual-line{stroke:var(--blue);stroke-width:2;fill:none}
+  .chart .actual-area{fill:var(--blue-soft);opacity:.7}
+  .chart .dot{fill:var(--blue);stroke:var(--bg);stroke-width:1.5}
+
+  .conclusion{padding:12px;border-radius:var(--radius-md);background:var(--bg-soft);border:1px solid var(--border)}
+  .conclusion.good{background:var(--green-soft);border-color:transparent}
+  .conclusion.warn{background:var(--orange-soft);border-color:transparent}
+  .conclusion.bad{background:var(--red-soft);border-color:transparent}
+  .conclusion p{margin:8px 0 0;font-size:13px;color:var(--text)}
+  .conclusion .list{margin:8px 0 0;padding-left:18px}
+  .conclusion .list li{margin:3px 0;font-size:13px}
+
+  /* company plan notes */
+  ul.plan-notes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+  li.plan-note{display:flex;align-items:flex-start;gap:6px;padding:7px 8px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg-soft);font-size:12.5px;line-height:1.45}
+  li.plan-note.is-today{border-color:var(--blue);background:var(--blue-soft)}
+  li.plan-note.is-done{opacity:.55}
+  li.plan-note.is-done .plan-task{text-decoration:line-through}
+  .plan-check{margin:2px 0 0;flex:0 0 auto;width:14px;height:14px;accent-color:var(--blue);cursor:pointer}
+  .plan-date{flex:0 0 auto;font-weight:600;font-variant-numeric:tabular-nums;color:var(--blue);outline:none;border-radius:3px;padding:0 1px}
+  .plan-sep{flex:0 0 auto;color:var(--text-2)}
+  .plan-task{flex:1 1 auto;min-width:0;outline:none;border-radius:3px;padding:0 2px;word-break:break-word}
+  .plan-date:focus,.plan-task:focus{background:var(--bg-raised)}
+  .plan-del{flex:0 0 auto;background:transparent;border:none;color:var(--text-2);font-size:16px;line-height:1;cursor:pointer;padding:0 2px;border-radius:4px}
+  .plan-del:hover{color:var(--red);background:var(--red-soft)}
+
+  /* bonus tiers */
+  .bonus-now{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:var(--radius-md);background:var(--green-soft);margin-bottom:8px}
+  .bonus-now.none{background:var(--bg-soft)}
+  .bonus-now .lbl{font-size:11px;color:var(--text-2);text-transform:uppercase;letter-spacing:.03em}
+  .bonus-now .amt{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .bonus-now .nx{font-size:12px;white-space:nowrap}
+  ul.bonus-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+  li.bonus-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:var(--radius-md);font-size:12.5px}
+  li.bonus-row .dot{flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:var(--border-2)}
+  li.bonus-row .pct{flex:0 0 auto;font-weight:600;font-variant-numeric:tabular-nums}
+  li.bonus-row .gap{flex:1 1 auto;min-width:0;font-size:11px;color:var(--text-2);text-align:right}
+  li.bonus-row .money{flex:0 0 auto;font-variant-numeric:tabular-nums;white-space:nowrap;outline:none;border-radius:3px;padding:0 2px}
+  li.bonus-row .money:focus{background:var(--bg-raised)}
+  li.bonus-row.hit{background:var(--green-soft)}
+  li.bonus-row.hit .dot{background:var(--green)}
+  li.bonus-row.hit .pct{color:var(--green)}
+  li.bonus-row.next{background:var(--blue-soft)}
+  /* KPI scorecard */
+  table.kpi{width:100%;border-collapse:collapse;font-size:12px}
+  table.kpi th,table.kpi td{padding:7px 6px;border-bottom:1px solid var(--border);text-align:left;vertical-align:middle}
+  table.kpi th{font-size:10px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.03em}
+  table.kpi td.c,table.kpi th.c{text-align:center}
+  table.kpi td.r,table.kpi th.r{text-align:right}
+  table.kpi td.numc,table.kpi th.numc{font-variant-numeric:tabular-nums}
+  table.kpi .idx{color:var(--text-2);width:18px}
+  table.kpi .kname{font-weight:500}
+  table.kpi .tag{display:block;font-size:10.5px;color:var(--text-2);font-weight:400;margin-top:1px}
+  table.kpi input.kpi-in{width:64px;padding:4px 6px;text-align:center;font-size:12px;font-family:inherit;font-variant-numeric:tabular-nums;color:var(--text);background:var(--blue-soft);border:1px solid var(--border);border-radius:6px;outline:none}
+  table.kpi input.kpi-in:focus{border-color:var(--blue)}
+  table.kpi .autoval{display:inline-block;padding:3px 8px;border-radius:20px;background:var(--green-soft);color:var(--green);font-weight:600;font-variant-numeric:tabular-nums}
+  table.kpi .fixedval{color:var(--text-2)}
+  table.kpi tr.ktotal td{font-weight:700;background:var(--bg-soft);border-bottom:none}
+  table.kpi .pct-ok{color:var(--green);font-weight:600}
+  table.kpi .pct-mid{color:var(--orange);font-weight:600}
+  table.kpi .pct-low{color:var(--red);font-weight:600}
+  table.kpi .conv{color:var(--blue);font-weight:600}
+  li.bonus-row.next .dot{background:var(--blue)}
+  li.bonus-row.next .pct{color:var(--blue)}
+
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+  .modal.open{display:flex}
+  .modal .box{background:var(--bg);border-radius:var(--radius);border:1px solid var(--border);padding:18px;max-width:340px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+  .modal h3{margin:0 0 4px;font-size:14px;font-weight:600;text-transform:none;color:var(--text)}
+  .modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+
+  .muted{color:var(--text-2)}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* milestones list */
+  .ms{display:flex;flex-direction:column;gap:6px}
+  .ms .item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg-soft);border-radius:var(--radius-md);border:1px solid var(--border)}
+  .ms .item .ic{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex:none}
+  .ms .item .body{flex:1;min-width:0}
+  .ms .item .body .t{font-size:12.5px;font-weight:600;line-height:1.2}
+  .ms .item .body .s{font-size:11px;color:var(--text-2);margin-top:1px}
+  .ms .item.done{opacity:.7}
+  .ms .item.done .t{text-decoration:line-through;color:var(--text-2)}
+
+  /* what-if simulator */
+  .sim-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .sim-row input[type=range]{flex:1;accent-color:var(--blue)}
+  .sim-row .v{font-size:14px;font-weight:600;min-width:70px;text-align:right;color:var(--blue)}
+  .sim-out{padding:10px 12px;border-radius:var(--radius-md);background:var(--bg-soft);border:1px solid var(--border);font-size:12.5px;line-height:1.55}
+  .sim-out b{color:var(--text)}
+
+  /* weekly table */
+  table.wk{width:100%;border-collapse:collapse;font-size:12px}
+  table.wk th,table.wk td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)}
+  table.wk th{font-size:10.5px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.03em}
+  table.wk tr:last-child td{border-bottom:none}
+  table.wk td.num{text-align:right;font-variant-numeric:tabular-nums}
+  table.wk tr.total td{font-weight:600;background:var(--bg-soft)}
+
+  ::selection{background:var(--blue-soft);color:var(--text)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="toolbar">
+    <div class="title">
+      <span class="badge">📊</span>
+      <div>
+        <h1>Máy tính KPI theo tháng</h1>
+        <p class="sub" id="header-sub" style="margin:0">Theo dõi tiến độ · dự báo · mốc đạt · mô phỏng &amp; gợi ý hành động</p>
+      </div>
+    </div>
+    <div class="toolbar-actions" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+      <button class="btn btn--ghost" onclick="syncSave()" title="Lưu & copy mã đồng bộ">💾 Lưu</button>
+      <button class="btn btn--ghost" onclick="syncLoad()" title="Đồng bộ dữ liệu từ bản kia">🔄 Đồng bộ</button>
+      <button class="btn btn--ghost" onclick="exportHtml()" title="Xuất file HTML chứa dữ liệu hiện tại">📤 Xuất HTML</button>
+      <button class="btn btn--ghost" onclick="exportJson()" title="Xuất dữ liệu JSON">🧾 Xuất JSON</button>
+    </div>
+  </div>
+
+  <!-- Params row (compact horizontal) -->
+  <div class="card tight">
+    <div class="row cols-5">
+      <div>
+        <label>Tháng</label>
+        <select id="month" class="field" onchange="onMonthChange()"></select>
+      </div>
+      <div>
+        <label>Năm</label>
+        <input type="number" id="year" class="field num" min="2020" max="2099" oninput="onMonthChange()">
+      </div>
+      <div>
+        <label>Ngày hôm nay</label>
+        <input type="number" id="today" class="field num" min="1" max="31" oninput="onTodayChange()">
+      </div>
+      <input type="hidden" id="done">
+      <div>
+        <label>Tab chuẩn (= 100%)</label>
+        <input type="number" id="base-tabs" class="field num" step="1" oninput="calc(true)">
+      </div>
+      <div>
+        <label>Chỉ tiêu (%)</label>
+        <input type="number" id="target-pct" class="field num" step="5" min="10" oninput="calc(true)">
+      </div>
+    </div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;align-items:center">
+      <label class="switch"><input type="checkbox" id="auto-weekend" onchange="onAutoWeekendChange()"> Tự động đánh dấu Chủ Nhật là ngày nghỉ</label>
+      <label class="switch"><input type="checkbox" id="auto-save" checked disabled> Tự động lưu (localStorage)</label>
+    </div>
+  </div>
+
+  <!-- Metrics row -->
+  <div class="row cols-4" id="metrics" style="margin-bottom:12px"></div>
+
+  <!-- 3-column landscape dashboard -->
+  <div class="dash">
+    <!-- LEFT COLUMN -->
+    <div class="col-left">
+      <div class="card card--soft">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+          <h2 id="cal-title" style="margin:0">Lịch làm việc</h2>
+          <div class="legend">
+            <span><span class="sw" style="background:var(--blue)"></span>Hôm nay</span>
+            <span><span class="sw" style="background:var(--green-soft);border:1px solid var(--green)"></span>Làm</span>
+            <span><span class="sw" style="background:var(--red-soft);border:1px solid var(--red)"></span>Nghỉ</span>
+          </div>
+        </div>
+        <div class="cal" id="cal-head"></div>
+        <div class="cal" id="cal-body" style="margin-top:3px"></div>
+        <p class="sub" style="margin:10px 0 0;font-size:11px">💡 <b>Click</b>: đổi nghỉ/làm · <b>Double-click</b> ngày đã qua: nhập tab luỹ kế · Số dưới mỗi ngày = <b>tab làm trong ngày đó</b></p>
+      </div>
+
+      <div class="card">
+        <h2>⚡ Báo cáo nhanh theo ngày</h2>
+        <p class="sub" style="margin-top:-6px">Chọn ngày, nhập tab <b>trong ngày đó</b> — tool tự cộng luỹ kế.</p>
+        <div class="row cols-2" style="gap:8px">
+          <div>
+            <label>Ngày</label>
+            <select id="report-day" class="field"></select>
+          </div>
+          <div>
+            <label>Tab làm trong ngày</label>
+            <input type="number" id="report-tabs" class="field num" step="1" min="0" placeholder="VD: 9">
+          </div>
+        </div>
+        <button class="btn btn--primary" style="width:100%;margin-top:8px;padding:8px 12px" onclick="submitReport()">✔️ Ghi nhận</button>
+        <p class="hint" id="report-result" style="margin-top:8px;font-size:11.5px"></p>
+      </div>
+
+      <div class="card">
+        <h2>📆 Kết quả theo tháng</h2>
+        <p class="sub" style="margin-top:-6px">So sánh % chỉ tiêu qua các tháng · tháng hiện tại (viền xanh) là <b>dự báo cuối tháng</b>, vạch đứt là % đã đạt tới hôm nay</p>
+        <svg class="chart" id="chart-monthly" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
+        <div id="monthly-list" style="margin-top:10px"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1.4fr auto;gap:6px;margin-top:10px">
+          <select id="mh-month" class="field"></select>
+          <input type="number" id="mh-year" class="field num" placeholder="Năm">
+          <input type="number" id="mh-pct" class="field num" placeholder="% đạt (VD: 156.07)" step="0.01">
+          <button class="btn btn--primary" onclick="addMonthEntry()">Thêm</button>
+        </div>
+        <p class="hint" id="mh-result" style="margin-top:6px;font-size:11.5px"></p>
+      </div>
+
+    </div>
+
+    <!-- CENTER COLUMN -->
+    <div class="col-center">
+      <div class="insight-grid" id="smart-insights"></div>
+      <div class="card">
+        <h2>📋 Bảng KPI quy đổi</h2>
+        <p class="sub" style="margin-top:-6px">Chỉ số 1 tự tính từ số tab nhập hàng ngày · ô nền xanh là chỗ nhập tay · % đạt khi quy đổi được chặn tối đa 100%</p>
+        <div id="kpi-score"></div>
+      </div>
+      <div class="card">
+        <h2>Tiến độ so với mục tiêu</h2>
+        <div id="progress-section"></div>
+      </div>
+
+      <div class="card">
+        <h2>Đường cong tiến độ</h2>
+        <p class="sub" style="margin-top:-6px;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center">
+          <span style="display:inline-flex;align-items:center;gap:5px"><svg width="20" height="6" style="flex:none"><line x1="0" y1="3" x2="20" y2="3" stroke="var(--blue)" stroke-width="2.5"/></svg>Thực tế tháng này</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><svg width="20" height="6" style="flex:none"><line x1="0" y1="3" x2="20" y2="3" stroke="var(--blue)" stroke-width="2" stroke-dasharray="3 3"/></svg>Dự báo</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><svg width="20" height="6" style="flex:none"><line x1="0" y1="3" x2="20" y2="3" stroke="var(--orange)" stroke-width="2" stroke-dasharray="4 3"/></svg>Mục tiêu tuyến tính</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><svg width="20" height="6" style="flex:none"><line x1="0" y1="3" x2="20" y2="3" stroke="#b79df7" stroke-width="2" stroke-dasharray="5 4"/></svg>Tháng trước</span>
+        </p>
+        <svg class="chart" id="chart" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
+      </div>
+
+      <div class="card">
+        <h2>Biên độ công việc (tab/ngày)</h2>
+        <p class="sub" style="margin-top:-6px">Cột xanh: đạt nhịp · Cột cam: dưới nhịp · Đường đứt xanh: TB · Đường đứt đỏ: cần đạt</p>
+        <svg class="chart" id="chart-daily" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
+        <div id="daily-stats" style="display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text-2);margin-top:8px"></div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-right">
+      <div class="card">
+        <h2>🧠 Kết luận &amp; gợi ý</h2>
+        <div id="conclusion"></div>
+      </div>
+
+      <div class="card">
+        <h2>Vòng tiến độ</h2>
+        <div id="rings" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;padding:4px 0;max-width:260px;margin:0 auto"></div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:11.5px;color:var(--text-2);margin-top:2px">
+          <span>Chỉ tiêu kế tiếp</span>
+          <input type="number" id="next-pct" class="field num" step="5" min="1" style="width:76px;padding:4px 6px;text-align:center;font-size:12px" onchange="setNextTargetPct(this.value)">
+          <span>%</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>💰 Mốc thưởng theo tỷ lệ KPI</h2>
+        <div id="bonus"></div>
+      </div>
+
+      <div class="card">
+        <h2>🏢 Kế hoạch công ty</h2>
+        <p class="sub" style="margin:-4px 0 8px">Ghi chú dạng <b>ngày/tháng: tên công việc</b> — thêm hoặc xoá tự do.</p>
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
+          <input type="text" id="plan-date" class="field" style="flex:0 0 82px;text-align:center" placeholder="20/08" maxlength="5" onkeydown="if(event.key==='Enter')addPlanNote()">
+          <input type="text" id="plan-task" class="field" style="flex:1 1 auto" placeholder="Tên công việc" onkeydown="if(event.key==='Enter')addPlanNote()">
+          <button class="btn btn--primary" style="flex:0 0 auto" onclick="addPlanNote()">+ Thêm</button>
+        </div>
+        <div id="company-plan"></div>
+      </div>
+
+      <div class="card">
+        <h2>📅 Tóm tắt theo tuần</h2>
+        <div id="weekly-table"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <p class="sub" style="text-align:center;margin-top:16px">Dữ liệu được lưu tự động trên trình duyệt. ⚠️ Bản mở rộng và thu nhỏ là 2 phiên riêng — nhập xong bấm <b>💾 Lưu</b> ở bản này, rồi bấm <b>🔄 Đồng bộ</b> ở bản kia là khớp dữ liệu.</p>
+</div>
+
+<!-- Daily KPI input modal -->
+<div class="modal" id="day-modal">
+  <div class="box">
+    <h3 id="day-modal-title">Nhập số tab cho ngày</h3>
+    <p class="sub" id="day-modal-sub" style="margin:0 0 12px">Nhập tổng số tab đã hoàn thành luỹ kế đến hết ngày này.</p>
+    <input type="number" step="1" id="day-modal-input" class="field num" placeholder="VD: 120">
+    <div class="actions">
+      <button class="btn btn--ghost" onclick="closeDayModal(true)">Xoá</button>
+      <button class="btn" onclick="closeDayModal(false)">Huỷ</button>
+      <button class="btn btn--primary" onclick="saveDayModal()">Lưu</button>
+    </div>
+  </div>
+</div>
+
+<!-- Backup / restore modal -->
+<div class="modal" id="backup-modal">
+  <div class="box" style="max-width:440px">
+    <h3>💾 Sao lưu / Khôi phục dữ liệu</h3>
+    <p class="sub" style="margin:0 0 10px">Bình thường chỉ cần <b>💾 Lưu</b> ở bản này → <b>🔄 Đồng bộ</b> ở bản kia. Nếu clipboard bị chặn thì dùng ô dưới: copy mã ở bản này, dán vào bản kia rồi bấm <b>Khôi phục</b>.</p>
+    <textarea id="backup-text" class="field" style="width:100%;height:110px;font-size:11px;font-family:monospace;resize:vertical" spellcheck="false"></textarea>
+    <div class="actions">
+      <button class="btn" onclick="closeBackupModal()">Đóng</button>
+      <button class="btn btn--ghost" onclick="copyBackup()">📋 Copy mã</button>
+      <button class="btn btn--primary" onclick="restoreBackup()">📥 Khôi phục</button>
+    </div>
+    <p class="hint" id="backup-result" style="margin-top:8px"></p>
+  </div>
+</div>
+
+<script>
+const DAYS_LABEL = ['CN','T2','T3','T4','T5','T6','T7'];
+const STORAGE_KEY = 'kpi_tool_v6';
+
+let state = {
+  month: new Date().getMonth()+1,
+  year: new Date().getFullYear(),
+  today: new Date().getDate(),
+  done: 194,
+  baseTabs: 156,
+  targetPct: 150,
+  target: 234,
+  autoWeekend: true,
+  offDays: [],
+  manualOff: [11],
+  weekendExceptions: [],
+  monthlyHistory: {
+    "2026-6": 156.07
+  },
+  companyPlan: [],
+  bonusTiers: [{pct:100, amount:1400000},{pct:120, amount:2400000},{pct:130, amount:3400000},{pct:150, amount:4400000}],
+  nextTargetPct: 150,
+  kpiScore: { onTime: 1, boxDone: 1, boxTarget: 6, learn: 1 },
+  dailyLog: {
+    "2026-7-1":11, "2026-7-2":22, "2026-7-3":34, "2026-7-4":39,
+    "2026-7-6":53, "2026-7-7":64, "2026-7-8":75, "2026-7-9":89, "2026-7-10":102,
+    "2026-7-13":117, "2026-7-14":127, "2026-7-15":139, "2026-7-16":145,
+    "2026-7-17":159, "2026-7-18":173, "2026-7-20":184, "2026-7-21":194
+  }
+};
+
+// Dữ liệu nạp sẵn (luỹ kế) — tự merge vào dailyLog nếu chưa có, để vẽ đường "tháng trước"
+const SEED_LOG = {
+  "2026-6-1":9, "2026-6-2":23, "2026-6-3":39, "2026-6-4":51, "2026-6-5":60, "2026-6-6":74,
+  "2026-6-8":84, "2026-6-9":94, "2026-6-10":102, "2026-6-11":108, "2026-6-12":116,
+  "2026-6-15":125, "2026-6-16":131, "2026-6-17":140, "2026-6-18":148, "2026-6-19":154,
+  "2026-6-22":163, "2026-6-23":173, "2026-6-24":184, "2026-6-25":197, "2026-6-26":210, "2026-6-27":215,
+  "2026-6-29":227, "2026-6-30":237
+};
+let totalDaysInMonth = 30;
+let activeDay = null;
+let lastCalc = null; // cache for simulator
+
+function save(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
+function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    state = Object.assign(state, JSON.parse(raw));
+  }catch(e){}
+}
+
+function daysInMonth(m,y){ return new Date(y,m,0).getDate(); }
+function firstDayOfWeek(m,y){ return new Date(y,m-1,1).getDay(); }
+function dayKey(d){ return state.year+'-'+state.month+'-'+d; }
+function fmt(n, digits=2){ if(!isFinite(n)) return '—'; return n.toFixed(digits); }
+function getWeekendOffs(){
+  const arr=[];
+  for(let d=1; d<=totalDaysInMonth; d++){
+    if(new Date(state.year, state.month-1, d).getDay()===0) arr.push(d);
+  }
+  return arr;
+}
+function refreshOffDays(){
+  const set = new Set(state.manualOff);
+  if(state.autoWeekend){
+    getWeekendOffs().forEach(x=>{
+      if(!(state.weekendExceptions||[]).includes(x)) set.add(x);
+    });
+  }
+  state.offDays = [...set].sort((a,b)=>a-b);
+}
+
+function populateReportDay(){
+  const sel = document.getElementById('report-day');
+  if(!sel) return;
+  let opts = '';
+  for(let d=1; d<=totalDaysInMonth; d++){
+    opts += `<option value="${d}"${d===state.today?' selected':''}>${String(d).padStart(2,'0')}/${String(state.month).padStart(2,'0')}</option>`;
+  }
+  sel.innerHTML = opts;
+}
+function submitReport(){
+  const d = +document.getElementById('report-day').value;
+  const raw = document.getElementById('report-tabs').value;
+  const v = +raw;
+  const out = document.getElementById('report-result');
+  if(raw === '' || !isFinite(v) || v < 0){
+    out.innerHTML = '⚠️ Nhập số tab làm được trong ngày (VD: 9).'; return;
+  }
+  const prefix = state.year+'-'+state.month+'-';
+  const entries = Object.keys(state.dailyLog)
+    .filter(k => k.startsWith(prefix))
+    .map(k => ({ d:+k.split('-')[2], v:+state.dailyLog[k] }))
+    .sort((a,b)=>a.d-b.d);
+  const before = entries.filter(e=>e.d < d);
+  const prevCum = before.length ? before[before.length-1].v : 0;
+  const oldCum = state.dailyLog[dayKey(d)];
+  const newCum = prevCum + v;
+  state.dailyLog[dayKey(d)] = newCum;
+  let adjustNote = '';
+  if(oldCum != null && newCum !== +oldCum){
+    const delta = newCum - (+oldCum);
+    const after = entries.filter(e=>e.d > d);
+    after.forEach(e=>{ state.dailyLog[dayKey(e.d)] = e.v + delta; });
+    if(after.length) adjustNote = ` · luỹ kế các ngày sau đã điều chỉnh ${delta>0?'+':''}${delta} tab`;
+  }
+  const allDays = Object.keys(state.dailyLog).filter(k=>k.startsWith(prefix)).map(k=>+k.split('-')[2]);
+  const lastD = Math.max(...allDays);
+  state.done = +state.dailyLog[dayKey(lastD)];
+  document.getElementById('done').value = state.done;
+  if(state.offDays.includes(d)){
+    state.manualOff = state.manualOff.filter(x=>x!==d);
+    if(new Date(state.year, state.month-1, d).getDay()===0){
+      state.weekendExceptions = state.weekendExceptions || [];
+      if(!state.weekendExceptions.includes(d)) state.weekendExceptions.push(d);
+    }
+    refreshOffDays();
+  }
+  save(); renderCal();
+  const target = state.target;
+  const remainTabs = Math.max(0, target - state.done);
+  const offSet2 = new Set(state.offDays);
+  let workedDays2 = 0;
+  for(let dd=1; dd<=state.today; dd++) if(!offSet2.has(dd)) workedDays2++;
+  let daysLeft = 0, offLeft = 0;
+  for(let dd=state.today+1; dd<=totalDaysInMonth; dd++){ if(offSet2.has(dd)) offLeft++; else daysLeft++; }
+  const rate = workedDays2 > 0 ? state.done / workedDays2 : 0;
+  const needPerDay = daysLeft > 0 ? remainTabs / daysLeft : 0;
+  const pickQuote = arr => arr[Math.floor(Math.random()*arr.length)];
+  const QUOTES_DONE = [
+    '⛰️ “Lên tới đỉnh núi, ta mới thấy chân trời còn rộng hơn.”',
+    '🌿 “Thành công không phải đích đến, mà là cách ta giữ mình trên đường đi.”',
+    '🌕 “Trăng tròn rồi sẽ khuyết — giữ được nhịp mới là cái khó.”',
+  ];
+  const QUOTES_MISSED = [
+    '🌱 “Thời điểm tốt nhất để trồng cây là 20 năm trước. Tốt nhì là hôm nay.”',
+    '🌊 “Thất bại chỉ là dữ liệu — người khôn dùng nó để vẽ lại bản đồ.”',
+  ];
+  let progressLine, cheer;
+  if(remainTabs <= 0){
+    progressLine = `🏆 Đã đạt chỉ tiêu <b>${state.targetPct}%</b> (${target} tab)!`;
+    cheer = pickQuote(QUOTES_DONE);
+  } else if(daysLeft <= 0){
+    progressLine = `📅 Đã hết ngày làm việc trong tháng — còn thiếu <b class="num">${fmt(remainTabs,0)} tab</b>.`;
+    cheer = pickQuote(QUOTES_MISSED);
+  } else {
+    const compare = rate > 0
+      ? (rate >= needPerDay
+        ? ` · tốc độ hiện tại <b class="num">${fmt(rate,1)} tab/ngày</b> → <b style="color:var(--green)">đang vượt tiến độ, cứ giữ nhịp này!</b>`
+        : ` · tốc độ hiện tại <b class="num">${fmt(rate,1)} tab/ngày</b> → <b style="color:var(--orange)">nên làm thêm ~${fmt(needPerDay-rate,1)} tab/ngày để kịp đích</b>`)
+      : '';
+    progressLine = `📅 Còn <b>${daysLeft} ngày làm việc</b>${offLeft>0 ? ` (đã trừ ${offLeft} ngày nghỉ)` : ''} → cần ~<b class="num">${fmt(needPerDay,1)} tab/ngày</b>${compare}`;
+    const QUOTES_AHEAD = [
+      '🌊 “Người đi nhanh không bằng người đi đều.”',
+      '⚖️ “Kỷ luật là cây cầu nối mục tiêu với thành tựu.” — Jim Rohn',
+      '⛰️ “Đỉnh núi không dành cho kẻ vội, mà cho kẻ không dừng lại.”',
+      '🌾 “Gieo thói quen, gặt số phận.”',
+    ];
+    const QUOTES_BEHIND = [
+      '🐢 “Không quan trọng bạn đi chậm thế nào, miễn là đừng dừng lại.” — Khổng Tử',
+      '💧 “Giọt nước làm mòn đá không phải bằng sức, mà bằng sự bền bỉ.” — Ovid',
+      '🚶 “Hành trình vạn dặm bắt đầu từ một bước chân.” — Lão Tử',
+      '🌅 “Ngày mai là của những người bắt đầu từ hôm nay.”',
+    ];
+    cheer = rate >= needPerDay ? pickQuote(QUOTES_AHEAD) : pickQuote(QUOTES_BEHIND);
+  }
+  out.innerHTML = `✅ Đã ghi nhận ngày <b>${String(d).padStart(2,'0')}/${String(state.month).padStart(2,'0')}</b>: <b class="num">${v} tab</b> (luỹ kế <b class="num">${newCum} tab</b>${adjustNote})`
+    + (remainTabs > 0 ? `<br>🎯 Bạn còn <b class="num">${fmt(remainTabs,0)} tab</b> để đạt <b>${state.targetPct}%</b> (${target} tab)` : '')
+    + `<br>` + progressLine
+    + `<br>` + cheer;
+  document.getElementById('report-tabs').value = '';
+}
+
+function init(){
+  load();
+  state.dailyLog = state.dailyLog || {};
+  Object.keys(SEED_LOG).forEach(k => { if(state.dailyLog[k] == null) state.dailyLog[k] = SEED_LOG[k]; });
+  const monthSel = document.getElementById('month');
+  const monthNames = ['Tháng 1','Tháng 2','Tháng 3','Tháng 4','Tháng 5','Tháng 6','Tháng 7','Tháng 8','Tháng 9','Tháng 10','Tháng 11','Tháng 12'];
+  monthSel.innerHTML = monthNames.map((n,i)=>`<option value="${i+1}">${n}</option>`).join('');
+  monthSel.value = state.month;
+  document.getElementById('year').value = state.year;
+  totalDaysInMonth = daysInMonth(state.month, state.year);
+  if(state.today > totalDaysInMonth) state.today = totalDaysInMonth;
+  document.getElementById('today').value = state.today;
+  document.getElementById('today').max = totalDaysInMonth;
+  document.getElementById('done').value = state.done;
+  document.getElementById('base-tabs').value = state.baseTabs;
+  document.getElementById('target-pct').value = state.targetPct;
+  document.getElementById('auto-weekend').checked = state.autoWeekend;
+  state.companyPlan = state.companyPlan || [];
+  if(!Array.isArray(state.bonusTiers) || !state.bonusTiers.length) state.bonusTiers = [{pct:100, amount:1400000},{pct:120, amount:2400000},{pct:130, amount:3400000},{pct:150, amount:4400000}];
+  if(!state.nextTargetPct || state.nextTargetPct <= 0) state.nextTargetPct = 150;
+  state.kpiScore = Object.assign({ onTime: 1, boxDone: 1, boxTarget: 6, learn: 1 }, state.kpiScore || {});
+  const npIn = document.getElementById('next-pct'); if(npIn) npIn.value = state.nextTargetPct;
+  refreshOffDays(); renderCal(); populateReportDay(); populateMonthHistorySelect(); renderCompanyPlan();
+}
+
+function onMonthChange(){
+  state.month = +document.getElementById('month').value;
+  state.year = +document.getElementById('year').value;
+  totalDaysInMonth = daysInMonth(state.month, state.year);
+  const todayEl = document.getElementById('today');
+  if(+todayEl.value > totalDaysInMonth) todayEl.value = totalDaysInMonth;
+  todayEl.max = totalDaysInMonth;
+  state.today = +todayEl.value;
+  refreshOffDays(); save(); renderCal(); populateReportDay();
+}
+function onTodayChange(){
+  state.today = +document.getElementById('today').value || 1;
+  save(); renderCal(); populateReportDay();
+}
+function onAutoWeekendChange(){
+  state.autoWeekend = document.getElementById('auto-weekend').checked;
+  refreshOffDays(); save(); renderCal();
+}
+
+function readTargetInputs(){
+  state.baseTabs = +document.getElementById('base-tabs').value || 156;
+  state.targetPct = +document.getElementById('target-pct').value || 150;
+  state.target = Math.round(state.baseTabs * state.targetPct / 100);
+}
+
+function renderCal(){
+  state.done = +document.getElementById('done').value || 0;
+  readTargetInputs();
+  document.getElementById('cal-title').textContent = `Lịch làm việc — Tháng ${state.month}/${state.year}`;
+  const firstDay = firstDayOfWeek(state.month, state.year);
+  document.getElementById('cal-head').innerHTML = DAYS_LABEL.map(d=>`<div class="h">${d}</div>`).join('');
+  const offSet = new Set(state.offDays);
+  const body = document.getElementById('cal-body');
+  let html='';
+  for(let i=0;i<firstDay;i++) html += `<div class="d empty"></div>`;
+  for(let d=1; d<=totalDaysInMonth; d++){
+    const isToday = d === state.today;
+    const isOff = offSet.has(d);
+    let cls = 'd';
+    if(isToday) cls += ' today';
+    else if(d < state.today) cls += isOff ? ' off' : ' worked';
+    else cls += isOff ? ' off' : ' future';
+    const kpiVal = state.dailyLog[dayKey(d)];
+    let kpiText = '';
+    if(kpiVal!=null){
+      let prevCum = 0;
+      for(let p=d-1; p>=1; p--){ const pv = state.dailyLog[dayKey(p)]; if(pv!=null){ prevCum = +pv; break; } }
+      const dayVal = +kpiVal - prevCum;
+      kpiText = `<span class="kpi" title="Trong ngày: ${dayVal.toFixed(0)} tab · Luỹ kế: ${(+kpiVal).toFixed(0)} tab">${dayVal.toFixed(0)}</span>`;
+    }
+    html += `<div class="${cls}" onclick="toggleOff(${d})" ondblclick="openDayModal(${d})" title="Click: nghỉ/làm · DblClick: nhập KPI">${d}${kpiText}</div>`;
+  }
+  body.innerHTML = html;
+  calc(false);
+}
+
+function toggleOff(d){
+  if(d === state.today) return;
+  const set = new Set(state.manualOff);
+  const weekendSet = new Set(state.autoWeekend ? getWeekendOffs() : []);
+  const offSet = new Set(state.offDays);
+  if(offSet.has(d)){
+    set.delete(d);
+    if(weekendSet.has(d)){
+      state.weekendExceptions = state.weekendExceptions || [];
+      if(!state.weekendExceptions.includes(d)) state.weekendExceptions.push(d);
+    }
+  } else {
+    set.add(d);
+    if(state.weekendExceptions){ state.weekendExceptions = state.weekendExceptions.filter(x=>x!==d); }
+  }
+  state.manualOff = [...set];
+  refreshOffDays(); save(); renderCal();
+}
+
+function openDayModal(d){
+  if(d > state.today) return;
+  activeDay = d;
+  document.getElementById('day-modal-title').textContent = `Nhập KPI luỹ kế đến ngày ${d}/${state.month}`;
+  const cur = state.dailyLog[dayKey(d)];
+  document.getElementById('day-modal-input').value = cur!=null ? cur : '';
+  document.getElementById('day-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('day-modal-input').focus(), 30);
+}
+function closeDayModal(clear){
+  if(clear && activeDay!=null){ delete state.dailyLog[dayKey(activeDay)]; save(); renderCal(); }
+  document.getElementById('day-modal').classList.remove('open'); activeDay = null;
+}
+function saveDayModal(){
+  const val = parseFloat(document.getElementById('day-modal-input').value);
+  if(activeDay!=null && !isNaN(val)){
+    state.dailyLog[dayKey(activeDay)] = val;
+    if(activeDay === state.today){
+      state.done = val;
+      document.getElementById('done').value = val;
+    }
+    save(); renderCal();
+  }
+  document.getElementById('day-modal').classList.remove('open'); activeDay = null;
+}
+
+function confirmReset(){
+  if(confirm('Xoá toàn bộ dữ liệu KPI đã lưu?')){ localStorage.removeItem(STORAGE_KEY); location.reload(); }
+}
+
+// ---------- Sync (1-click) ----------
+function showToast(msg){
+  let t = document.getElementById('toast');
+  if(!t){
+    t = document.createElement('div'); t.id = 'toast';
+    t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 16px;border-radius:8px;font-size:12.5px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.25);opacity:0;transition:opacity .2s;max-width:90%;text-align:center';
+    document.body.appendChild(t);
+  }
+  t.innerHTML = msg; t.style.opacity = '1';
+  clearTimeout(t._h); t._h = setTimeout(()=>{ t.style.opacity = '0'; }, 3500);
+}
+async function syncSave(){
+  save();
+  const code = JSON.stringify(state);
+  let ok = false;
+  try{ await navigator.clipboard.writeText(code); ok = true; }catch(e){}
+  if(!ok){
+    try{
+      const ta = document.createElement('textarea');
+      ta.value = code; ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      ok = document.execCommand('copy'); ta.remove();
+    }catch(e){}
+  }
+  if(ok){ showToast('💾 Đã lưu & copy mã đồng bộ! Mở bản kia rồi bấm <b>🔄 Đồng bộ</b> là xong.'); }
+  else{
+    openBackupModal();
+    document.getElementById('backup-result').textContent = '⚠️ Không copy tự động được — bôi đen mã trên và bấm Ctrl+C (⌘+C) nhé.';
+  }
+}
+async function syncLoad(){
+  let text = '';
+  try{ text = await navigator.clipboard.readText(); }catch(e){}
+  if(text){
+    try{
+      const obj = JSON.parse(text);
+      if(obj && typeof obj === 'object' && obj.dailyLog){
+        state = Object.assign({}, state, obj);
+        save(); init();
+        showToast('🔄 Đã đồng bộ dữ liệu thành công!');
+        return;
+      }
+    }catch(e){}
+  }
+  openBackupModal();
+  document.getElementById('backup-text').value = '';
+  document.getElementById('backup-result').textContent = '📋 Dán mã đã lưu từ bản kia vào ô trên rồi bấm 📥 Khôi phục nhé.';
+}
+
+
+function exportHtml(){
+  save();
+  const data = JSON.stringify(state).replace(/</g, '\\u003c');
+  let html = document.documentElement.outerHTML;
+  html = html.replace(/let state = \{[\s\S]*?\n\};\n\nconst SEED_LOG/, 'let state = ' + data + ';\n\nconst SEED_LOG');
+  html = '<!doctype html>\n' + html;
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const pad = n => String(n).padStart(2,'0');
+  const now = new Date();
+  a.href = url;
+  a.download = `kpi-tool-${state.year}-${pad(state.month)}-${pad(state.today)}.html`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  showToast('📤 Đã xuất file HTML chứa dữ liệu hiện tại.');
+}
+
+// ---------- Backup / restore ----------
+function openBackupModal(){
+  document.getElementById('backup-text').value = JSON.stringify(state);
+  document.getElementById('backup-result').textContent = '';
+  document.getElementById('backup-modal').classList.add('open');
+}
+function closeBackupModal(){ document.getElementById('backup-modal').classList.remove('open'); }
+function copyBackup(){
+  const ta = document.getElementById('backup-text');
+  const out = document.getElementById('backup-result');
+  ta.value = JSON.stringify(state);
+  ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length);
+  let ok = false;
+  try{ ok = document.execCommand('copy'); }catch(e){}
+  if(ok){ out.textContent = '✅ Đã copy mã! Dán lại vào đây ở phiên khác để khôi phục.'; return; }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(ta.value)
+      .then(()=>{ out.textContent = '✅ Đã copy mã! Dán lại vào đây ở phiên khác để khôi phục.'; })
+      .catch(()=>{ out.textContent = '⚠️ Không copy tự động được — mã đã được bôi đen, bấm Ctrl+C (⌘+C) nhé.'; });
+    return;
+  }
+  out.textContent = '⚠️ Không copy tự động được — mã đã được bôi đen, bấm Ctrl+C (⌘+C) nhé.';
+}
+function restoreBackup(){
+  const out = document.getElementById('backup-result');
+  try{
+    const obj = JSON.parse(document.getElementById('backup-text').value);
+    if(!obj || typeof obj !== 'object' || !obj.dailyLog) throw new Error('bad');
+    state = Object.assign({}, state, obj);
+    save(); init();
+    out.textContent = '✅ Đã khôi phục dữ liệu!';
+  }catch(e){
+    out.textContent = '⚠️ Mã không hợp lệ — kiểm tra lại đã dán đủ toàn bộ mã chưa nhé.';
+  }
+}
+
+
+function exportJson(){
+  save();
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const pad = n => String(n).padStart(2,'0');
+  a.href = url;
+  a.download = `kpi-data-${state.year}-${pad(state.month)}-${pad(state.today)}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  showToast('🧾 Đã xuất file JSON dữ liệu KPI.');
+}
+function renderSmartInsights(calc){
+  const el = document.getElementById('smart-insights'); if(!el || !calc) return;
+  const pct = calc.target ? (calc.done / calc.target * 100) : 0;
+  const gap = Math.max(0, calc.target - calc.done);
+  const status = gap <= 0 ? 'Đã đạt mục tiêu' : (calc.rate >= calc.needPerDay ? 'Đang an toàn' : 'Cần tăng tốc');
+  const statusColor = gap <= 0 ? 'var(--green)' : (calc.rate >= calc.needPerDay ? 'var(--blue)' : 'var(--orange)');
+  const eta = gap <= 0 ? 'Hoàn thành' : (calc.rate>0 ? `${Math.ceil(gap / calc.rate)} ngày làm` : 'Chưa đủ dữ liệu');
+  const safe = calc.daysLeft>0 ? Math.max(0, Math.floor((calc.forecast - calc.target))) : Math.max(0, calc.done-calc.target);
+  el.innerHTML = `
+    <div class="insight-card"><div class="label">Trạng thái</div><div class="value" style="color:${statusColor}">${status}</div><div class="note">Đạt ${fmt(pct,1)}% mục tiêu ${state.targetPct}%</div></div>
+    <div class="insight-card"><div class="label">Dự kiến cán đích</div><div class="value">${eta}</div><div class="note">Theo tốc độ trung bình hiện tại</div></div>
+    <div class="insight-card"><div class="label">Biên an toàn</div><div class="value" style="color:${safe>0?'var(--green)':'var(--orange)'}">${fmt(safe,0)} tab</div><div class="note">Dự báo cuối tháng so với mục tiêu</div></div>`;
+}
+// ---------- Company plan notes (ngay/thang: ten cong viec) ----------
+function normalizePlanDate(v){
+  v = (v||'').trim().replace(/[^0-9\/]/g,'');
+  if(!v) return '';
+  let m = v.match(/^(\d{1,2})\/(\d{1,2})$/);
+  if(m) return String(+m[1]).padStart(2,'0')+'/'+String(+m[2]).padStart(2,'0');
+  m = v.match(/^(\d{1,2})$/);
+  if(m) return String(+m[1]).padStart(2,'0')+'/'+String(state.month).padStart(2,'0');
+  return '';
+}
+function planSortValue(d){
+  const m = (d||'').match(/^(\d{2})\/(\d{2})$/);
+  return m ? (+m[2])*100 + (+m[1]) : 9999;
+}
+function addPlanNote(){
+  const dEl = document.getElementById('plan-date');
+  const tEl = document.getElementById('plan-task');
+  const date = normalizePlanDate(dEl.value);
+  const task = (tEl.value||'').trim();
+  if(!date){ showToast('\u26a0\ufe0f Nh\u1eadp ng\u00e0y d\u1ea1ng ng\u00e0y/th\u00e1ng, VD 20/08'); dEl.focus(); return; }
+  if(!task){ showToast('\u26a0\ufe0f Nh\u1eadp t\u00ean c\u00f4ng vi\u1ec7c'); tEl.focus(); return; }
+  state.companyPlan = state.companyPlan || [];
+  state.companyPlan.push({ id: Date.now()+'-'+Math.random().toString(36).slice(2,7), date, task, done:false });
+  dEl.value = ''; tEl.value = '';
+  save(); renderCompanyPlan(); tEl.focus();
+}
+function removePlanNote(id){
+  state.companyPlan = (state.companyPlan||[]).filter(x => x.id !== id);
+  save(); renderCompanyPlan();
+}
+function togglePlanNote(id){
+  (state.companyPlan||[]).forEach(x => { if(x.id === id) x.done = !x.done; });
+  save(); renderCompanyPlan();
+}
+function editPlanNote(id, field, value){
+  const item = (state.companyPlan||[]).find(x => x.id === id);
+  if(!item) return;
+  if(field === 'date'){
+    const nd = normalizePlanDate(value);
+    item.date = nd || item.date;
+  } else {
+    const t = (value||'').trim();
+    if(t) item.task = t;
+  }
+  save(); renderCompanyPlan();
+}
+function escPlan(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+function renderCompanyPlan(){
+  const el = document.getElementById('company-plan'); if(!el) return;
+  const items = (state.companyPlan||[]).slice().sort((a,b)=> planSortValue(a.date) - planSortValue(b.date));
+  if(!items.length){
+    el.innerHTML = '<p class="hint" style="margin:2px 0 0">Ch\u01b0a c\u00f3 ghi ch\u00fa n\u00e0o \u2014 nh\u1eadp ng\u00e0y v\u00e0 t\u00ean c\u00f4ng vi\u1ec7c \u1edf tr\u00ean r\u1ed3i b\u1ea5m + Th\u00eam.</p>';
+    return;
+  }
+  const todayStr = String(state.today).padStart(2,'0') + '/' + String(state.month).padStart(2,'0');
+  el.innerHTML = '<ul class="plan-notes">' + items.map(it => {
+    const cls = 'plan-note' + (it.done ? ' is-done' : '') + (it.date === todayStr ? ' is-today' : '');
+    const id = escPlan(it.id);
+    return `<li class="${cls}">`
+      + `<input type="checkbox" class="plan-check" data-id="${id}"${it.done ? ' checked' : ''}>`
+      + `<span class="plan-date" contenteditable="true" spellcheck="false" data-id="${id}" data-field="date">${escPlan(it.date)}</span>`
+      + `<span class="plan-sep">:</span>`
+      + `<span class="plan-task" contenteditable="true" data-id="${id}" data-field="task">${escPlan(it.task)}</span>`
+      + `<button class="plan-del" data-id="${id}" title="Xo\u00e1 ghi ch\u00fa">\u00d7</button>`
+      + `</li>`;
+  }).join('') + '</ul>';
+
+  el.querySelectorAll('.plan-check').forEach(c => {
+    c.addEventListener('change', () => togglePlanNote(c.dataset.id));
+  });
+  el.querySelectorAll('.plan-del').forEach(b => {
+    b.addEventListener('click', () => removePlanNote(b.dataset.id));
+  });
+  el.querySelectorAll('.plan-date, .plan-task').forEach(sp => {
+    sp.addEventListener('blur', () => editPlanNote(sp.dataset.id, sp.dataset.field, sp.textContent));
+    sp.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){ e.preventDefault(); sp.blur(); }
+    });
+  });
+}
+
+
+function calc(persist){
+  if(persist){ state.done = +document.getElementById('done').value || 0; readTargetInputs(); save(); }
+  const today = state.today, done = state.done, target = state.target;
+  const offSet = new Set(state.offDays);
+
+  let workedDays = 0;
+  for(let d=1; d<=today; d++) if(!offSet.has(d)) workedDays++;
+  let workDaysLeft = 0;
+  for(let d=today+1; d<=totalDaysInMonth; d++) if(!offSet.has(d)) workDaysLeft++;
+
+  const remaining = target - done;
+  const ratePerDay = workedDays > 0 ? done / workedDays : 0;
+  const projected = done + ratePerDay * workDaysLeft;
+  const needed = workDaysLeft > 0 ? remaining / workDaysLeft : Infinity;
+  const canReach = projected >= target && workedDays > 0;
+
+  const logDays = Object.keys(state.dailyLog)
+    .filter(k => k.startsWith(state.year+'-'+state.month+'-'))
+    .map(k => ({ d: +k.split('-')[2], v: +state.dailyLog[k] }))
+    .sort((a,b)=>a.d-b.d);
+
+  let recent7Rate = null;
+  if(logDays.length >= 2){
+    const last = logDays[logDays.length-1];
+    const window = logDays.filter(x => x.d >= Math.max(1, last.d-6) && x.d <= last.d);
+    if(window.length >= 2){
+      const first = window[0];
+      const delta = last.v - first.v;
+      let workedInWindow = 0;
+      for(let d=first.d+1; d<=last.d; d++) if(!offSet.has(d)) workedInWindow++;
+      if(workedInWindow > 0) recent7Rate = delta / workedInWindow;
+    }
+  }
+
+  // Metrics
+  const neededColor = (needed > ratePerDay*1.5) ? 'var(--red)' : (needed > ratePerDay ? 'var(--orange)' : 'var(--green)');
+  const trendArrow = recent7Rate!=null ? (recent7Rate > ratePerDay*1.05 ? '<span style="color:var(--green)">▲</span>' : recent7Rate < ratePerDay*0.95 ? '<span style="color:var(--red)">▼</span>' : '<span style="color:var(--text-2)">▬</span>') : '';
+  document.getElementById('metrics').innerHTML = `
+    <div class="metric">
+      <p class="k">Ngày làm việc còn lại</p>
+      <p class="v num" style="color:var(--blue)">${workDaysLeft}</p>
+      <p class="hint">Đã làm ${workedDays} ngày</p>
+    </div>
+    <div class="metric">
+      <p class="k">Tab còn thiếu</p>
+      <p class="v num" style="color:var(--orange)">${fmt(remaining,0)}</p>
+      <p class="hint">Trên chỉ tiêu ${target} tab (= ${state.targetPct}%)</p>
+    </div>
+    <div class="metric">
+      <p class="k">Tốc độ hiện tại/ngày ${trendArrow}</p>
+      <p class="v num" style="color:var(--green)">${fmt(ratePerDay,1)} tab</p>
+      <p class="hint">${recent7Rate!=null ? '7 ngày gần: <b>'+fmt(recent7Rate,1)+' tab</b>/ngày' : 'Chưa đủ dữ liệu 7 ngày'}</p>
+    </div>
+    <div class="metric">
+      <p class="k">Cần đạt/ngày</p>
+      <p class="v num" style="color:${neededColor}">${workDaysLeft>0 ? fmt(needed,1)+' tab' : '—'}</p>
+      <p class="hint">Để đạt ${state.targetPct}% (${target} tab)</p>
+    </div>
+  `;
+
+  // Progress bars
+  const pctOfTarget = Math.min((done / target) * 100, 100);
+  const projPct = Math.min((projected / target) * 100, 100);
+  const idealPct = ((workedDays) / (workedDays + workDaysLeft)) * 100;
+  document.getElementById('progress-section').innerHTML = `
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:2px">
+        <span class="muted">Đã hoàn thành: <strong style="color:var(--text)" class="num">${fmt(done,0)}</strong> / ${target} tab (chỉ tiêu ${state.targetPct}%)</span>
+        <span class="muted">${fmt(pctOfTarget,1)}%</span>
+      </div>
+      <div class="progress">
+        <span style="width:${pctOfTarget}%;background:var(--blue)"></span>
+        <span class="marker" style="left:${idealPct}%" title="Vạch chuẩn theo thời gian"></span>
+      </div>
+      <div class="sub" style="margin:0;font-size:11.5px">Vạch xám: mốc tuyến tính (${fmt(idealPct,1)}%)</div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:2px">
+        <span class="muted">Dự báo cuối tháng: <strong style="color:var(--text)" class="num">${fmt(projected,0)}</strong> tab</span>
+        <span class="muted">${fmt(projPct,1)}%</span>
+      </div>
+      <div class="progress"><span style="width:${projPct}%;background:${canReach?'var(--green)':'var(--red)'}"></span></div>
+    </div>
+  `;
+
+  const daily = computeDailyDeltas(logDays, offSet);
+
+  renderChart({ today, target, done, ratePerDay, workDaysLeft, offSet, logDays });
+  renderDailyChart({ logDays, offSet, needed, ratePerDay, daily });
+  renderRings({ done, target, workedDays, workDaysLeft });
+  renderBonus({ done, projected });
+  renderKpiScore({ done, target });
+  renderMilestones({ done, target, ratePerDay, workedDays, workDaysLeft, today, offSet, logDays });
+  renderStreak({ daily, needed, ratePerDay });
+  renderWeekly({ logDays, offSet });
+  renderMonthly({ liveRaw: target>0 ? projected/target*100 : 0, liveDone: target>0 ? done/target*100 : 0 });
+  renderConclusion({ canReach, projected, target, needed, ratePerDay, recent7Rate, workDaysLeft, workedDays, done, remaining });
+
+  // cache for simulator
+  lastCalc = { done, target, ratePerDay, workDaysLeft, needed, recent7Rate };
+  renderSim();
+}
+
+// ---------- Compute per-day deltas ----------
+function computeDailyDeltas(logDays, offSet){
+  const sorted = [...logDays].sort((a,b)=>a.d-b.d);
+  const bars = [];
+  let prevV = 0, prevD = 0;
+  sorted.forEach(p=>{
+    const delta = p.v - prevV;
+    let wd = 0;
+    for(let d=prevD+1; d<=p.d; d++) if(!offSet.has(d)) wd++;
+    const perDay = wd>0 ? delta/wd : delta;
+    for(let d=prevD+1; d<=p.d; d++) if(!offSet.has(d)) bars.push({d, v:perDay});
+    prevV = p.v; prevD = p.d;
+  });
+  return bars;
+}
+
+// ---------- Chart ----------
+function renderChart({ today, target, done, ratePerDay, workDaysLeft, offSet, logDays }){
+  const svg = document.getElementById('chart');
+  const W = 600, H = 200, PL = 34, PR = 10, PT = 12, PB = 22;
+  const innerW = W - PL - PR, innerH = H - PT - PB;
+  // Đường tháng trước: tự lấy dữ liệu tháng liền trước từ dailyLog (qua tháng mới tự thay thế)
+  let pm = state.month - 1, py = state.year;
+  if(pm < 1){ pm = 12; py--; }
+  const prevPrefix = py + '-' + pm + '-';
+  const prevPts = Object.keys(state.dailyLog)
+    .filter(k => k.startsWith(prevPrefix))
+    .map(k => ({ d: +k.slice(prevPrefix.length), v: +state.dailyLog[k] }))
+    .filter(p => p.d >= 1 && !isNaN(p.v))
+    .sort((a,b) => a.d - b.d);
+  const prevMax = prevPts.length ? prevPts[prevPts.length-1].v : 0;
+  const maxY = Math.max(target, done, target*1.05, prevMax) * 1.05;
+  const x = d => PL + (d-1)/(totalDaysInMonth-1||1) * innerW;
+  const y = v => PT + innerH - Math.max(0, Math.min(1, v/maxY)) * innerH;
+
+  const points = [{d:0, v:0}];
+  const logSorted = [...logDays].sort((a,b)=>a.d-b.d);
+  logSorted.forEach(p => { if(p.d <= today) points.push({d:p.d, v:p.v}); });
+  if(!points.some(p=>p.d===today)) points.push({d:today, v:done});
+  points.sort((a,b)=>a.d-b.d);
+
+  const actualPath = points.map((p,i)=> (i===0?'M':'L')+x(Math.max(1,p.d))+','+y(p.v)).join(' ');
+  const areaPath = actualPath + ` L ${x(Math.max(1,points[points.length-1].d))},${y(0)} L ${x(1)},${y(0)} Z`;
+  const projEnd = done + ratePerDay * workDaysLeft;
+  const projPath = `M ${x(today)},${y(done)} L ${x(totalDaysInMonth)},${y(projEnd)}`;
+  const targetPath = `M ${x(1)},${y(0)} L ${x(totalDaysInMonth)},${y(target)}`;
+  let prevPath = '', prevLabel = '';
+  if(prevPts.length){
+    const pp = [{d:0, v:0}, ...prevPts];
+    prevPath = pp.map((p,i)=> (i===0?'M':'L') + x(Math.max(1, Math.min(p.d, totalDaysInMonth))) + ',' + y(p.v)).join(' ');
+    const lastP = prevPts[prevPts.length-1];
+    const lx = x(Math.max(1, Math.min(lastP.d, totalDaysInMonth))), ly = y(lastP.v);
+    prevLabel = `<circle cx="${lx}" cy="${ly}" r="3" fill="#b79df7"/>`
+      + `<text x="${lx-6}" y="${ly+12}" text-anchor="end" fill="#b79df7" style="font-weight:600">Tháng ${pm}: ${Math.round(lastP.v)} tab</text>`;
+  }
+
+  const ticks = 4;
+  let yTicks = '';
+  for(let i=0; i<=ticks; i++){
+    const val = maxY * i/ticks;
+    const yy = y(val);
+    yTicks += `<line class="grid" x1="${PL}" y1="${yy}" x2="${W-PR}" y2="${yy}"/>`;
+    yTicks += `<text x="${PL-6}" y="${yy+3}" text-anchor="end">${Math.round(val)}</text>`;
+  }
+  let xTicks = '';
+  const step = totalDaysInMonth > 20 ? 5 : 3;
+  for(let d=1; d<=totalDaysInMonth; d+=step){
+    if(d >= totalDaysInMonth - 1) break;
+    xTicks += `<text x="${x(d)}" y="${H-6}" text-anchor="middle">${d}</text>`;
+  }
+  xTicks += `<text x="${x(totalDaysInMonth)}" y="${H-6}" text-anchor="end">${totalDaysInMonth}</text>`;
+
+  const todayMark = `<line x1="${x(today)}" y1="${PT}" x2="${x(today)}" y2="${H-PB}" stroke="var(--blue)" stroke-width="1" stroke-dasharray="2 2" opacity=".55"/>`+
+                    `<text x="${x(today)}" y="${PT+8}" text-anchor="middle" fill="var(--blue)" style="font-weight:600">hôm nay</text>`;
+
+  svg.innerHTML = `
+    ${yTicks}
+    <path class="actual-area" d="${areaPath}"/>
+    <path class="target-line" d="${targetPath}"/>
+    ${prevPath ? `<path d="${prevPath}" stroke="#b79df7" stroke-width="2" stroke-dasharray="5 4" fill="none" opacity=".9"/>${prevLabel}` : ''}
+    <path class="actual-line" d="${actualPath}"/>
+    <path d="${projPath}" stroke="var(--blue)" stroke-width="1.5" stroke-dasharray="3 3" fill="none" opacity=".7"/>
+    <line class="axis" x1="${PL}" y1="${H-PB}" x2="${W-PR}" y2="${H-PB}"/>
+    ${todayMark}
+    ${points.filter(p=>p.d>0).map(p=>`<circle class="dot" cx="${x(p.d)}" cy="${y(p.v)}" r="3"/>`).join('')}
+    <circle cx="${x(totalDaysInMonth)}" cy="${y(target)}" r="3" fill="var(--orange)"/>
+    <circle cx="${x(totalDaysInMonth)}" cy="${y(projEnd)}" r="3" fill="${projEnd>=target?'var(--green)':'var(--red)'}"/>
+    ${xTicks}
+  `;
+}
+
+// ---------- Daily bar chart ----------
+function renderDailyChart({ logDays, offSet, needed, ratePerDay, daily }){
+  const svg = document.getElementById('chart-daily');
+  const W = 600, H = 200, PL = 34, PR = 10, PT = 12, PB = 22;
+  const innerW = W - PL - PR, innerH = H - PT - PB;
+  const bars = daily;
+  const statsEl = document.getElementById('daily-stats');
+  if(bars.length === 0){
+    svg.innerHTML = `<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="var(--text-2)" style="font-size:12px">Chưa có nhật ký — double-click ngày đã qua trên lịch để nhập tab luỹ kế</text>`;
+    if(statsEl) statsEl.innerHTML = '';
+    return;
+  }
+  const vals = bars.map(b=>b.v);
+  const mn = Math.min(...vals), mx = Math.max(...vals);
+  const bestDay = bars.find(b=>b.v===mx);
+  const worstDay = bars.find(b=>b.v===mn);
+  const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+  const maxV = Math.max(mx, isFinite(needed)?needed:0, 1) * 1.15;
+  const x = d => PL + (d-1)/(totalDaysInMonth-1||1) * innerW;
+  const y = v => PT + innerH - Math.max(0, Math.min(1, v/maxV)) * innerH;
+  const bw = Math.max(4, innerW/totalDaysInMonth * 0.62);
+
+  let yTicks = '';
+  for(let i=0; i<=3; i++){
+    const val = maxV * i/3;
+    yTicks += `<line class="grid" x1="${PL}" y1="${y(val)}" x2="${W-PR}" y2="${y(val)}"/>`;
+    yTicks += `<text x="${PL-6}" y="${y(val)+3}" text-anchor="end">${fmt(val,0)}</text>`;
+  }
+  const rects = bars.map(b=>{
+    const ok = isFinite(needed) ? b.v >= needed*0.98 : b.v >= ratePerDay;
+    return `<rect x="${x(b.d)-bw/2}" y="${y(b.v)}" width="${bw}" height="${(H-PB)-y(b.v)}" rx="2" fill="${ok?'var(--green)':'var(--orange)'}" opacity=".85"/>`;
+  }).join('');
+  const needLine = isFinite(needed) && needed>0 ? `<line x1="${PL}" y1="${y(needed)}" x2="${W-PR}" y2="${y(needed)}" stroke="var(--red)" stroke-width="1.5" stroke-dasharray="4 3"/><text x="${W-PR-2}" y="${y(needed)-4}" text-anchor="end" fill="var(--red)" style="font-weight:600">cần ${fmt(needed,1)}/ngày</text>` : '';
+  let xTicks = '';
+  const stp = totalDaysInMonth > 20 ? 5 : 3;
+  for(let d=1; d<=totalDaysInMonth; d+=stp){
+    if(d >= totalDaysInMonth-1) break;
+    xTicks += `<text x="${x(d)}" y="${H-6}" text-anchor="middle">${d}</text>`;
+  }
+  xTicks += `<text x="${x(totalDaysInMonth)}" y="${H-6}" text-anchor="end">${totalDaysInMonth}</text>`;
+  const band = `<rect x="${PL}" y="${y(mx)}" width="${innerW}" height="${Math.max(2, y(mn)-y(mx))}" fill="var(--blue)" opacity=".07"/>`;
+  const avgLine = `<line x1="${PL}" y1="${y(avg)}" x2="${W-PR}" y2="${y(avg)}" stroke="var(--blue)" stroke-width="1.5" stroke-dasharray="6 3"/><text x="${PL+4}" y="${y(avg)-5}" fill="var(--blue)" style="font-weight:600">TB ${fmt(avg,1)}/ngày</text>`;
+  svg.innerHTML = `${yTicks}${band}${rects}${avgLine}${needLine}<line class="axis" x1="${PL}" y1="${H-PB}" x2="${W-PR}" y2="${H-PB}"/>${xTicks}`;
+  if(statsEl) statsEl.innerHTML =
+    `<span>🔺 Cao nhất: <b class="num" style="color:var(--green)">${fmt(mx,0)} tab</b> (ngày ${bestDay.d})</span>`+
+    `<span>🔻 Thấp nhất: <b class="num" style="color:var(--red)">${fmt(mn,0)} tab</b> (ngày ${worstDay.d})</span>`+
+    `<span>⚖️ Trung bình: <b class="num" style="color:var(--blue)">${fmt(avg,1)} tab/ngày</b></span>`+
+    `<span>↕️ Dao động: <b class="num">${fmt(mx-mn,0)} tab</b></span>`;
+}
+
+// ---------- Rings ----------
+function fmtMoney(n){
+  return Math.round(n||0).toLocaleString('vi-VN') + ' đ';
+}
+function sortedTiers(){
+  return (state.bonusTiers||[]).slice().sort((a,b)=> a.pct - b.pct);
+}
+function bonusFor(pct){
+  let hit = null;
+  sortedTiers().forEach(t => { if(pct >= t.pct) hit = t; });
+  return hit;
+}
+function editBonusAmount(pct, value){
+  const num = parseInt(String(value||'').replace(/[^0-9]/g,''), 10);
+  const tier = (state.bonusTiers||[]).find(t => t.pct === pct);
+  if(tier && isFinite(num) && num >= 0) tier.amount = num;
+  save(); calc(false);
+}
+function setNextTargetPct(value){
+  const num = parseFloat(String(value).replace(',', '.'));
+  if(isFinite(num) && num > 0) state.nextTargetPct = num;
+  save();
+  setTimeout(() => calc(false), 0);
+}
+function setKpiField(field, value){
+  const num = parseFloat(String(value).replace(',', '.'));
+  state.kpiScore = state.kpiScore || {};
+  state.kpiScore[field] = isFinite(num) && num >= 0 ? num : 0;
+  save();
+  setTimeout(() => calc(false), 0);
+}
+function kpiPctClass(p){
+  return p >= 100 ? 'pct-ok' : (p >= 60 ? 'pct-mid' : 'pct-low');
+}
+function renderKpiScore({ done, target }){
+  const el = document.getElementById('kpi-score'); if(!el) return;
+  const k = state.kpiScore || {};
+  const cap = p => Math.min(100, Math.max(0, p));
+  const rows = [
+    {
+      name: 'Tỷ lệ hoàn thành ảnh thiết kế theo yêu cầu content',
+      tag: 'Chuyên môn · Kết quả',
+      goal: fmt(target,0),
+      weight: 35,
+      actual: '<span class="autoval">⚡ ' + fmt(done,0) + '</span>',
+      pct: target > 0 ? done/target*100 : 0
+    },
+    {
+      name: 'Tỷ lệ hoàn thành thiết kế đúng hạn',
+      tag: 'Chuyên môn · Dẫn dắt',
+      goal: '1',
+      weight: 35,
+      actual: '<span class="fixedval">100%</span>',
+      pct: 100
+    },
+    {
+      name: 'Tỷ lệ hoàn thành thiết kế hộp thương hiệu',
+      tag: 'Chuyên môn · Kết quả',
+      goal: '<input type="number" class="kpi-in" step="1" min="1" value="' + k.boxTarget + '" data-field="boxTarget">',
+      weight: 20,
+      actual: '<input type="number" class="kpi-in" step="1" min="0" value="' + k.boxDone + '" data-field="boxDone">',
+      pct: k.boxTarget > 0 ? k.boxDone/k.boxTarget*100 : 0
+    },
+    {
+      name: 'Học tập & đào tạo',
+      tag: 'Học tập · Dẫn dắt',
+      goal: '1',
+      weight: 5,
+      actual: '<input type="number" class="kpi-in" step="0.01" min="0" max="1" value="' + k.learn + '" data-field="learn">',
+      pct: k.learn * 100
+    },
+    {
+      name: 'Báo cáo công việc đúng hạn',
+      tag: 'Báo cáo · Dẫn dắt',
+      goal: '1',
+      weight: 5,
+      actual: '<span class="fixedval">100%</span>',
+      pct: 100
+    }
+  ];
+  let totalConv = 0;
+  const body = rows.map((r, i) => {
+    const shown = cap(r.pct);
+    const conv = shown / 100 * r.weight;
+    totalConv += conv;
+    const over = r.pct > 100 ? ' <span style="font-size:10px;color:var(--text-2)">(' + fmt(r.pct,0) + '%)</span>' : '';
+    return '<tr>'
+      + '<td class="idx numc">' + (i+1) + '</td>'
+      + '<td><span class="kname">' + r.name + '</span><span class="tag">' + r.tag + '</span></td>'
+      + '<td class="c numc">' + r.goal + '</td>'
+      + '<td class="c numc">' + r.weight + '%</td>'
+      + '<td class="c numc">' + r.actual + '</td>'
+      + '<td class="r numc"><span class="' + kpiPctClass(shown) + '">' + fmt(shown,0) + '%</span>' + over + '</td>'
+      + '<td class="r numc"><span class="conv">' + fmt(conv,0) + '%</span></td>'
+      + '</tr>';
+  }).join('');
+  el.innerHTML = '<div style="overflow-x:auto"><table class="kpi">'
+    + '<thead><tr><th class="idx">#</th><th>Chỉ số đo lường</th><th class="c">Mục tiêu 100%</th><th class="c">Trọng số</th><th class="c">Thực tế</th><th class="r">% đạt</th><th class="r">KPI quy đổi</th></tr></thead>'
+    + '<tbody>' + body
+    + '<tr class="ktotal"><td></td><td>TỔNG</td><td class="c"></td><td class="c numc">100%</td><td class="c"></td><td class="r"></td>'
+    + '<td class="r numc"><span class="' + kpiPctClass(totalConv) + '" style="font-size:13.5px">' + fmt(totalConv,0) + '%</span></td></tr>'
+    + '</tbody></table></div>';
+  el.querySelectorAll('input.kpi-in').forEach(inp => {
+    inp.addEventListener('change', () => setKpiField(inp.dataset.field, inp.value));
+    inp.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); inp.blur(); } });
+  });
+}
+
+function renderBonus({ done, projected }){
+  const el = document.getElementById('bonus'); if(!el) return;
+  const base = state.baseTabs || 0;
+  const pctNow = base > 0 ? done/base*100 : 0;
+  const pctProj = base > 0 ? projected/base*100 : 0;
+  const tiers = sortedTiers();
+  const cur = bonusFor(pctNow);
+  const proj = bonusFor(pctProj);
+  const next = tiers.find(t => pctNow < t.pct) || null;
+
+  let head = '<div class="bonus-now' + (cur ? '' : ' none') + '">'
+    + '<div><div class="lbl">Đang ứng với ' + fmt(pctNow,1) + '%</div>'
+    + '<div class="amt" style="color:' + (cur ? 'var(--green)' : 'var(--text-2)') + '">' + (cur ? fmtMoney(cur.amount) : 'Chưa tới mốc') + '</div></div>';
+  if(next){
+    const needTabs = Math.max(0, Math.ceil(base * next.pct / 100 - done));
+    head += '<div style="text-align:right"><div class="lbl">Mốc kế tiếp ' + next.pct + '%</div>'
+      + '<div class="nx">còn <b class="num">' + needTabs + '</b> tab</div>'
+      + '<div class="nx"><b>' + fmtMoney(next.amount) + '</b></div></div>';
+  } else {
+    head += '<div style="text-align:right"><div class="lbl">Đã đạt mốc cao nhất</div>'
+      + '<div class="nx">🏆 Trần thưởng</div></div>';
+  }
+  head += '</div>';
+
+  const rows = tiers.map(t => {
+    const hit = pctNow >= t.pct;
+    const isNext = next && t.pct === next.pct;
+    const cls = 'bonus-row' + (hit ? ' hit' : (isNext ? ' next' : ''));
+    const needTabs = Math.max(0, Math.ceil(base * t.pct / 100 - done));
+    const note = hit ? '✓ đã đạt' : ('còn ' + needTabs + ' tab');
+    return '<li class="' + cls + '">'
+      + '<span class="dot"></span>'
+      + '<span class="pct">≥ ' + t.pct + '%</span>'
+      + '<span class="gap">' + note + '</span>'
+      + '<span class="money" contenteditable="true" spellcheck="false" data-pct="' + t.pct + '">' + fmtMoney(t.amount) + '</span>'
+      + '</li>';
+  }).join('');
+
+  const projLine = '<p class="hint" style="margin:8px 0 0">Dự báo cuối tháng <b>' + fmt(pctProj,1) + '%</b> → '
+    + (proj ? '<b>' + fmtMoney(proj.amount) + '</b>' : 'chưa tới mốc') + ' · bấm vào số tiền để sửa</p>';
+
+  el.innerHTML = head + '<ul class="bonus-list">' + rows + '</ul>' + projLine;
+
+  el.querySelectorAll('.money').forEach(m => {
+    m.addEventListener('blur', () => editBonusAmount(+m.dataset.pct, m.textContent));
+    m.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); m.blur(); } });
+  });
+}
+
+function renderRings({ done, target, workedDays, workDaysLeft }){
+  const el = document.getElementById('rings');
+  const ring = (pct, label, sub, color)=>{
+    const r = 38, c = 2*Math.PI*r;
+    const p = Math.max(0, Math.min(1, pct/100));
+    return `<div style="text-align:center">
+      <svg width="100" height="100" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--bg-raised)" stroke-width="11"/>
+        <circle cx="60" cy="60" r="${r}" fill="none" stroke="${color}" stroke-width="11" stroke-linecap="round"
+          stroke-dasharray="${c*p} ${c}" transform="rotate(-90 60 60)"/>
+        <text x="60" y="62" text-anchor="middle" style="font-size:19px;font-weight:700" fill="var(--text)" class="num">${fmt(pct,0)}%</text>
+        <text x="60" y="78" text-anchor="middle" style="font-size:9.5px" fill="var(--text-2)">${sub}</text>
+      </svg>
+      <div style="font-size:11px;color:var(--text-2);margin-top:-2px">${label}</div>
+    </div>`;
+  };
+  const workPct = target>0 ? done/target*100 : 0;
+  const basePct = state.baseTabs>0 ? done/state.baseTabs*100 : 0;
+  const timePct = (workedDays+workDaysLeft)>0 ? workedDays/(workedDays+workDaysLeft)*100 : 0;
+  const workColor = workPct >= timePct ? 'var(--green)' : (workPct >= timePct*0.75 ? 'var(--orange)' : 'var(--red)');
+  const nextPct = state.nextTargetPct || 150;
+  const nextTarget = Math.round(state.baseTabs * nextPct / 100);
+  const nextRingPct = nextTarget > 0 ? done/nextTarget*100 : 0;
+  el.innerHTML =
+    ring(workPct, 'Chỉ tiêu ' + state.targetPct + '%', fmt(done,0)+'/'+target, workColor) +
+    ring(basePct, 'So với chuẩn 100%', fmt(done,0)+'/'+state.baseTabs, 'var(--blue)') +
+    ring(timePct, 'Thời gian đã qua', workedDays+'/'+(workedDays+workDaysLeft)+'d', 'var(--purple)') +
+    ring(nextRingPct, 'Chỉ tiêu kế tiếp ' + nextPct + '%', fmt(done,0)+'/'+nextTarget, 'var(--orange)');
+}
+
+// ---------- Milestones ----------
+function renderMilestones({ done, target, ratePerDay, workedDays, workDaysLeft, today, offSet }){
+  const el = document.getElementById('milestones');
+  if(!el) return;
+  const marks = [
+    { pct:50,  label:'50% chỉ tiêu',  color:'#8AB8E6' },
+    { pct:75,  label:'75% chỉ tiêu',  color:'#5E9FE8' },
+    { pct:100, label:'✅ Đạt chỉ tiêu ('+state.targetPct+'%)', color:'var(--green)' }
+  ];
+  // Only show baseTabs milestone if targetPct != 100 (so it's a distinct mốc)
+  if(state.targetPct !== 100){
+    marks.splice(2, 0, { pct: (state.baseTabs/target)*100, label:'Đạt chuẩn 100% ('+state.baseTabs+' tab)', color:'var(--orange)', absVal: state.baseTabs });
+  }
+
+  const items = marks.map(m=>{
+    const need = m.absVal!=null ? m.absVal : (target * m.pct/100);
+    if(done >= need){
+      return { ...m, need, status:'done', text:`Đã đạt · ${fmt(need,0)} tab` };
+    }
+    if(ratePerDay <= 0){
+      return { ...m, need, status:'wait', text:`Cần ${fmt(need-done,0)} tab · chưa có tốc độ` };
+    }
+    const daysNeeded = Math.ceil((need-done) / ratePerDay);
+    // walk forward through working days
+    let simDay = today, count = 0;
+    while(count < daysNeeded && simDay < totalDaysInMonth){
+      simDay++;
+      if(!offSet.has(simDay)) count++;
+    }
+    const reached = count >= daysNeeded;
+    if(reached){
+      const dateStr = `${String(simDay).padStart(2,'0')}/${String(state.month).padStart(2,'0')}`;
+      return { ...m, need, status:'ok', text:`~ ${dateStr} · còn ${fmt(need-done,0)} tab (${daysNeeded} ngày làm)` };
+    } else {
+      const gap = need - (done + ratePerDay * workDaysLeft);
+      return { ...m, need, status:'miss', text:`❌ Không kịp · thiếu ~${fmt(gap,0)} tab cuối tháng` };
+    }
+  });
+
+  el.innerHTML = items.map(it=>{
+    const iconChar = it.status==='done' ? '✓' : it.status==='miss' ? '×' : Math.round(it.pct)+'%';
+    const bg = it.status==='miss' ? 'var(--red)' : (it.status==='done' ? 'var(--green)' : it.color);
+    const cls = it.status==='done' ? 'item done' : 'item';
+    return `<div class="${cls}">
+      <div class="ic" style="background:${bg}">${iconChar}</div>
+      <div class="body">
+        <div class="t">${it.label}</div>
+        <div class="s">${it.text}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ---------- Streak ----------
+function renderStreak({ daily, needed, ratePerDay }){
+  const _panel = document.getElementById('streak-panel');
+  if(!_panel) return;
+  const el = document.getElementById('streak-panel');
+  if(!daily.length){
+    el.innerHTML = `<p class="sub" style="margin:0">Chưa có nhật ký để tính streak.</p>`;
+    return;
+  }
+  // Determine threshold: use 'needed' if finite, else ratePerDay
+  const threshold = isFinite(needed) && needed>0 ? needed : ratePerDay;
+  let curStreak = 0, bestStreak = 0, cur = 0;
+  for(const b of daily){
+    if(b.v >= threshold*0.98){ cur++; bestStreak = Math.max(bestStreak, cur); }
+    else { cur = 0; }
+  }
+  // current streak = trailing consecutive
+  for(let i=daily.length-1; i>=0; i--){
+    if(daily[i].v >= threshold*0.98) curStreak++;
+    else break;
+  }
+  const daysOverAvg = daily.filter(b=>b.v >= ratePerDay).length;
+  const daysUnder = daily.length - daysOverAvg;
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="metric">
+        <p class="k">Streak hiện tại</p>
+        <p class="v num" style="color:var(--orange);font-size:22px">${curStreak} 🔥</p>
+        <p class="hint">ngày liên tiếp đạt ${fmt(threshold,1)}+ tab</p>
+      </div>
+      <div class="metric">
+        <p class="k">Streak dài nhất</p>
+        <p class="v num" style="color:var(--purple);font-size:22px">${bestStreak}</p>
+        <p class="hint">kỷ lục tháng này</p>
+      </div>
+    </div>
+    <div class="sub" style="margin:8px 0 0;font-size:11.5px">${daysOverAvg}/${daily.length} ngày đạt/trên trung bình · ${daysUnder} ngày dưới TB</div>
+  `;
+}
+
+// ---------- Weekly summary ----------
+function renderWeekly({ logDays, offSet }){
+  const el = document.getElementById('weekly-table');
+  if(!logDays.length){
+    el.innerHTML = `<p class="sub" style="margin:0">Chưa có nhật ký.</p>`;
+    return;
+  }
+  // Group by ISO-ish week (T2->CN). Vietnam convention: T2 start.
+  // Build a map day->cum, then compute weekly buckets.
+  const cum = {}; logDays.forEach(p=>cum[p.d]=p.v);
+  const sortedD = logDays.map(p=>p.d).sort((a,b)=>a-b);
+  const lastLogDay = sortedD[sortedD.length-1];
+
+  const weeks = []; // {label, from, to, deltaTabs, workDays, avg}
+  let wStart = 1;
+  while(wStart <= totalDaysInMonth){
+    // find Sunday of this week (VN: Sun = end)
+    const dow = new Date(state.year, state.month-1, wStart).getDay(); // 0=CN,1=T2...
+    // week end: next Sunday (inclusive), then clamp to month end
+    let addDays = dow===0 ? 0 : (7-dow);
+    let wEnd = Math.min(totalDaysInMonth, wStart + addDays);
+    if(wStart===1 && dow!==1){
+      // partial first week (up to first Sunday)
+    }
+    // compute cum at wStart-1 and wEnd
+    let prevCum = 0;
+    for(let d = wStart-1; d>=1; d--){ if(cum[d]!=null){ prevCum = cum[d]; break; } }
+    let endCum = prevCum;
+    for(let d = wEnd; d>=wStart; d--){ if(cum[d]!=null){ endCum = cum[d]; break; } }
+    let workDays = 0;
+    for(let d=wStart; d<=wEnd; d++){ if(!offSet.has(d) && d<=lastLogDay) workDays++; }
+    const delta = Math.max(0, endCum - prevCum);
+    const avg = workDays>0 ? delta/workDays : 0;
+    weeks.push({
+      label:`${String(wStart).padStart(2,'0')}–${String(wEnd).padStart(2,'0')}`,
+      from:wStart, to:wEnd, delta, workDays, avg
+    });
+    wStart = wEnd + 1;
+  }
+
+  // best week
+  const bestAvg = Math.max(...weeks.map(w=>w.avg));
+  const totalDelta = weeks.reduce((a,w)=>a+w.delta,0);
+  const totalWD = weeks.reduce((a,w)=>a+w.workDays,0);
+
+  el.innerHTML = `<table class="wk">
+    <thead><tr><th>Tuần</th><th class="num" style="text-align:right">Tab</th><th class="num" style="text-align:right">Ngày làm</th><th class="num" style="text-align:right">TB/ngày</th></tr></thead>
+    <tbody>
+      ${weeks.map(w=>{
+        const highlight = w.avg===bestAvg && bestAvg>0 ? 'style="color:var(--green);font-weight:600"' : '';
+        return `<tr><td>${w.label}${w.avg===bestAvg&&bestAvg>0?' 🏆':''}</td><td class="num">${fmt(w.delta,0)}</td><td class="num">${w.workDays}</td><td class="num" ${highlight}>${fmt(w.avg,1)}</td></tr>`;
+      }).join('')}
+      <tr class="total"><td>Tổng / TB</td><td class="num">${fmt(totalDelta,0)}</td><td class="num">${totalWD}</td><td class="num">${fmt(totalWD>0?totalDelta/totalWD:0,1)}</td></tr>
+    </tbody>
+  </table>`;
+}
+
+// ---------- Monthly chart ----------
+function populateMonthHistorySelect(){
+  const sel = document.getElementById('mh-month');
+  if(!sel) return;
+  const names = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
+  const prev = state.month === 1 ? 12 : state.month-1;
+  sel.innerHTML = names.map((n,i)=>`<option value="${i+1}"${i+1===prev?' selected':''}>${n}</option>`).join('');
+  const yrEl = document.getElementById('mh-year');
+  if(yrEl) yrEl.value = (state.month===1 ? state.year-1 : state.year);
+}
+
+function renderMonthly({ liveRaw, liveDone }){
+  const svg = document.getElementById('chart-monthly');
+  const listEl = document.getElementById('monthly-list');
+  if(!svg || !listEl) return;
+  state.monthlyHistory = state.monthlyHistory || {};
+  const curKey = state.year+'-'+state.month;
+  const merged = Object.assign({}, state.monthlyHistory);
+  merged[curKey] = liveRaw;
+
+  const keys = Object.keys(merged).sort((a,b)=>{
+    const [ay,am]=a.split('-').map(Number), [by,bm]=b.split('-').map(Number);
+    return (ay*12+am) - (by*12+bm);
+  });
+  const entries = keys.map(k=>({ k, v: +merged[k], isCur: k===curKey }));
+  const show = entries.slice(-12);
+
+  const W=600,H=200,PL=34,PR=10,PT=14,PB=26;
+  const innerW = W-PL-PR, innerH = H-PT-PB;
+  const maxV = Math.max(...show.map(e=>e.v), 150) * 1.12;
+  const x = i => PL + (i+0.5)/show.length * innerW;
+  const y = v => PT + innerH - Math.max(0, Math.min(1, v/maxV))*innerH;
+  const bw = Math.max(10, (innerW/show.length) * 0.62);
+
+  let yTicks = '';
+  for(let i=0;i<=3;i++){
+    const val = maxV*i/3;
+    yTicks += `<line class="grid" x1="${PL}" y1="${y(val)}" x2="${W-PR}" y2="${y(val)}"/>`+
+              `<text x="${PL-6}" y="${y(val)+3}" text-anchor="end">${fmt(val,0)}%</text>`;
+  }
+  const line100 = `<line x1="${PL}" y1="${y(100)}" x2="${W-PR}" y2="${y(100)}" stroke="var(--orange)" stroke-width="1.5" stroke-dasharray="4 3"/>`+
+                  `<text x="${W-PR-2}" y="${y(100)-4}" text-anchor="end" fill="var(--orange)" style="font-weight:600">100%</text>`;
+
+  const bars = show.map((e,i)=>{
+    const color = e.v>=100 ? 'var(--green)' : e.v>=85 ? 'var(--orange)' : 'var(--red)';
+    const stroke = e.isCur ? ` stroke="var(--blue)" stroke-width="2"` : '';
+    return `<rect x="${x(i)-bw/2}" y="${y(e.v)}" width="${bw}" height="${(H-PB)-y(e.v)}" rx="3" fill="${color}" opacity="${e.isCur?'.95':'.85'}"${stroke}/>`+
+           `<text x="${x(i)}" y="${y(e.v)-4}" text-anchor="middle" fill="var(--text)" style="font-size:10px;font-weight:600">${fmt(e.v,1)}%</text>`;
+  }).join('');
+  const labels = show.map((e,i)=>{
+    const [yr,m] = e.k.split('-');
+    const style = e.isCur ? ` fill="var(--blue)" style="font-weight:700"` : '';
+    const suffix = e.isCur ? ' (dự báo)' : '';
+    return `<text x="${x(i)}" y="${H-8}" text-anchor="middle"${style}>T${m}/${String(yr).slice(2)}${suffix}</text>`;
+  }).join('');
+
+  // Add "actual so far" marker for current month bar
+  const curIdx = show.findIndex(e=>e.isCur);
+  let curMarker = '';
+  if(curIdx>=0 && liveDone!=null && Math.abs(liveDone-liveRaw)>0.5){
+    const cx = x(curIdx);
+    curMarker = `<line x1="${cx-bw/2-2}" y1="${y(liveDone)}" x2="${cx+bw/2+2}" y2="${y(liveDone)}" stroke="var(--blue)" stroke-width="1.8" stroke-dasharray="3 2"/>`+
+                `<text x="${cx+bw/2+6}" y="${y(liveDone)+3}" fill="var(--blue)" style="font-size:9.5px;font-weight:600">hiện tại ${fmt(liveDone,1)}%</text>`;
+  }
+
+  svg.innerHTML = `${yTicks}${line100}${bars}${curMarker}<line class="axis" x1="${PL}" y1="${H-PB}" x2="${W-PR}" y2="${H-PB}"/>${labels}`;
+
+  // Summary stats
+  const pastVals = entries.filter(e=>!e.isCur).map(e=>e.v);
+  let summary = '';
+  if(pastVals.length){
+    const avg = pastVals.reduce((a,b)=>a+b,0)/pastVals.length;
+    const best = Math.max(...pastVals);
+    const worst = Math.min(...pastVals);
+    const vsAvg = liveRaw - avg;
+    summary = `<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--text-2);margin-bottom:8px">`+
+      `<span>TB các tháng trước: <b class="num" style="color:var(--text)">${fmt(avg,1)}%</b></span>`+
+      `<span>🏆 Cao nhất: <b class="num" style="color:var(--green)">${fmt(best,1)}%</b></span>`+
+      `<span>🔻 Thấp nhất: <b class="num" style="color:var(--red)">${fmt(worst,1)}%</b></span>`+
+      `<span>Tháng này vs TB: <b class="num" style="color:${vsAvg>=0?'var(--green)':'var(--red)'}">${vsAvg>=0?'+':''}${fmt(vsAvg,1)}%</b></span>`+
+    `</div>`;
+  }
+
+  const chips = Object.keys(state.monthlyHistory).sort((a,b)=>{
+    const [ay,am]=a.split('-').map(Number), [by,bm]=b.split('-').map(Number);
+    return (by*12+bm) - (ay*12+am);
+  }).map(k=>{
+    const [yr,m] = k.split('-');
+    const v = +state.monthlyHistory[k];
+    const color = v>=100 ? 'var(--green)' : v>=85 ? 'var(--orange)' : 'var(--red)';
+    return `<span style="display:inline-flex;align-items:center;gap:6px;padding:3px 4px 3px 10px;border-radius:99px;background:var(--bg-soft);border:1px solid var(--border);font-size:11.5px">`+
+      `<b>T${m}/${yr}</b>`+
+      `<span style="color:${color};font-weight:600" class="num">${fmt(v,2)}%</span>`+
+      `<button class="btn btn--ghost" title="Xoá" style="padding:0 6px;font-size:13px;line-height:1" onclick="removeMonthEntry('${k}')">×</button>`+
+    `</span>`;
+  }).join('');
+  const chipsHtml = chips ? `<div style="display:flex;flex-wrap:wrap;gap:6px">${chips}</div>` : `<p class="sub" style="margin:0;font-size:11.5px">Chưa có tháng nào trong lịch sử. Thêm bên dưới để so sánh.</p>`;
+  listEl.innerHTML = summary + chipsHtml;
+}
+
+function addMonthEntry(){
+  const m = +document.getElementById('mh-month').value;
+  const y = +document.getElementById('mh-year').value;
+  const p = parseFloat(document.getElementById('mh-pct').value);
+  const out = document.getElementById('mh-result');
+  if(!m || !y || !isFinite(p)){
+    if(out) out.innerHTML = '⚠️ Nhập đủ tháng, năm và % đạt.';
+    return;
+  }
+  if(y === state.year && m === state.month){
+    if(out) out.innerHTML = '⚠️ Đây là tháng hiện tại — % được tính tự động từ dữ liệu.';
+    return;
+  }
+  state.monthlyHistory = state.monthlyHistory || {};
+  state.monthlyHistory[y+'-'+m] = p;
+  save();
+  document.getElementById('mh-pct').value = '';
+  if(out) out.innerHTML = `✅ Đã lưu <b>T${m}/${y}</b>: <b class="num">${fmt(p,2)}%</b>`;
+  calc(false);
+}
+function removeMonthEntry(k){
+  if(state.monthlyHistory && state.monthlyHistory[k] != null){
+    delete state.monthlyHistory[k];
+    save(); calc(false);
+  }
+}
+
+// ---------- What-if Simulator ----------
+function setSim(kind){
+  if(!lastCalc) return;
+  const el = document.getElementById('sim-rate');
+  if(!el) return;
+  let v = 10;
+  if(kind==='current') v = lastCalc.ratePerDay;
+  if(kind==='needed')  v = isFinite(lastCalc.needed) ? lastCalc.needed : lastCalc.ratePerDay;
+  if(kind==='recent7') v = lastCalc.recent7Rate!=null ? lastCalc.recent7Rate : lastCalc.ratePerDay;
+  v = Math.max(0, Math.min(30, +v.toFixed(1)));
+  el.value = v;
+  renderSim();
+}
+function renderSim(){
+  if(!lastCalc) return;
+  const rateEl = document.getElementById('sim-rate');
+  if(!rateEl) return;
+  const v = +rateEl.value;
+  document.getElementById('sim-rate-v').textContent = v.toFixed(1);
+  const { done, target, workDaysLeft } = lastCalc;
+  const projected = done + v * workDaysLeft;
+  const pct = target>0 ? projected/target*100 : 0;
+  const gap = projected - target;
+  const color = pct>=100 ? 'var(--green)' : pct>=85 ? 'var(--orange)' : 'var(--red)';
+  const emoji = pct>=100 ? '🎯' : pct>=85 ? '⚠️' : '🚨';
+  const barPct = Math.min(pct, 130);
+  document.getElementById('sim-out').innerHTML = `
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+      <span>Dự báo cuối tháng</span>
+      <span style="color:${color};font-weight:600" class="num">${emoji} ${fmt(projected,0)} tab · ${fmt(pct,1)}%</span>
+    </div>
+    <div class="progress"><span style="width:${Math.min(barPct,100)}%;background:${color}"></span></div>
+    <div style="margin-top:6px;font-size:11.5px;color:var(--text-2)">
+      ${gap>=0
+        ? `<b style="color:var(--green)">Vượt mục tiêu ${fmt(gap,0)} tab</b> (${fmt(gap/target*100,1)}% dư)`
+        : `<b style="color:var(--red)">Thiếu ${fmt(-gap,0)} tab</b> so với ${target} tab`}
+      · ${workDaysLeft} ngày làm việc còn lại
+    </div>
+  `;
+}
+
+// ---------- Conclusion ----------
+function renderConclusion({ canReach, projected, target, needed, ratePerDay, recent7Rate, workDaysLeft, workedDays, done, remaining }){
+  const el = document.getElementById('conclusion');
+  const box = (cls, tagHtml, body)=> `<div class="conclusion ${cls}"><div>${tagHtml}</div>${body}</div>`;
+
+  if(workedDays === 0){
+    el.innerHTML = box('warn', `<span class="tag tag--orange">⏳ Chưa có dữ liệu</span>`,
+      `<p>Chưa có ngày làm việc nào được ghi nhận. Chọn <b>ngày hôm nay</b> đúng và nhập <b>tab đã hoàn thành</b> để bắt đầu.</p>`);
+    return;
+  }
+
+  const suggestions = [];
+  const trend = (recent7Rate!=null) ? recent7Rate : ratePerDay;
+
+  if(canReach){
+    if(projected >= target * 1.1){
+      suggestions.push(`🎯 Đang <b>vượt mục tiêu ${fmt(projected-target,0)} tab</b>. Cân nhắc mục tiêu tham vọng hơn tháng sau.`);
+    } else {
+      suggestions.push(`✅ Duy trì <b>${fmt(ratePerDay,1)} tab/ngày</b> là đủ đạt mục tiêu.`);
+    }
+    if(recent7Rate!=null && recent7Rate < ratePerDay*0.8){
+      suggestions.push(`⚠️ Tốc độ <b>7 ngày gần nhất</b> (${fmt(recent7Rate,1)}/ngày) đang chậm hơn TB. Cần chú ý.`);
+    }
+    el.innerHTML = box('good', `<span class="tag tag--green">🎯 Có thể đạt mục tiêu</span>`,
+      `<p>Với <b>${fmt(ratePerDay,1)} tab/ngày</b> qua ${workedDays} ngày, dự báo cuối tháng <b class="num">${fmt(projected,0)} tab</b> — vượt <b>${fmt(projected-target,0)} tab</b>.</p>`+
+      `<ul class="list">${suggestions.map(s=>`<li>${s}</li>`).join('')}</ul>`);
+  } else {
+    const gap = target - projected;
+    const severity = gap > target*0.2 ? 'bad' : 'warn';
+    const tag = severity==='bad' ? 'tag--red' : 'tag--orange';
+    const label = severity==='bad' ? '🚨 Rủi ro cao' : '⚠️ Cần tăng tốc';
+    suggestions.push(`📈 Cần <b>${fmt(needed,1)} tab/ngày</b> trong ${workDaysLeft} ngày còn lại (gấp <b>${fmt(needed/Math.max(ratePerDay,0.01),1)}x</b> tốc độ hiện tại).`);
+    if(recent7Rate!=null){
+      if(recent7Rate > ratePerDay){
+        suggestions.push(`📊 Tin tốt: 7 ngày gần <b>${fmt(recent7Rate,1)}/ngày</b> đang cải thiện. Giữ đà!`);
+      } else if(recent7Rate < ratePerDay*0.8){
+        suggestions.push(`📉 Cảnh báo: 7 ngày gần <b>${fmt(recent7Rate,1)}/ngày</b> giảm so với TB.`);
+      }
+    }
+    if(workDaysLeft <= 3){
+      suggestions.push(`⏰ Chỉ còn <b>${workDaysLeft} ngày</b>. Ưu tiên việc tác động lớn.`);
+    }
+    suggestions.push(`💡 Xem xét tăng ngày làm (bỏ nghỉ) hoặc điều chỉnh mục tiêu.`);
+    el.innerHTML = box(severity, `<span class="tag ${tag}">${label}</span>`,
+      `<p>Với tốc độ hiện tại, dự báo cuối tháng <b class="num">${fmt(projected,0)} tab</b> — <b>thiếu ${fmt(gap,0)} tab</b> so với ${target}.</p>`+
+      `<ul class="list">${suggestions.map(s=>`<li>${s}</li>`).join('')}</ul>`);
+  }
+}
+
+// ---------- Export ----------
+function exportReport(ev){
+  const el = document.getElementById('conclusion');
+  const summary = el.innerText.replace(/\s+\n/g,'\n');
+  const txt = `📊 BÁO CÁO KPI THÁNG ${state.month}/${state.year}\n`+
+              `Ngày hiện tại: ${state.today}/${state.month}\n`+
+              `Tab đã hoàn thành: ${fmt(state.done,0)} / ${state.target} tab — chỉ tiêu ${state.targetPct}% (đạt ${fmt(state.done/state.target*100,1)}%)\n\n`+
+              summary;
+  navigator.clipboard?.writeText(txt).then(()=>{
+    const btn = ev.target;
+    const old = btn.textContent;
+    btn.textContent = '✓ Đã copy';
+    setTimeout(()=>{ btn.textContent = old; }, 1500);
+  });
+}
+
+init();
+</script>
+</body>
+</html>
