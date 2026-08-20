@@ -315,6 +315,17 @@
         <div id="progress-section"></div>
       </div>
 
+      <div class="card">
+        <h2>🏢 Kế hoạch công ty</h2>
+        <p class="sub" style="margin:-4px 0 8px">Ghi chú dạng <b>ngày/tháng: tên công việc</b> — thêm hoặc xoá tự do.</p>
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
+          <input type="text" id="plan-date" class="field" style="flex:0 0 82px;text-align:center" placeholder="20/08" maxlength="5" onkeydown="if(event.key==='Enter')addPlanNote()">
+          <input type="text" id="plan-task" class="field" style="flex:1 1 auto" placeholder="Tên công việc" onkeydown="if(event.key==='Enter')addPlanNote()">
+          <button class="btn btn--primary" style="flex:0 0 auto" onclick="addPlanNote()">+ Thêm</button>
+        </div>
+        <div id="company-plan"></div>
+      </div>
+
     </div>
 
     <!-- CENTER COLUMN -->
@@ -379,17 +390,6 @@
       <div class="card">
         <h2>💰 Mốc thưởng theo tỷ lệ KPI</h2>
         <div id="bonus"></div>
-      </div>
-
-      <div class="card">
-        <h2>🏢 Kế hoạch công ty</h2>
-        <p class="sub" style="margin:-4px 0 8px">Ghi chú dạng <b>ngày/tháng: tên công việc</b> — thêm hoặc xoá tự do.</p>
-        <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
-          <input type="text" id="plan-date" class="field" style="flex:0 0 82px;text-align:center" placeholder="20/08" maxlength="5" onkeydown="if(event.key==='Enter')addPlanNote()">
-          <input type="text" id="plan-task" class="field" style="flex:1 1 auto" placeholder="Tên công việc" onkeydown="if(event.key==='Enter')addPlanNote()">
-          <button class="btn btn--primary" style="flex:0 0 auto" onclick="addPlanNote()">+ Thêm</button>
-        </div>
-        <div id="company-plan"></div>
       </div>
 
       <div class="card">
