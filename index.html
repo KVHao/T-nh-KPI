@@ -1234,6 +1234,7 @@ function setKpiField(field, value){
 function kpiPctClass(p){
   return p >= 100 ? 'pct-ok' : (p >= 60 ? 'pct-mid' : 'pct-low');
 }
+const KPI_GOAL_1 = 234; // muc tieu 100% cua chi so 1 trong bang KPI (co dinh)
 function renderKpiScore({ done, target }){
   const el = document.getElementById('kpi-score'); if(!el) return;
   const k = state.kpiScore || {};
@@ -1242,10 +1243,10 @@ function renderKpiScore({ done, target }){
     {
       name: 'Tỷ lệ hoàn thành ảnh thiết kế theo yêu cầu content',
       tag: 'Chuyên môn · Kết quả',
-      goal: fmt(target,0),
+      goal: fmt(KPI_GOAL_1,0),
       weight: 35,
       actual: '<span class="autoval">⚡ ' + fmt(done,0) + '</span>',
-      pct: target > 0 ? done/target*100 : 0
+      pct: KPI_GOAL_1 > 0 ? done/KPI_GOAL_1*100 : 0
     },
     {
       name: 'Tỷ lệ hoàn thành thiết kế đúng hạn',
