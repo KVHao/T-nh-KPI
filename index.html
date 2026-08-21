@@ -105,6 +105,11 @@
   .cal .d.future{background:var(--bg-soft);color:var(--text-2)}
   .cal .d .kpi{font-size:8.5px;font-weight:600;margin-top:1px;opacity:.85}
   .cal .d.today .kpi{opacity:1}
+  .cal .d .plan-dot{position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:#F5B324;box-shadow:0 0 5px 1px rgba(245,179,36,.85);animation:planGlow 1.8s ease-in-out infinite}
+  .cal .d.today .plan-dot{background:#FFD666;box-shadow:0 0 5px 1px rgba(255,214,102,.95)}
+  .cal .d.has-plan{border-color:rgba(245,179,36,.55)}
+  .cal .d .plan-dot.is-done{background:var(--text-2);box-shadow:none;animation:none;opacity:.5}
+  @keyframes planGlow{0%,100%{opacity:.65}50%{opacity:1}}
 
   .legend{display:flex;gap:8px;flex-wrap:wrap;font-size:10.5px;color:var(--text-2)}
   .legend .sw{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px;vertical-align:middle}
@@ -268,6 +273,7 @@
     </div>
     <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;align-items:center">
       <label class="switch"><input type="checkbox" id="auto-weekend" onchange="onAutoWeekendChange()"> Tự động đánh dấu Chủ Nhật là ngày nghỉ</label>
+      <label class="switch"><input type="checkbox" id="auto-today" onchange="onAutoTodayChange()"> Tự động nhảy ngày theo hôm nay</label>
       <label class="switch"><input type="checkbox" id="auto-save" checked disabled> Tự động lưu (localStorage)</label>
     </div>
   </div>
@@ -286,6 +292,7 @@
             <span><span class="sw" style="background:var(--blue)"></span>Hôm nay</span>
             <span><span class="sw" style="background:var(--green-soft);border:1px solid var(--green)"></span>Làm</span>
             <span><span class="sw" style="background:var(--red-soft);border:1px solid var(--red)"></span>Nghỉ</span>
+            <span><span class="sw" style="background:#F5B324;border-radius:50%;box-shadow:0 0 4px 1px rgba(245,179,36,.8)"></span>Có kế hoạch</span>
           </div>
         </div>
         <div class="cal" id="cal-head"></div>
@@ -445,6 +452,7 @@ let state = {
   targetPct: 150,
   target: 234,
   autoWeekend: true,
+  autoToday: true,
   offDays: [],
   manualOff: [11],
   weekendExceptions: [],
@@ -628,7 +636,13 @@ function init(){
   if(!state.nextTargetPct || state.nextTargetPct <= 0) state.nextTargetPct = 150;
   state.kpiScore = Object.assign({ onTime: 1, boxDone: 1, boxTarget: 6, learn: 1 }, state.kpiScore || {});
   const npIn = document.getElementById('next-pct'); if(npIn) npIn.value = state.nextTargetPct;
+  if(state.autoToday === undefined) state.autoToday = true;
+  syncToday(false);
+  applyAutoTodayUi();
   refreshOffDays(); renderCal(); populateReportDay(); populateMonthHistorySelect(); renderCompanyPlan();
+  setInterval(autoTodayTick, 60000);
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) autoTodayTick(); });
+  window.addEventListener('focus', autoTodayTick);
 }
 
 function onMonthChange(){
@@ -645,6 +659,50 @@ function onTodayChange(){
   state.today = +document.getElementById('today').value || 1;
   save(); renderCal(); populateReportDay();
 }
+function realToday(){
+  const d = new Date();
+  return { d: d.getDate(), m: d.getMonth()+1, y: d.getFullYear() };
+}
+
+function applyAutoTodayUi(){
+  const cb = document.getElementById('auto-today');
+  if(cb) cb.checked = !!state.autoToday;
+  const el = document.getElementById('today');
+  if(el){
+    el.disabled = !!state.autoToday;
+    el.title = state.autoToday
+      ? 'Đang tự động theo ngày thật — tắt công tắc để nhập tay'
+      : '';
+  }
+}
+
+// Tra ve true neu ngay vua doi
+function syncToday(notify){
+  if(!state.autoToday) return false;
+  const r = realToday();
+  if(r.m !== state.month || r.y !== state.year){
+    if(notify) showToast('📅 Đã sang tháng ' + r.m + '/' + r.y + ' — đổi Tháng/Năm ở trên nha');
+    return false;
+  }
+  if(state.today === r.d) return false;
+  state.today = r.d;
+  const el = document.getElementById('today');
+  if(el) el.value = r.d;
+  if(notify) showToast('📅 Đã chuyển sang ngày ' + r.d + '/' + state.month);
+  return true;
+}
+
+function autoTodayTick(){
+  if(syncToday(true)){ refreshOffDays(); renderCal(); calc(true); }
+}
+
+function onAutoTodayChange(){
+  state.autoToday = document.getElementById('auto-today').checked;
+  applyAutoTodayUi();
+  syncToday(true);
+  refreshOffDays(); renderCal(); calc(true);
+}
+
 function onAutoWeekendChange(){
   state.autoWeekend = document.getElementById('auto-weekend').checked;
   refreshOffDays(); save(); renderCal();
@@ -664,6 +722,15 @@ function renderCal(){
   document.getElementById('cal-head').innerHTML = DAYS_LABEL.map(d=>`<div class="h">${d}</div>`).join('');
   const offSet = new Set(state.offDays);
   const body = document.getElementById('cal-body');
+  // gom ghi chu ke hoach cong ty theo ngay (dd/mm cua thang dang xem)
+  const planByDay = {};
+  (state.companyPlan||[]).forEach(it => {
+    const m = (it.date||'').match(/^(\d{1,2})\/(\d{1,2})$/);
+    if(!m) return;
+    if(+m[2] !== state.month) return;
+    const dd = +m[1];
+    (planByDay[dd] = planByDay[dd] || []).push(it);
+  });
   let html='';
   for(let i=0;i<firstDay;i++) html += `<div class="d empty"></div>`;
   for(let d=1; d<=totalDaysInMonth; d++){
@@ -681,7 +748,15 @@ function renderCal(){
       const dayVal = +kpiVal - prevCum;
       kpiText = `<span class="kpi" title="Trong ngày: ${dayVal.toFixed(0)} tab · Luỹ kế: ${(+kpiVal).toFixed(0)} tab">${dayVal.toFixed(0)}</span>`;
     }
-    html += `<div class="${cls}" onclick="toggleOff(${d})" ondblclick="openDayModal(${d})" title="Click: nghỉ/làm · DblClick: nhập KPI">${d}${kpiText}</div>`;
+    const plans = planByDay[d] || [];
+    let planDot = '', planTip = '';
+    if(plans.length){
+      cls += ' has-plan';
+      const allDone = plans.every(x => x.done);
+      planDot = `<span class="plan-dot${allDone ? ' is-done' : ''}"></span>`;
+      planTip = '\n📌 Kế hoạch: ' + plans.map(x => (x.done ? '✓ ' : '') + x.task).join(' · ');
+    }
+    html += `<div class="${cls}" onclick="toggleOff(${d})" ondblclick="openDayModal(${d})" title="Click: nghỉ/làm · DblClick: nhập KPI${planTip}">${d}${kpiText}${planDot}</div>`;
   }
   body.innerHTML = html;
   calc(false);
@@ -892,15 +967,15 @@ function addPlanNote(){
   state.companyPlan = state.companyPlan || [];
   state.companyPlan.push({ id: Date.now()+'-'+Math.random().toString(36).slice(2,7), date, task, done:false });
   dEl.value = ''; tEl.value = '';
-  save(); renderCompanyPlan(); tEl.focus();
+  save(); renderCompanyPlan(); renderCal(); tEl.focus();
 }
 function removePlanNote(id){
   state.companyPlan = (state.companyPlan||[]).filter(x => x.id !== id);
-  save(); renderCompanyPlan();
+  save(); renderCompanyPlan(); renderCal();
 }
 function togglePlanNote(id){
   (state.companyPlan||[]).forEach(x => { if(x.id === id) x.done = !x.done; });
-  save(); renderCompanyPlan();
+  save(); renderCompanyPlan(); renderCal();
 }
 function editPlanNote(id, field, value){
   const item = (state.companyPlan||[]).find(x => x.id === id);
@@ -912,7 +987,7 @@ function editPlanNote(id, field, value){
     const t = (value||'').trim();
     if(t) item.task = t;
   }
-  save(); renderCompanyPlan();
+  save(); renderCompanyPlan(); renderCal();
 }
 function escPlan(s){
   return String(s == null ? '' : s)
@@ -1253,7 +1328,7 @@ function renderKpiScore({ done, target }){
       tag: 'Chuyên môn · Dẫn dắt',
       goal: '1',
       weight: 35,
-      actual: '<span class="fixedval">100%</span>',
+      actual: '<span class="fixedval">1</span>',
       pct: 100
     },
     {
@@ -1261,15 +1336,15 @@ function renderKpiScore({ done, target }){
       tag: 'Chuyên môn · Kết quả',
       goal: '6',
       weight: 20,
-      actual: '<input type="number" class="kpi-in" step="1" min="0" value="' + k.boxDone + '" data-field="boxDone">',
-      pct: k.boxDone/6*100
+      actual: '<input type="number" class="kpi-in" step="1" min="0" value="' + (k.boxDone||0) + '" data-field="boxDone">',
+      pct: (k.boxDone||0)/6*100
     },
     {
       name: 'Học tập & đào tạo',
       tag: 'Học tập · Dẫn dắt',
       goal: '1',
       weight: 5,
-      actual: '<span class="fixedval">100%</span>',
+      actual: '<span class="fixedval">1</span>',
       pct: 100
     },
     {
