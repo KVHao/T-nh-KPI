@@ -248,7 +248,7 @@
 
   <!-- Params row (compact horizontal) -->
   <div class="card tight">
-    <div class="row cols-5">
+    <div class="row cols-4">
       <div>
         <label>Tháng</label>
         <select id="month" class="field" onchange="onMonthChange()"></select>
@@ -263,15 +263,12 @@
       </div>
       <input type="hidden" id="done">
       <div>
-        <label>Tab chuẩn (= 100%)</label>
+        <label>Mục tiêu tab (= 100%)</label>
         <input type="number" id="base-tabs" class="field num" step="1" oninput="calc(true)">
       </div>
-      <div>
-        <label>Chỉ tiêu (%)</label>
-        <input type="number" id="target-pct" class="field num" step="5" min="10" oninput="calc(true)">
-      </div>
     </div>
-    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;align-items:center">
+        <p class="hint" id="base-hint" style="margin:8px 0 0"></p>
+<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;align-items:center">
       <label class="switch"><input type="checkbox" id="auto-weekend" onchange="onAutoWeekendChange()"> Tự động đánh dấu Chủ Nhật là ngày nghỉ</label>
       <label class="switch"><input type="checkbox" id="auto-today" onchange="onAutoTodayChange()"> Tự động nhảy ngày theo hôm nay</label>
       <label class="switch"><input type="checkbox" id="auto-save" checked disabled> Tự động lưu (localStorage)</label>
@@ -388,9 +385,9 @@
         <h2>Vòng tiến độ</h2>
         <div id="rings" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;padding:4px 0;max-width:260px;margin:0 auto"></div>
         <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:11.5px;color:var(--text-2);margin-top:2px">
-          <span>Chỉ tiêu kế tiếp</span>
+          <span>Mục tiêu tiếp theo</span>
           <input type="number" id="next-pct" class="field num" step="5" min="1" style="width:76px;padding:4px 6px;text-align:center;font-size:12px" onchange="setNextTargetPct(this.value)">
-          <span>%</span>
+          <span>% = <b id="next-tabs"></b></span>
         </div>
       </div>
 
@@ -629,7 +626,7 @@ function init(){
   document.getElementById('today').max = totalDaysInMonth;
   document.getElementById('done').value = state.done;
   document.getElementById('base-tabs').value = state.baseTabs;
-  document.getElementById('target-pct').value = state.targetPct;
+  state.targetPct = 100;
   document.getElementById('auto-weekend').checked = state.autoWeekend;
   state.companyPlan = state.companyPlan || [];
   if(!Array.isArray(state.bonusTiers) || !state.bonusTiers.length) state.bonusTiers = [{pct:100, amount:1400000},{pct:120, amount:2400000},{pct:130, amount:3400000},{pct:150, amount:4400000}];
@@ -708,10 +705,23 @@ function onAutoWeekendChange(){
   refreshOffDays(); save(); renderCal();
 }
 
+function renderBaseHint(){
+  const el = document.getElementById('base-hint');
+  if(!el) return;
+  const base = state.baseTabs || 0;
+  const pct = state.targetPct || 0;
+  const tgt = state.target || 0;
+  el.innerHTML = '🎯 Mục tiêu <b>100% = ' + fmt(base,0) + ' tab</b>'
+    + ' · 120% = <b>' + fmt(Math.round(base*1.2),0) + ' tab</b>'
+    + ' · 130% = <b>' + fmt(Math.round(base*1.3),0) + ' tab</b>'
+    + ' · 150% = <b>' + fmt(Math.round(base*1.5),0) + ' tab</b>';
+}
+
 function readTargetInputs(){
   state.baseTabs = +document.getElementById('base-tabs').value || 156;
-  state.targetPct = +document.getElementById('target-pct').value || 150;
-  state.target = Math.round(state.baseTabs * state.targetPct / 100);
+  state.targetPct = 100;            // so nhap tay chinh la muc tieu 100%
+  state.target = state.baseTabs;
+  renderBaseHint();
 }
 
 function renderCal(){
@@ -1098,7 +1108,7 @@ function calc(persist){
   document.getElementById('progress-section').innerHTML = `
     <div style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:2px">
-        <span class="muted">Đã hoàn thành: <strong style="color:var(--text)" class="num">${fmt(done,0)}</strong> / ${target} tab (chỉ tiêu ${state.targetPct}%)</span>
+        <span class="muted">Đã hoàn thành: <strong style="color:var(--text)" class="num">${fmt(done,0)}</strong> / ${target} tab (mục tiêu 100%)</span>
         <span class="muted">${fmt(pctOfTarget,1)}%</span>
       </div>
       <div class="progress">
@@ -1453,14 +1463,17 @@ function renderRings({ done, target, workedDays, workDaysLeft }){
   const basePct = state.baseTabs>0 ? done/state.baseTabs*100 : 0;
   const timePct = (workedDays+workDaysLeft)>0 ? workedDays/(workedDays+workDaysLeft)*100 : 0;
   const workColor = workPct >= timePct ? 'var(--green)' : (workPct >= timePct*0.75 ? 'var(--orange)' : 'var(--red)');
+  const t120 = Math.round(state.baseTabs * 1.2);
   const nextPct = state.nextTargetPct || 150;
   const nextTarget = Math.round(state.baseTabs * nextPct / 100);
   const nextRingPct = nextTarget > 0 ? done/nextTarget*100 : 0;
+  const ntEl = document.getElementById('next-tabs');
+  if(ntEl) ntEl.textContent = fmt(nextTarget,0) + ' tab';
   el.innerHTML =
-    ring(workPct, 'Chỉ tiêu ' + state.targetPct + '%', fmt(done,0)+'/'+target, workColor) +
-    ring(basePct, 'So với chuẩn 100%', fmt(done,0)+'/'+state.baseTabs, 'var(--blue)') +
+    ring(basePct, 'Mục tiêu 100%', fmt(done,0)+'/'+state.baseTabs, workColor) +
+    ring(t120 > 0 ? done/t120*100 : 0, 'Mốc 120%', fmt(done,0)+'/'+t120, 'var(--blue)') +
     ring(timePct, 'Thời gian đã qua', workedDays+'/'+(workedDays+workDaysLeft)+'d', 'var(--purple)') +
-    ring(nextRingPct, 'Chỉ tiêu kế tiếp ' + nextPct + '%', fmt(done,0)+'/'+nextTarget, 'var(--orange)');
+    ring(nextRingPct, 'Mục tiêu tiếp theo ' + nextPct + '%', fmt(done,0)+'/'+nextTarget, 'var(--orange)');
 }
 
 // ---------- Milestones ----------
@@ -1844,7 +1857,7 @@ function renderConclusion({ canReach, projected, target, needed, ratePerDay, rec
   };
   el.innerHTML += '<ul class="list" style="margin-top:10px">'
     + milestoneLines('🎯 Chỉ tiêu <b>120%</b>', 120)
-    + milestoneLines('🚀 Chỉ tiêu kế tiếp <b>' + nextP + '%</b>', nextP)
+    + milestoneLines('🚀 Mục tiêu tiếp theo <b>' + nextP + '%</b>', nextP)
     + '</ul>';
 
 }
