@@ -33,8 +33,8 @@
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',system-ui,sans-serif;font-size:13.5px;line-height:1.5}
   .app{max-width:1360px;margin:0 auto;padding:20px}
-  .card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;min-height:0}
-  .card--soft{background:var(--bg-soft);border-color:transparent}
+  .card{background:var(--bg);border:1px solid color-mix(in srgb,var(--blue) 42%,var(--border));border-radius:var(--radius);padding:16px;margin-bottom:14px;min-height:0}
+  .card--soft{background:var(--bg-soft);border-color:color-mix(in srgb,var(--blue) 42%,var(--border))}
   .card.tight{padding:12px}
 
   /* quick daily report - primary interaction area */
@@ -257,7 +257,7 @@
   .legend{display:flex;gap:8px;flex-wrap:wrap;font-size:10.5px;color:var(--text-2)}
   .legend .sw{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px;vertical-align:middle}
   .insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
-  .insight-card{background:var(--bg-soft);border:1px solid var(--border);border-radius:var(--radius);padding:14px;min-height:88px}
+  .insight-card{background:var(--bg-soft);border:1px solid color-mix(in srgb,var(--blue) 36%,var(--border));border-radius:var(--radius);padding:14px;min-height:88px}
   .insight-card .label{font-size:10.5px;color:var(--text-2);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
   .insight-card .value{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:2px}
   .insight-card .note{font-size:11.5px;color:var(--text-2)}
@@ -463,6 +463,20 @@
         <p class="sub" style="margin:10px 0 0;font-size:11px">💡 <b>Click</b>: đổi nghỉ/làm · <b>Double-click</b> ngày đã qua: nhập tab luỹ kế · Số dưới mỗi ngày = <b>tab làm trong ngày đó</b></p>
       </div>
 
+      <div class="card company-plan-card">
+        <div class="company-plan-head">
+          <h2>🏢 Kế hoạch công ty</h2>
+          <span class="company-plan-badge">● KẾ HOẠCH</span>
+        </div>
+        <p class="sub" style="margin:2px 0 9px">Ghi chú dạng <b>ngày/tháng: tên công việc</b> — thêm hoặc xoá tự do.</p>
+        <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
+          <input type="text" id="plan-date" class="field" style="flex:0 0 82px;text-align:center" placeholder="20/08" maxlength="5" onkeydown="if(event.key===&#39;Enter&#39;)addPlanNote()">
+          <input type="text" id="plan-task" class="field" style="flex:1 1 auto" placeholder="Tên công việc" onkeydown="if(event.key===&#39;Enter&#39;)addPlanNote()">
+          <button class="btn company-plan-add" style="flex:0 0 auto" onclick="addPlanNote()">+ THÊM</button>
+        </div>
+        <div id="company-plan"><p class="hint" style="margin:2px 0 0">Chưa có ghi chú nào — nhập ngày và tên công việc ở trên rồi bấm + Thêm.</p></div>
+      </div>
+
       <div class="card quick-report-card">
         <div class="quick-report-head">
           <h2>⚡ Báo cáo nhanh theo ngày</h2>
@@ -529,19 +543,7 @@
         </div>
       </div>
 
-      <div class="card company-plan-card">
-        <div class="company-plan-head">
-          <h2>🏢 Kế hoạch công ty</h2>
-          <span class="company-plan-badge">● KẾ HOẠCH</span>
-        </div>
-        <p class="sub" style="margin:2px 0 9px">Ghi chú dạng <b>ngày/tháng: tên công việc</b> — thêm hoặc xoá tự do.</p>
-        <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
-          <input type="text" id="plan-date" class="field" style="flex:0 0 82px;text-align:center" placeholder="20/08" maxlength="5" onkeydown="if(event.key===&#39;Enter&#39;)addPlanNote()">
-          <input type="text" id="plan-task" class="field" style="flex:1 1 auto" placeholder="Tên công việc" onkeydown="if(event.key===&#39;Enter&#39;)addPlanNote()">
-          <button class="btn company-plan-add" style="flex:0 0 auto" onclick="addPlanNote()">+ THÊM</button>
-        </div>
-        <div id="company-plan"><p class="hint" style="margin:2px 0 0">Chưa có ghi chú nào — nhập ngày và tên công việc ở trên rồi bấm + Thêm.</p></div>
-      </div>
+
 
     </div>
 
