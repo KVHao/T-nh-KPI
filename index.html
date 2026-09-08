@@ -325,13 +325,21 @@
   table.kpi input.kpi-in:focus{border-color:var(--blue)}
   table.kpi .autoval{display:inline-block;padding:3px 8px;border-radius:20px;background:var(--green-soft);color:var(--green);font-weight:600;font-variant-numeric:tabular-nums}
   table.kpi .fixedval{color:var(--text-2)}
-  table.kpi tr.ktotal td{font-weight:700;background:var(--bg-soft);border-bottom:none}
+  table.kpi tr.ktotal td{font-weight:800;background:var(--blue-soft);border-top:1px solid rgba(94,159,232,.55);border-bottom:1px solid rgba(94,159,232,.55);color:var(--text)}
+  table.kpi tr.ktotal td:first-child{border-left:3px solid var(--blue);border-radius:7px 0 0 7px}
+  table.kpi tr.ktotal td:last-child{border-right:1px solid rgba(94,159,232,.55);border-radius:0 7px 7px 0}
+  table.kpi tr.ktotal .pct-ok,table.kpi tr.ktotal .pct-mid,table.kpi tr.ktotal .pct-low{font-size:15px!important}
   table.kpi .pct-ok{color:var(--green);font-weight:600}
   table.kpi .pct-mid{color:var(--orange);font-weight:600}
   table.kpi .pct-low{color:var(--red);font-weight:600}
   table.kpi .conv{color:var(--blue);font-weight:600}
   li.bonus-row.next .dot{background:var(--blue)}
   li.bonus-row.next .pct{color:var(--blue)}
+  .bonus-forecast{margin:10px 0 0;padding:9px 10px;border-radius:var(--radius-md);background:var(--green-soft);border:1px solid rgba(114,188,143,.42);font-size:12px;line-height:1.5;color:var(--text)}
+  .bonus-forecast .bf-title{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+  .bonus-forecast .bf-main{font-size:13px;font-weight:600}
+  .bonus-forecast .bf-main b{color:var(--green);font-size:14px}
+  .bonus-forecast .bf-note{font-size:10.5px;color:var(--text-2);margin-top:2px}
 
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
   .modal.open{display:flex}
@@ -369,7 +377,10 @@
   table.wk tr.wk-current td{background:var(--blue-soft);border-top:1px solid rgba(94,159,232,.45);border-bottom:1px solid rgba(94,159,232,.45);font-weight:700;color:var(--text)}
   table.wk tr.wk-current td:first-child{border-left:3px solid var(--blue);border-radius:7px 0 0 7px}
   table.wk tr.wk-current td:last-child{border-right:1px solid rgba(94,159,232,.45);border-radius:0 7px 7px 0}
-  table.wk tr.total td{font-weight:700;background:var(--bg-soft);color:var(--text);opacity:1;border-bottom:none}
+  table.wk tr.total td{font-weight:800;background:var(--blue-soft);color:var(--text);opacity:1;border-top:1px solid rgba(94,159,232,.55);border-bottom:1px solid rgba(94,159,232,.55)}
+  table.wk tr.total td:first-child{border-left:3px solid var(--blue);border-radius:7px 0 0 7px}
+  table.wk tr.total td:last-child{border-right:1px solid rgba(94,159,232,.55);border-radius:0 7px 7px 0}
+  table.wk tr.total td.num{color:var(--blue)}
   .wk-now{display:inline-flex;align-items:center;gap:4px;margin-left:5px;padding:2px 6px;border-radius:99px;background:var(--blue);color:#fff;font-size:8.5px;font-weight:800;letter-spacing:.035em;vertical-align:1px;white-space:nowrap}
   .wk-best{color:var(--green);font-weight:700}
   .wk-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;padding:7px 9px;border-radius:7px;background:var(--blue-soft);border:1px solid rgba(94,159,232,.28);font-size:11px}
@@ -612,7 +623,7 @@
 
       <div class="card">
         <h2>Vòng tiến độ</h2>
-        <div id="rings" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;padding:4px 0;max-width:260px;margin:0 auto"><div style="text-align:center">
+        <div id="rings" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;padding:4px 0;max-width:100%;margin:0 auto"><div style="text-align:center">
       <svg width="100" height="100" viewBox="0 0 120 120">
         <circle cx="60" cy="60" r="38" fill="none" stroke="var(--bg-raised)" stroke-width="11"></circle>
         <circle cx="60" cy="60" r="38" fill="none" stroke="var(--green)" stroke-width="11" stroke-linecap="round" stroke-dasharray="56.11904825643305 238.76104167282426" transform="rotate(-90 60 60)"></circle>
@@ -629,13 +640,6 @@
       </svg>
       <div style="font-size:11px;color:var(--text-2);margin-top:-2px">Mốc 120%</div>
     </div><div style="text-align:center">
-      <svg width="100" height="100" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--bg-raised)" stroke-width="11"></circle>
-        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--purple)" stroke-width="11" stroke-linecap="round" stroke-dasharray="49.741883681838395 238.76104167282426" transform="rotate(-90 60 60)"></circle>
-        <text x="60" y="62" text-anchor="middle" style="font-size:19px;font-weight:700" fill="var(--text)" class="num">21%</text>
-        <text x="60" y="78" text-anchor="middle" style="font-size:9.5px" fill="var(--text-2)">5/24d</text>
-      </svg>
-      <div style="font-size:11px;color:var(--text-2);margin-top:-2px">Thời gian đã qua</div>
     </div><div style="text-align:center">
       <svg width="100" height="100" viewBox="0 0 120 120">
         <circle cx="60" cy="60" r="38" fill="none" stroke="var(--bg-raised)" stroke-width="11"></circle>
@@ -654,7 +658,7 @@
 
       <div class="card">
         <h2>💰 Mốc thưởng theo tỷ lệ KPI</h2>
-        <div id="bonus"><div class="bonus-now none"><div><div class="lbl">Đang ứng với 23.5%</div><div class="amt" style="color:var(--text-2)">Chưa tới mốc</div></div><div style="text-align:right"><div class="lbl">Mốc kế tiếp 100%</div><div class="nx">còn <b class="num">179</b> tab</div><div class="nx"><b>1.400.000 đ</b></div></div></div><ul class="bonus-list"><li class="bonus-row next"><span class="dot"></span><span class="pct">≥ 100%</span><span class="gap">còn 179 tab</span><span class="money" contenteditable="true" spellcheck="false" data-pct="100">1.400.000 đ</span></li><li class="bonus-row"><span class="dot"></span><span class="pct">≥ 120%</span><span class="gap">còn 226 tab</span><span class="money" contenteditable="true" spellcheck="false" data-pct="120">2.400.000 đ</span></li><li class="bonus-row"><span class="dot"></span><span class="pct">≥ 130%</span><span class="gap">còn 250 tab</span><span class="money" contenteditable="true" spellcheck="false" data-pct="130">3.400.000 đ</span></li><li class="bonus-row"><span class="dot"></span><span class="pct">≥ 150%</span><span class="gap">còn 296 tab</span><span class="money" contenteditable="true" spellcheck="false" data-pct="150">4.400.000 đ</span></li></ul><p class="hint" style="margin:8px 0 0">Dự báo cuối tháng <b>112.8%</b> → <b>1.400.000 đ</b> · bấm vào số tiền để sửa</p></div>
+        <div id="bonus"><div class="bonus-now none"><div><div class="lbl">Đang ứng với 23.5%</div><div class="amt" style="color:var(--text-2)">Chưa tới mốc</div></div><div style="text-align:right"><div class="lbl">Mốc kế tiếp 100%</div><div class="nx">còn <b class="num">179</b> tab</div><div class="nx"><b>1.400.000 đ</b></div></div></div><ul class="bonus-list"><li class="bonus-row next"><span class="dot"></span><span class="pct">≥ 100%</span><span class="gap">còn 179 tab</span><span class="money" contenteditable="true" spellcheck="false" data-pct="100">1.400.000 đ</span></li><li class="bonus-row"><span class="dot"></span><span class="pct">≥ 120%</span><span class="gap">còn 226 tab</span><span class="money" contenteditable="true" spellcheck="false" data-pct="120">2.400.000 đ</span></li><li class="bonus-row"><span class="dot"></span><span class="pct">≥ 130%</span><span class="gap">còn 250 tab</span><span class="money" contenteditable="true" spellcheck="false" data-pct="130">3.400.000 đ</span></li><li class="bonus-row"><span class="dot"></span><span class="pct">≥ 150%</span><span class="gap">còn 296 tab</span><span class="money" contenteditable="true" spellcheck="false" data-pct="150">4.400.000 đ</span></li></ul><div class="bonus-forecast"><div class="bf-title">🔮 Dự báo cuối tháng</div><div class="bf-main"><b>112.8%</b> → <b>1.400.000 đ</b></div><div class="bf-note">Bấm trực tiếp vào số tiền ở các mốc phía trên để sửa.</div></div></div>
       </div>
 
       <div class="card">
@@ -1809,8 +1813,12 @@ function renderBonus({ done, projected }){
       + '</li>';
   }).join('');
 
-  const projLine = '<p class="hint" style="margin:8px 0 0">Dự báo cuối tháng <b>' + fmt(pctProj,1) + '%</b> → '
-    + (proj ? '<b>' + fmtMoney(proj.amount) + '</b>' : 'chưa tới mốc') + ' · bấm vào số tiền để sửa</p>';
+  const projLine = '<div class="bonus-forecast">'
+    + '<div class="bf-title">🔮 Dự báo cuối tháng</div>'
+    + '<div class="bf-main"><b>' + fmt(pctProj,1) + '%</b> → '
+    + (proj ? '<b>' + fmtMoney(proj.amount) + '</b>' : '<span>chưa tới mốc thưởng</span>') + '</div>'
+    + '<div class="bf-note">Bấm trực tiếp vào số tiền ở các mốc phía trên để sửa.</div>'
+    + '</div>';
 
   el.innerHTML = head + '<ul class="bonus-list">' + rows + '</ul>' + projLine;
 
@@ -1849,7 +1857,6 @@ function renderRings({ done, target, workedDays, workDaysLeft }){
   el.innerHTML =
     ring(basePct, 'Mục tiêu 100%', fmt(done,0)+'/'+state.baseTabs, workColor) +
     ring(t120 > 0 ? done/t120*100 : 0, 'Mốc 120%', fmt(done,0)+'/'+t120, 'var(--blue)') +
-    ring(timePct, 'Thời gian đã qua', workedDays+'/'+(workedDays+workDaysLeft)+'d', 'var(--purple)') +
     ring(nextRingPct, 'Mục tiêu tiếp theo ' + nextPct + '%', fmt(done,0)+'/'+nextTarget, 'var(--orange)');
 }
 
