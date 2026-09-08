@@ -94,6 +94,42 @@
   .progress > span{display:block;height:100%;border-radius:99px;transition:width .3s ease}
   .progress .marker{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--text-2);opacity:.55;border-radius:2px}
 
+  /* clearer progress overview */
+  .progress-overview{display:flex;flex-direction:column;gap:12px}
+  .progress-box{border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;background:var(--bg-soft)}
+  .progress-box.forecast{background:var(--green-soft);border-color:transparent}
+  .progress-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+  .progress-title{font-size:11px;color:var(--text-2);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .progress-big{font-size:24px;line-height:1.15;font-weight:700;letter-spacing:-.025em;margin-top:2px}
+  .progress-detail{font-size:11.5px;color:var(--text-2);margin-top:2px}
+  .progress-status{flex:0 0 auto;font-size:11px;font-weight:600;padding:4px 8px;border-radius:99px;white-space:nowrap}
+  .progress-status.ahead{background:var(--green-soft);color:var(--green)}
+  .progress-status.behind{background:var(--orange-soft);color:var(--orange)}
+  .progress-status.even{background:var(--blue-soft);color:var(--blue)}
+  .progress-compare{display:grid;grid-template-columns:1fr;gap:7px}
+  .progress-line-row{display:grid;grid-template-columns:104px minmax(0,1fr) 48px;align-items:center;gap:8px;font-size:11.5px}
+  .progress-line-row .name{color:var(--text-2)}
+  .progress-line-row .val{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+  .progress-track{height:9px;background:var(--bg-raised);border-radius:99px;overflow:hidden}
+  .progress-track>span{display:block;height:100%;border-radius:99px;transition:width .3s ease}
+  .forecast-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+  .forecast-badge{font-size:10.5px;font-weight:600;padding:3px 7px;border-radius:99px;background:rgba(70,161,113,.12);color:var(--green);white-space:nowrap}
+  .forecast-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .forecast-stat{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 10px;min-width:0}
+  .forecast-stat .flabel{font-size:10.5px;color:var(--text-2);margin-bottom:2px}
+  .forecast-stat .fvalue{font-size:20px;font-weight:700;line-height:1.15;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .forecast-note{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;font-size:11.5px;color:var(--text-2)}
+  .forecast-note .pace{min-width:0}
+  .forecast-note .gap{text-align:right;white-space:nowrap}
+  .forecast-note .gap b{font-size:12.5px;color:var(--text)}
+  @media(max-width:420px){
+    .progress-top{display:grid;grid-template-columns:1fr}
+    .progress-status{justify-self:start}
+    .progress-line-row{grid-template-columns:92px minmax(0,1fr) 44px}
+    .forecast-note{align-items:flex-start;flex-direction:column;gap:3px}
+    .forecast-note .gap{text-align:left}
+  }
+
   .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
   .cal .h{font-size:10.5px;color:var(--text-2);text-align:center;padding:2px 0;font-weight:600;letter-spacing:.02em}
   .cal .d{aspect-ratio:1/1;font-size:11.5px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:5px;cursor:pointer;user-select:none;border:1px solid transparent;background:var(--bg-soft);position:relative;transition:transform .1s}
@@ -332,25 +368,40 @@
       <div class="card">
         <h2>Tiến độ so với mục tiêu</h2>
         <div id="progress-section">
-    <div style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:2px">
-        <span class="muted">Đã hoàn thành: <strong style="color:var(--text)" class="num">55</strong> / 234 tab (mục tiêu 100%)</span>
-        <span class="muted">23.5%</span>
-      </div>
-      <div class="progress">
-        <span style="width:23.504273504273502%;background:var(--blue)"></span>
-        <span class="marker" style="left:20.833333333333336%" title="Vạch chuẩn theo thời gian"></span>
-      </div>
-      <div class="sub" style="margin:0;font-size:11.5px">Vạch xám: mốc tuyến tính (20.8%)</div>
-    </div>
-    <div>
-      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:2px">
-        <span class="muted">Dự báo cuối tháng: <strong style="color:var(--text)" class="num">264</strong> tab</span>
-        <span class="muted">100.0%</span>
-      </div>
-      <div class="progress"><span style="width:100%;background:var(--green)"></span></div>
-    </div>
-  </div>
+          <div class="progress-overview">
+            <div class="progress-box">
+              <div class="progress-top">
+                <div><div class="progress-title">Tiến độ hiện tại</div><div class="progress-big num" style="color:var(--blue)">23.5%</div><div class="progress-detail"><b class="num" style="color:var(--text)">55</b> / 234 tab</div></div>
+                <span class="progress-status ahead">▲ Nhanh hơn 2.7 điểm %</span>
+              </div>
+              <div class="progress-compare">
+                <div class="progress-line-row"><span class="name">KPI đã đạt</span><div class="progress-track"><span style="width:23.5%;background:var(--blue)"></span></div><span class="val" style="color:var(--blue)">23.5%</span></div>
+                <div class="progress-line-row"><span class="name">Thời gian đã qua</span><div class="progress-track"><span style="width:20.8%;background:var(--text-2);opacity:.55"></span></div><span class="val">20.8%</span></div>
+              </div>
+            </div>
+            <div class="progress-box forecast">
+              <div class="forecast-head">
+                <div class="progress-title">Dự báo cuối tháng</div>
+                <span class="forecast-badge">Theo tốc độ hiện tại</span>
+              </div>
+              <div class="forecast-stats">
+                <div class="forecast-stat">
+                  <div class="flabel">Tab dự kiến</div>
+                  <div class="fvalue num" style="color:var(--green)">264 tab</div>
+                </div>
+                <div class="forecast-stat">
+                  <div class="flabel">KPI dự kiến</div>
+                  <div class="fvalue num" style="color:var(--green)">112.8%</div>
+                </div>
+              </div>
+              <div class="forecast-note">
+                <span class="pace">Theo tốc độ trung bình hiện tại</span>
+                <span class="gap">So với 100%: <b>+30 tab · +12.8đ</b></span>
+              </div>
+              <div class="progress-track" style="margin-top:9px;background:var(--bg-raised)"><span style="width:100%;background:var(--green)"></span></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="card">
@@ -1186,28 +1237,71 @@ function calc(persist){
     </div>
   `;
 
-  // Progress bars
-  const pctOfTarget = Math.min((done / target) * 100, 100);
+  // Progress overview — compare KPI completion with elapsed working-time clearly
+  const pctOfTargetRaw = target > 0 ? (done / target) * 100 : 0;
+  const pctOfTargetBar = Math.min(Math.max(pctOfTargetRaw, 0), 100);
   const projPct = target > 0 ? (projected / target) * 100 : 0;
-  const idealPct = ((workedDays) / (workedDays + workDaysLeft)) * 100;
+  const projPctBar = Math.min(Math.max(projPct, 0), 100);
+  const totalWorkDays = workedDays + workDaysLeft;
+  const idealPct = totalWorkDays > 0 ? (workedDays / totalWorkDays) * 100 : 0;
+  const paceGap = pctOfTargetRaw - idealPct;
+  const paceAbs = Math.abs(paceGap);
+  const paceCls = paceGap > 1 ? 'ahead' : (paceGap < -1 ? 'behind' : 'even');
+  const paceText = paceGap > 1
+    ? `▲ Nhanh hơn ${fmt(paceAbs,1)} điểm %`
+    : (paceGap < -1 ? `▼ Chậm hơn ${fmt(paceAbs,1)} điểm %` : '● Đúng nhịp tiến độ');
+  const forecastGapTabs = projected - target;
+  const forecastGapPct = projPct - 100;
+  const forecastNote = forecastGapTabs >= 0
+    ? `Vượt <b>${fmt(forecastGapTabs,0)} tab</b> · +${fmt(forecastGapPct,1)} điểm %`
+    : `Thiếu <b>${fmt(-forecastGapTabs,0)} tab</b> · ${fmt(forecastGapPct,1)} điểm %`;
+
   document.getElementById('progress-section').innerHTML = `
-    <div style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:2px">
-        <span class="muted">Đã hoàn thành: <strong style="color:var(--text)" class="num">${fmt(done,0)}</strong> / ${target} tab (mục tiêu 100%)</span>
-        <span class="muted">${fmt(pctOfTarget,1)}%</span>
+    <div class="progress-overview">
+      <div class="progress-box">
+        <div class="progress-top">
+          <div>
+            <div class="progress-title">Tiến độ hiện tại</div>
+            <div class="progress-big num" style="color:var(--blue)">${fmt(pctOfTargetRaw,1)}%</div>
+            <div class="progress-detail"><b class="num" style="color:var(--text)">${fmt(done,0)}</b> / ${fmt(target,0)} tab</div>
+          </div>
+          <span class="progress-status ${paceCls}">${paceText}</span>
+        </div>
+        <div class="progress-compare">
+          <div class="progress-line-row">
+            <span class="name">KPI đã đạt</span>
+            <div class="progress-track"><span style="width:${pctOfTargetBar}%;background:var(--blue)"></span></div>
+            <span class="val" style="color:var(--blue)">${fmt(pctOfTargetRaw,1)}%</span>
+          </div>
+          <div class="progress-line-row">
+            <span class="name">Thời gian đã qua</span>
+            <div class="progress-track"><span style="width:${Math.min(idealPct,100)}%;background:var(--text-2);opacity:.55"></span></div>
+            <span class="val">${fmt(idealPct,1)}%</span>
+          </div>
+        </div>
       </div>
-      <div class="progress">
-        <span style="width:${pctOfTarget}%;background:var(--blue)"></span>
-        <span class="marker" style="left:${idealPct}%" title="Vạch chuẩn theo thời gian"></span>
+
+      <div class="progress-box forecast">
+        <div class="forecast-head">
+          <div class="progress-title">Dự báo cuối tháng</div>
+          <span class="forecast-badge">Theo tốc độ hiện tại</span>
+        </div>
+        <div class="forecast-stats">
+          <div class="forecast-stat">
+            <div class="flabel">Tab dự kiến</div>
+            <div class="fvalue num" style="color:${canReach?'var(--green)':'var(--red)'}">${fmt(projected,0)} tab</div>
+          </div>
+          <div class="forecast-stat">
+            <div class="flabel">KPI dự kiến</div>
+            <div class="fvalue num" style="color:${canReach?'var(--green)':'var(--red)'}">${fmt(projPct,1)}%</div>
+          </div>
+        </div>
+        <div class="forecast-note">
+          <span class="pace">Theo tốc độ trung bình hiện tại</span>
+          <span class="gap">So với 100%: <b>${forecastGapTabs >= 0 ? '+' : '-'}${fmt(Math.abs(forecastGapTabs),0)} tab · ${forecastGapPct >= 0 ? '+' : ''}${fmt(forecastGapPct,1)}đ</b></span>
+        </div>
+        <div class="progress-track" style="margin-top:9px;background:var(--bg-raised)"><span style="width:${projPctBar}%;background:${canReach?'var(--green)':'var(--red)'}"></span></div>
       </div>
-      <div class="sub" style="margin:0;font-size:11.5px">Vạch xám: mốc tuyến tính (${fmt(idealPct,1)}%)</div>
-    </div>
-    <div>
-      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:2px">
-        <span class="muted">Dự báo cuối tháng: <strong style="color:var(--text)" class="num">${fmt(projected,0)}</strong> tab</span>
-        <span class="muted">${fmt(projPct,1)}%</span>
-      </div>
-      <div class="progress"><span style="width:${projPct}%;background:${canReach?'var(--green)':'var(--red)'}"></span></div>
     </div>
   `;
 
