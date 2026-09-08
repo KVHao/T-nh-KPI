@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0033)https://kvhao.github.io/Tinh-KPI/ -->
+<!-- saved from url=(0033)https://kvhao.github.io/T-nh-KPI/ -->
 <html lang="vi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -114,20 +114,33 @@
   .progress-track>span{display:block;height:100%;border-radius:99px;transition:width .3s ease}
   .forecast-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
   .forecast-badge{font-size:10.5px;font-weight:600;padding:3px 7px;border-radius:99px;background:rgba(70,161,113,.12);color:var(--green);white-space:nowrap}
-  .forecast-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .forecast-stat{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 10px;min-width:0}
-  .forecast-stat .flabel{font-size:10.5px;color:var(--text-2);margin-bottom:2px}
-  .forecast-stat .fvalue{font-size:20px;font-weight:700;line-height:1.15;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
-  .forecast-note{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;font-size:11.5px;color:var(--text-2)}
-  .forecast-note .pace{min-width:0}
-  .forecast-note .gap{text-align:right;white-space:nowrap}
-  .forecast-note .gap b{font-size:12.5px;color:var(--text)}
+  .forecast-main{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 11px}
+  .forecast-primary{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+  .forecast-number .value{font-size:25px;font-weight:750;line-height:1.05;letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+  .forecast-number .label{font-size:10.5px;color:var(--text-2);margin-top:4px}
+  .forecast-kpi{text-align:right}
+  .forecast-kpi .value{font-size:21px;font-weight:750;line-height:1.05;font-variant-numeric:tabular-nums}
+  .forecast-kpi .label{font-size:10.5px;color:var(--text-2);margin-top:4px}
+  .forecast-compare-card{margin-top:8px;padding:9px 10px;border-radius:8px;background:rgba(70,161,113,.09);border:1px solid rgba(70,161,113,.18)}
+  .forecast-compare-card.bad{background:rgba(229,100,88,.08);border-color:rgba(229,100,88,.18)}
+  .forecast-compare-label{font-size:10.5px;color:var(--text-2);margin-bottom:2px}
+  .forecast-compare-value{font-size:13px;font-weight:650;color:var(--text)}
+  .forecast-milestone{margin-top:8px;font-size:11.5px;line-height:1.45;color:var(--text-2)}
+  .forecast-milestone b{color:var(--text)}
+  .forecast-scale{position:relative;margin-top:10px;padding-top:16px}
+  .forecast-scale .track{height:8px;background:var(--bg-raised);border-radius:99px;overflow:hidden}
+  .forecast-scale .fill{display:block;height:100%;border-radius:99px}
+  .forecast-scale .ticks{position:absolute;inset:0 0 auto 0;height:16px;font-size:9px;color:var(--text-2)}
+  .forecast-scale .tick{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+  .forecast-scale .tick:first-child{transform:none}
+  .forecast-scale .tick:last-child{transform:translateX(-100%)}
+  .forecast-scale .marker{position:absolute;top:13px;width:2px;height:14px;background:var(--text);border-radius:2px;transform:translateX(-50%)}
   @media(max-width:420px){
     .progress-top{display:grid;grid-template-columns:1fr}
     .progress-status{justify-self:start}
     .progress-line-row{grid-template-columns:92px minmax(0,1fr) 44px}
-    .forecast-note{align-items:flex-start;flex-direction:column;gap:3px}
-    .forecast-note .gap{text-align:left}
+    .forecast-primary{align-items:flex-start;flex-direction:column}
+    .forecast-kpi{text-align:left}
   }
 
   .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
@@ -380,7 +393,7 @@
             <div class="progress-box">
               <div class="progress-top">
                 <div><div class="progress-title">Tiến độ hiện tại</div><div class="progress-big num" style="color:var(--blue)">23.5%</div><div class="progress-detail"><b class="num" style="color:var(--text)">55</b> / 234 tab</div></div>
-                <span class="progress-status ahead">▲ Nhanh hơn 2.7 điểm %</span>
+                <span class="progress-status ahead">▲ Nhanh hơn tiến độ 2.7%</span>
               </div>
               <div class="progress-compare">
                 <div class="progress-line-row"><span class="name">KPI đã đạt</span><div class="progress-track"><span style="width:23.5%;background:var(--blue)"></span></div><span class="val" style="color:var(--blue)">23.5%</span></div>
@@ -392,21 +405,28 @@
                 <div class="progress-title">Dự báo cuối tháng</div>
                 <span class="forecast-badge">Theo tốc độ hiện tại</span>
               </div>
-              <div class="forecast-stats">
-                <div class="forecast-stat">
-                  <div class="flabel">Tab dự kiến</div>
-                  <div class="fvalue num" style="color:var(--green)">264 tab</div>
+              <div class="forecast-main">
+                <div class="forecast-primary">
+                  <div class="forecast-number">
+                    <div class="value num" style="color:var(--green)">264 tab</div>
+                    <div class="label">Dự kiến hoàn thành cuối tháng</div>
+                  </div>
+                  <div class="forecast-kpi">
+                    <div class="value num" style="color:var(--green)">112.8% KPI</div>
+                    <div class="label">Mức hoàn thành dự kiến</div>
+                  </div>
                 </div>
-                <div class="forecast-stat">
-                  <div class="flabel">KPI dự kiến</div>
-                  <div class="fvalue num" style="color:var(--green)">112.8%</div>
+                <div class="forecast-compare-card">
+                  <div class="forecast-compare-label">So với mục tiêu 100% (234 tab)</div>
+                  <div class="forecast-compare-value">🟢 Vượt <b>30 tab</b></div>
+                </div>
+                <div class="forecast-milestone">🎯 Dự báo đã vượt mốc <b>100%</b> · đang hướng tới <b>120%</b>.</div>
+                <div class="forecast-scale">
+                  <div class="ticks"><span class="tick" style="left:0%">100%</span><span class="tick" style="left:40%">120%</span><span class="tick" style="left:60%">130%</span><span class="tick" style="left:100%">150%</span></div>
+                  <div class="track"><span class="fill" style="width:25.6%;background:var(--green)"></span></div>
+                  <span class="marker" style="left:25.6%"></span>
                 </div>
               </div>
-              <div class="forecast-note">
-                <span class="pace">Theo tốc độ trung bình hiện tại</span>
-                <span class="gap">So với 100%: <b>+30 tab · +12.8đ</b></span>
-              </div>
-              <div class="progress-track" style="margin-top:9px;background:var(--bg-raised)"><span style="width:100%;background:var(--green)"></span></div>
             </div>
           </div>
         </div>
@@ -434,14 +454,15 @@
         <div id="kpi-score"><div style="overflow-x:auto"><table class="kpi"><thead><tr><th class="idx">#</th><th>Chỉ số đo lường</th><th class="c">Mục tiêu 100%</th><th class="c">Trọng số</th><th class="c">Thực tế</th><th class="r">% đạt</th><th class="r">KPI quy đổi</th></tr></thead><tbody><tr><td class="idx numc">1</td><td><span class="kname">Tỷ lệ hoàn thành ảnh thiết kế theo yêu cầu content</span><span class="tag">Chuyên môn · Kết quả</span></td><td class="c numc">234</td><td class="c numc">35%</td><td class="c numc"><span class="autoval">⚡ 55</span></td><td class="r numc"><span class="pct-low">24%</span></td><td class="r numc"><span class="conv">8%</span></td></tr><tr><td class="idx numc">2</td><td><span class="kname">Tỷ lệ hoàn thành thiết kế đúng hạn</span><span class="tag">Chuyên môn · Dẫn dắt</span></td><td class="c numc">1</td><td class="c numc">35%</td><td class="c numc"><span class="fixedval">1</span></td><td class="r numc"><span class="pct-ok">100%</span></td><td class="r numc"><span class="conv">35%</span></td></tr><tr><td class="idx numc">3</td><td><span class="kname">Tỷ lệ hoàn thành thiết kế hộp thương hiệu</span><span class="tag">Chuyên môn · Kết quả</span></td><td class="c numc">6</td><td class="c numc">20%</td><td class="c numc"><input type="number" class="kpi-in" step="1" min="0" value="0" data-field="boxDone"></td><td class="r numc"><span class="pct-low">0%</span></td><td class="r numc"><span class="conv">0%</span></td></tr><tr><td class="idx numc">4</td><td><span class="kname">Học tập &amp; đào tạo</span><span class="tag">Học tập · Dẫn dắt</span></td><td class="c numc">1</td><td class="c numc">5%</td><td class="c numc"><span class="fixedval">1</span></td><td class="r numc"><span class="pct-ok">100%</span></td><td class="r numc"><span class="conv">5%</span></td></tr><tr><td class="idx numc">5</td><td><span class="kname">Báo cáo công việc đúng hạn</span><span class="tag">Báo cáo · Dẫn dắt</span></td><td class="c numc">1</td><td class="c numc">5%</td><td class="c numc"><span class="fixedval">100%</span></td><td class="r numc"><span class="pct-ok">100%</span></td><td class="r numc"><span class="conv">5%</span></td></tr><tr class="ktotal"><td></td><td>TỔNG</td><td class="c"></td><td class="c numc">100%</td><td class="c"></td><td class="r"></td><td class="r numc"><span class="pct-low" style="font-size:13.5px">53%</span></td></tr></tbody></table></div></div>
       </div>
       <div class="card">
-        <h2>Đường cong tiến độ</h2>
-        <p class="sub" style="margin-top:-6px;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center">
-          <span style="display:inline-flex;align-items:center;gap:5px"><svg width="20" height="6" style="flex:none"><line x1="0" y1="3" x2="20" y2="3" stroke="var(--blue)" stroke-width="2.5"></line></svg>Thực tế tháng này</span>
-          <span style="display:inline-flex;align-items:center;gap:5px"><svg width="20" height="6" style="flex:none"><line x1="0" y1="3" x2="20" y2="3" stroke="var(--blue)" stroke-width="2" stroke-dasharray="3 3"></line></svg>Dự báo</span>
-          <span style="display:inline-flex;align-items:center;gap:5px"><svg width="20" height="6" style="flex:none"><line x1="0" y1="3" x2="20" y2="3" stroke="var(--orange)" stroke-width="2" stroke-dasharray="4 3"></line></svg>Mục tiêu tuyến tính</span>
-          <span style="display:inline-flex;align-items:center;gap:5px"><svg width="20" height="6" style="flex:none"><line x1="0" y1="3" x2="20" y2="3" stroke="#b79df7" stroke-width="2" stroke-dasharray="5 4"></line></svg>Tháng trước</span>
+        <h2>📈 Đường cong tiến độ</h2>
+        <div id="chart-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:2px 0 8px"></div>
+        <p class="sub" style="margin:0 0 5px;font-size:10.8px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+          <span><b style="color:var(--blue)">━</b> Thực tế</span>
+          <span><b style="color:var(--blue)">┄</b> Dự báo</span>
+          <span><b style="color:var(--orange)">┄</b> Mục tiêu 100%</span>
+          <span style="opacity:.62"><b style="color:#b79df7">━</b> Tháng trước (tham khảo)</span>
         </p>
-        <svg class="chart" id="chart" viewBox="0 0 600 200" preserveAspectRatio="none">
+        <svg class="chart" id="chart" viewBox="0 0 640 220" preserveAspectRatio="none" style="height:230px">
     <line class="grid" x1="34" y1="178" x2="590" y2="178"></line><text x="28" y="181" text-anchor="end">0</text><line class="grid" x1="34" y1="136.5" x2="590" y2="136.5"></line><text x="28" y="139.5" text-anchor="end">78</text><line class="grid" x1="34" y1="95" x2="590" y2="95"></line><text x="28" y="98" text-anchor="end">156</text><line class="grid" x1="34" y1="53.5" x2="590" y2="53.5"></line><text x="28" y="56.5" text-anchor="end">234</text><line class="grid" x1="34" y1="12" x2="590" y2="12"></line><text x="28" y="15" text-anchor="end">312</text>
     <path class="actual-area" d="M34,178 L72.34482758620689,171.6123136123136 L91.51724137931035,163.62770562770564 L110.6896551724138,158.30463363796696 L149.0344827586207,148.7231040564374 L168.20689655172416,148.7231040564374 L 168.20689655172416,178 L 34,178 Z"></path>
     <path class="target-line" d="M 34,178 L 590,53.44011544011545"></path>
@@ -1249,20 +1270,31 @@ function calc(persist){
   const pctOfTargetRaw = target > 0 ? (done / target) * 100 : 0;
   const pctOfTargetBar = Math.min(Math.max(pctOfTargetRaw, 0), 100);
   const projPct = target > 0 ? (projected / target) * 100 : 0;
-  const projPctBar = Math.min(Math.max(projPct, 0), 100);
   const totalWorkDays = workedDays + workDaysLeft;
   const idealPct = totalWorkDays > 0 ? (workedDays / totalWorkDays) * 100 : 0;
   const paceGap = pctOfTargetRaw - idealPct;
   const paceAbs = Math.abs(paceGap);
   const paceCls = paceGap > 1 ? 'ahead' : (paceGap < -1 ? 'behind' : 'even');
   const paceText = paceGap > 1
-    ? `▲ Nhanh hơn ${fmt(paceAbs,1)} điểm %`
-    : (paceGap < -1 ? `▼ Chậm hơn ${fmt(paceAbs,1)} điểm %` : '● Đúng nhịp tiến độ');
+    ? `▲ Nhanh hơn tiến độ ${fmt(paceAbs,1)}%`
+    : (paceGap < -1 ? `▼ Chậm hơn tiến độ ${fmt(paceAbs,1)}%` : '● Đúng nhịp tiến độ');
   const forecastGapTabs = projected - target;
-  const forecastGapPct = projPct - 100;
-  const forecastNote = forecastGapTabs >= 0
-    ? `Vượt <b>${fmt(forecastGapTabs,0)} tab</b> · +${fmt(forecastGapPct,1)} điểm %`
-    : `Thiếu <b>${fmt(-forecastGapTabs,0)} tab</b> · ${fmt(forecastGapPct,1)} điểm %`;
+  const forecastColor = forecastGapTabs >= 0 ? 'var(--green)' : 'var(--red)';
+  const scaleMin = 100, scaleMax = 150;
+  const scalePos = Math.max(0, Math.min(100, (projPct - scaleMin) / (scaleMax - scaleMin) * 100));
+  const forecastTiers = [100,120,130,150];
+  const passedTier = forecastTiers.filter(p => projPct >= p).pop() || null;
+  const nextTier = forecastTiers.find(p => projPct < p) || null;
+  let forecastMilestone = '';
+  if(nextTier){
+    const nextTabs = Math.round(state.baseTabs * nextTier / 100);
+    const leftToNext = Math.max(0, Math.ceil(nextTabs - projected));
+    forecastMilestone = passedTier
+      ? `🎯 Dự báo đã vượt mốc <b>${passedTier}%</b> · còn khoảng <b>${leftToNext} tab</b> để chạm <b>${nextTier}%</b> (${nextTabs} tab).`
+      : `🎯 Dự báo còn khoảng <b>${leftToNext} tab</b> để chạm mốc <b>${nextTier}%</b> (${nextTabs} tab).`;
+  } else {
+    forecastMilestone = `🏆 Dự báo vượt mốc cao nhất <b>150%</b>.`;
+  }
 
   document.getElementById('progress-section').innerHTML = `
     <div class="progress-overview">
@@ -1294,21 +1326,33 @@ function calc(persist){
           <div class="progress-title">Dự báo cuối tháng</div>
           <span class="forecast-badge">Theo tốc độ hiện tại</span>
         </div>
-        <div class="forecast-stats">
-          <div class="forecast-stat">
-            <div class="flabel">Tab dự kiến</div>
-            <div class="fvalue num" style="color:${canReach?'var(--green)':'var(--red)'}">${fmt(projected,0)} tab</div>
+        <div class="forecast-main">
+          <div class="forecast-primary">
+            <div class="forecast-number">
+              <div class="value num" style="color:${forecastColor}">${fmt(projected,0)} tab</div>
+              <div class="label">Dự kiến hoàn thành cuối tháng</div>
+            </div>
+            <div class="forecast-kpi">
+              <div class="value num" style="color:${forecastColor}">${fmt(projPct,1)}% KPI</div>
+              <div class="label">Mức hoàn thành dự kiến</div>
+            </div>
           </div>
-          <div class="forecast-stat">
-            <div class="flabel">KPI dự kiến</div>
-            <div class="fvalue num" style="color:${canReach?'var(--green)':'var(--red)'}">${fmt(projPct,1)}%</div>
+          <div class="forecast-compare-card${forecastGapTabs < 0 ? ' bad' : ''}">
+            <div class="forecast-compare-label">So với mục tiêu 100% (${fmt(target,0)} tab)</div>
+            <div class="forecast-compare-value">${forecastGapTabs >= 0 ? '🟢 Vượt' : '🔴 Thiếu'} <b>${fmt(Math.abs(forecastGapTabs),0)} tab</b></div>
+          </div>
+          <div class="forecast-milestone">${forecastMilestone}</div>
+          <div class="forecast-scale">
+            <div class="ticks">
+              <span class="tick" style="left:0%">100%</span>
+              <span class="tick" style="left:40%">120%</span>
+              <span class="tick" style="left:60%">130%</span>
+              <span class="tick" style="left:100%">150%</span>
+            </div>
+            <div class="track"><span class="fill" style="width:${scalePos}%;background:${forecastColor}"></span></div>
+            <span class="marker" style="left:${scalePos}%"></span>
           </div>
         </div>
-        <div class="forecast-note">
-          <span class="pace">Theo tốc độ trung bình hiện tại</span>
-          <span class="gap">So với 100%: <b>${forecastGapTabs >= 0 ? '+' : '-'}${fmt(Math.abs(forecastGapTabs),0)} tab · ${forecastGapPct >= 0 ? '+' : ''}${fmt(forecastGapPct,1)}đ</b></span>
-        </div>
-        <div class="progress-track" style="margin-top:9px;background:var(--bg-raised)"><span style="width:${projPctBar}%;background:${canReach?'var(--green)':'var(--red)'}"></span></div>
       </div>
     </div>
   `;
@@ -1350,9 +1394,11 @@ function computeDailyDeltas(logDays, offSet){
 // ---------- Chart ----------
 function renderChart({ today, target, done, ratePerDay, workDaysLeft, offSet, logDays }){
   const svg = document.getElementById('chart');
-  const W = 600, H = 200, PL = 34, PR = 10, PT = 12, PB = 22;
+  const summary = document.getElementById('chart-summary');
+  const W = 640, H = 220, PL = 40, PR = 92, PT = 18, PB = 26;
   const innerW = W - PL - PR, innerH = H - PT - PB;
-  // Đường tháng trước: tự lấy dữ liệu tháng liền trước từ dailyLog (qua tháng mới tự thay thế)
+
+  // Tháng trước chỉ để tham khảo nên hiển thị mờ hơn tháng hiện tại.
   let pm = state.month - 1, py = state.year;
   if(pm < 1){ pm = 12; py--; }
   const prevPrefix = py + '-' + pm + '-';
@@ -1362,62 +1408,101 @@ function renderChart({ today, target, done, ratePerDay, workDaysLeft, offSet, lo
     .filter(p => p.d >= 1 && !isNaN(p.v))
     .sort((a,b) => a.d - b.d);
   const prevMax = prevPts.length ? prevPts[prevPts.length-1].v : 0;
-  const maxY = Math.max(target, done, target*1.05, prevMax) * 1.05;
-  const x = d => PL + (d-1)/(totalDaysInMonth-1||1) * innerW;
+
+  const projEnd = Math.max(0, done + ratePerDay * workDaysLeft);
+  const rawMax = Math.max(target, done, projEnd, prevMax, 1) * 1.08;
+  const rough = rawMax / 4;
+  const pow10 = Math.pow(10, Math.floor(Math.log10(Math.max(rough,1))));
+  const norm = rough / pow10;
+  const niceNorm = norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10;
+  const stepY = niceNorm * pow10;
+  const maxY = Math.ceil(rawMax / stepY) * stepY;
+
+  const x = d => PL + (Math.max(1,d)-1)/(totalDaysInMonth-1||1) * innerW;
   const y = v => PT + innerH - Math.max(0, Math.min(1, v/maxY)) * innerH;
 
-  const points = [{d:0, v:0}];
-  const logSorted = [...logDays].sort((a,b)=>a.d-b.d);
-  logSorted.forEach(p => { if(p.d <= today) points.push({d:p.d, v:p.v}); });
+  const points = [{d:1, v:0}];
+  [...logDays].sort((a,b)=>a.d-b.d).forEach(p => {
+    if(p.d <= today) points.push({d:p.d, v:p.v});
+  });
   if(!points.some(p=>p.d===today)) points.push({d:today, v:done});
   points.sort((a,b)=>a.d-b.d);
 
-  const actualPath = points.map((p,i)=> (i===0?'M':'L')+x(Math.max(1,p.d))+','+y(p.v)).join(' ');
-  const areaPath = actualPath + ` L ${x(Math.max(1,points[points.length-1].d))},${y(0)} L ${x(1)},${y(0)} Z`;
-  const projEnd = done + ratePerDay * workDaysLeft;
+  const actualPath = points.map((p,i)=> (i===0?'M':'L')+x(p.d)+','+y(p.v)).join(' ');
   const projPath = `M ${x(today)},${y(done)} L ${x(totalDaysInMonth)},${y(projEnd)}`;
   const targetPath = `M ${x(1)},${y(0)} L ${x(totalDaysInMonth)},${y(target)}`;
-  let prevPath = '', prevLabel = '';
+
+  let prevPath = '';
   if(prevPts.length){
-    const pp = [{d:0, v:0}, ...prevPts];
-    prevPath = pp.map((p,i)=> (i===0?'M':'L') + x(Math.max(1, Math.min(p.d, totalDaysInMonth))) + ',' + y(p.v)).join(' ');
-    const lastP = prevPts[prevPts.length-1];
-    const lx = x(Math.max(1, Math.min(lastP.d, totalDaysInMonth))), ly = y(lastP.v);
-    prevLabel = `<circle cx="${lx}" cy="${ly}" r="3" fill="#b79df7"/>`
-      + `<text x="${lx-6}" y="${ly+12}" text-anchor="end" fill="#b79df7" style="font-weight:600">Tháng ${pm}: ${Math.round(lastP.v)} tab</text>`;
+    const pp = [{d:1, v:0}, ...prevPts];
+    prevPath = pp.map((p,i)=> (i===0?'M':'L') + x(Math.min(p.d,totalDaysInMonth)) + ',' + y(p.v)).join(' ');
   }
 
-  const ticks = 4;
+  // Tóm tắt phía trên biểu đồ: đọc số trước, nhìn đường sau.
+  if(summary){
+    const nowPct = target > 0 ? done/target*100 : 0;
+    const forecastPct = target > 0 ? projEnd/target*100 : 0;
+    const fcColor = projEnd >= target ? 'var(--green)' : 'var(--orange)';
+    summary.innerHTML = `
+      <div style="padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-soft)">
+        <div style="font-size:10px;color:var(--text-2);text-transform:uppercase;font-weight:600;letter-spacing:.03em">Hiện tại</div>
+        <div style="font-size:18px;font-weight:700;color:var(--blue);line-height:1.2"><span class="num">${fmt(done,0)}</span> tab</div>
+        <div style="font-size:10.5px;color:var(--text-2)">${fmt(nowPct,1)}% của mốc 100%</div>
+      </div>
+      <div style="padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-soft)">
+        <div style="font-size:10px;color:var(--text-2);text-transform:uppercase;font-weight:600;letter-spacing:.03em">Mục tiêu 100%</div>
+        <div style="font-size:18px;font-weight:700;color:var(--orange);line-height:1.2"><span class="num">${fmt(target,0)}</span> tab</div>
+        <div style="font-size:10.5px;color:var(--text-2)">Đích cuối tháng</div>
+      </div>
+      <div style="padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-soft)">
+        <div style="font-size:10px;color:var(--text-2);text-transform:uppercase;font-weight:600;letter-spacing:.03em">Dự báo cuối tháng</div>
+        <div style="font-size:18px;font-weight:700;color:${fcColor};line-height:1.2"><span class="num">${fmt(projEnd,0)}</span> tab</div>
+        <div style="font-size:10.5px;color:var(--text-2)">${fmt(forecastPct,1)}% theo tốc độ hiện tại</div>
+      </div>`;
+  }
+
   let yTicks = '';
-  for(let i=0; i<=ticks; i++){
-    const val = maxY * i/ticks;
+  for(let val=0; val<=maxY+0.001; val+=stepY){
     const yy = y(val);
-    yTicks += `<line class="grid" x1="${PL}" y1="${yy}" x2="${W-PR}" y2="${yy}"/>`;
-    yTicks += `<text x="${PL-6}" y="${yy+3}" text-anchor="end">${Math.round(val)}</text>`;
+    yTicks += `<line x1="${PL}" y1="${yy}" x2="${W-PR}" y2="${yy}" stroke="var(--border)" stroke-width="1" opacity=".55"/>`;
+    yTicks += `<text x="${PL-7}" y="${yy+3}" text-anchor="end" style="font-size:10px">${Math.round(val)}</text>`;
   }
-  let xTicks = '';
-  const step = totalDaysInMonth > 20 ? 5 : 3;
-  for(let d=1; d<=totalDaysInMonth; d+=step){
-    if(d >= totalDaysInMonth - 1) break;
-    xTicks += `<text x="${x(d)}" y="${H-6}" text-anchor="middle">${d}</text>`;
-  }
-  xTicks += `<text x="${x(totalDaysInMonth)}" y="${H-6}" text-anchor="end">${totalDaysInMonth}</text>`;
 
-  const todayMark = `<line x1="${x(today)}" y1="${PT}" x2="${x(today)}" y2="${H-PB}" stroke="var(--blue)" stroke-width="1" stroke-dasharray="2 2" opacity=".55"/>`+
-                    `<text x="${x(today)}" y="${PT+8}" text-anchor="middle" fill="var(--blue)" style="font-weight:600">hôm nay</text>`;
+  const tickDays = [...new Set([1, 8, 15, 22, totalDaysInMonth].filter(d=>d<=totalDaysInMonth))];
+  const xTicks = tickDays.map(d=>`<text x="${x(d)}" y="${H-7}" text-anchor="middle" style="font-size:10px">${d}</text>`).join('');
+
+  const curX = x(today), curY = y(done);
+  const endX = x(totalDaysInMonth);
+  let projLabelY = y(projEnd), targetLabelY = y(target);
+  if(Math.abs(projLabelY-targetLabelY) < 18){
+    if(projEnd >= target){ projLabelY -= 7; targetLabelY += 10; }
+    else { projLabelY += 10; targetLabelY -= 7; }
+  }
+
+  const prevEnd = prevPts.length ? prevPts[prevPts.length-1] : null;
+  const prevLabel = prevEnd
+    ? `<text x="${W-PR+8}" y="${Math.max(PT+9, Math.min(H-PB-3, y(prevEnd.v)))}" fill="#b79df7" opacity=".6" style="font-size:9.5px">T${pm}: ${Math.round(prevEnd.v)}</text>`
+    : '';
 
   svg.innerHTML = `
     ${yTicks}
-    <path class="actual-area" d="${areaPath}"/>
-    <path class="target-line" d="${targetPath}"/>
-    ${prevPath ? `<path d="${prevPath}" stroke="#b79df7" stroke-width="2" stroke-dasharray="5 4" fill="none" opacity=".9"/>${prevLabel}` : ''}
-    <path class="actual-line" d="${actualPath}"/>
-    <path d="${projPath}" stroke="var(--blue)" stroke-width="1.5" stroke-dasharray="3 3" fill="none" opacity=".7"/>
-    <line class="axis" x1="${PL}" y1="${H-PB}" x2="${W-PR}" y2="${H-PB}"/>
-    ${todayMark}
-    ${points.filter(p=>p.d>0).map(p=>`<circle class="dot" cx="${x(p.d)}" cy="${y(p.v)}" r="3"/>`).join('')}
-    <circle cx="${x(totalDaysInMonth)}" cy="${y(target)}" r="3" fill="var(--orange)"/>
-    <circle cx="${x(totalDaysInMonth)}" cy="${y(projEnd)}" r="3" fill="${projEnd>=target?'var(--green)':'var(--red)'}"/>
+    ${prevPath ? `<path d="${prevPath}" stroke="#b79df7" stroke-width="1.4" fill="none" opacity=".28"/>` : ''}
+    <path d="${targetPath}" stroke="var(--orange)" stroke-width="1.5" stroke-dasharray="5 5" fill="none" opacity=".72"/>
+    <path d="${actualPath}" stroke="var(--blue)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="${projPath}" stroke="var(--blue)" stroke-width="2.2" stroke-dasharray="5 5" stroke-linecap="round" fill="none" opacity=".72"/>
+
+    <line x1="${curX}" y1="${PT}" x2="${curX}" y2="${H-PB}" stroke="var(--blue)" stroke-width="1" stroke-dasharray="2 4" opacity=".28"/>
+    <circle cx="${curX}" cy="${curY}" r="5" fill="var(--blue)" stroke="var(--bg)" stroke-width="2"/>
+    <text x="${curX}" y="${Math.max(PT+11,curY-10)}" text-anchor="middle" fill="var(--blue)" style="font-size:10px;font-weight:700">Hôm nay · ${fmt(done,0)} tab</text>
+
+    <circle cx="${endX}" cy="${y(projEnd)}" r="4" fill="${projEnd>=target?'var(--green)':'var(--orange)'}"/>
+    <text x="${W-PR+8}" y="${projLabelY+3}" fill="${projEnd>=target?'var(--green)':'var(--orange)'}" style="font-size:10px;font-weight:700">Dự báo ${fmt(projEnd,0)}</text>
+
+    <circle cx="${endX}" cy="${y(target)}" r="3.5" fill="var(--orange)"/>
+    <text x="${W-PR+8}" y="${targetLabelY+3}" fill="var(--orange)" style="font-size:10px;font-weight:600">Mục tiêu ${fmt(target,0)}</text>
+    ${prevLabel}
+
+    <line x1="${PL}" y1="${H-PB}" x2="${W-PR}" y2="${H-PB}" stroke="var(--border-2)" stroke-width="1"/>
     ${xTicks}
   `;
 }
