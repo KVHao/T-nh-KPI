@@ -13,6 +13,7 @@
     --blue:#2783DE; --blue-soft:#E5F2FC;
     --green:#46A171; --green-soft:#E8F1EC;
     --orange:#D5803B; --orange-soft:#FBEBDE;
+    --yellow:#D69A00; --yellow-soft:#FFF7D6;
     --red:#E56458; --red-soft:#FCE9E7;
     --purple:#8A6BC7; --purple-soft:#EFE9F7;
   }
@@ -24,6 +25,7 @@
       --blue:#5E9FE8; --blue-soft:rgba(94,159,232,.14);
       --green:#72BC8F; --green-soft:rgba(114,188,143,.14);
       --orange:#DE9255; --orange-soft:rgba(222,146,85,.14);
+      --yellow:#F5B324; --yellow-soft:rgba(245,179,36,.13);
       --red:#E97366; --red-soft:rgba(233,115,102,.14);
       --purple:#A889D9; --purple-soft:rgba(168,137,217,.14);
     }
@@ -34,6 +36,69 @@
   .card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;min-height:0}
   .card--soft{background:var(--bg-soft);border-color:transparent}
   .card.tight{padding:12px}
+
+  /* quick daily report - primary interaction area */
+  .quick-report-card{
+    position:relative;
+    border:1px solid var(--red);
+    border-left:4px solid var(--red);
+    background:linear-gradient(180deg,var(--red-soft) 0%,var(--bg) 44%);
+    box-shadow:0 8px 24px rgba(229,100,88,.10);
+    overflow:hidden;
+  }
+  .quick-report-card::before{
+    content:'';position:absolute;left:0;right:0;top:0;height:3px;background:var(--red);opacity:.9;
+  }
+  .quick-report-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px}
+  .quick-report-head h2{margin:0;color:var(--red);font-size:14.5px}
+  .quick-report-badge{
+    display:inline-flex;align-items:center;gap:4px;white-space:nowrap;
+    padding:3px 8px;border-radius:99px;background:var(--red);color:#fff;
+    font-size:9.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  }
+  .quick-report-card label{color:var(--text);font-weight:600}
+  .quick-report-card .field{background:var(--bg);border-color:var(--border-2)}
+  .quick-report-card .field:focus{border-color:var(--red);box-shadow:0 0 0 2px var(--red-soft)}
+  .quick-report-btn{
+    width:100%;margin-top:9px;padding:9px 12px!important;
+    background:var(--red)!important;border-color:var(--red)!important;color:#fff!important;
+    font-weight:700;letter-spacing:.01em;box-shadow:0 4px 12px rgba(229,100,88,.18);
+  }
+  .quick-report-btn:hover{opacity:.92}
+  .quick-report-card #report-result:not(:empty){
+    margin-top:10px!important;padding:8px 9px;border-radius:6px;
+    background:var(--bg-soft);border:1px solid var(--border);
+  }
+
+  /* company plan - highlighted secondary interaction area */
+  .company-plan-card{
+    position:relative;
+    border:1px solid color-mix(in srgb,var(--yellow) 42%,var(--border));
+    border-left:3px solid color-mix(in srgb,var(--yellow) 68%,var(--border));
+    background:linear-gradient(180deg,color-mix(in srgb,var(--yellow-soft) 58%,var(--bg)) 0%,var(--bg) 48%);
+    box-shadow:0 6px 20px rgba(245,179,36,.045);
+    overflow:hidden;
+  }
+  .company-plan-card::before{
+    content:'';position:absolute;left:0;right:0;top:0;height:2px;background:var(--yellow);opacity:.48;
+  }
+  .company-plan-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:2px}
+  .company-plan-head h2{margin:0;color:color-mix(in srgb,var(--yellow) 82%,var(--text));font-size:14.5px}
+  .company-plan-badge{
+    display:inline-flex;align-items:center;gap:4px;white-space:nowrap;
+    padding:3px 8px;border-radius:99px;
+    background:color-mix(in srgb,var(--yellow-soft) 72%,var(--bg));
+    border:1px solid color-mix(in srgb,var(--yellow) 35%,var(--border));
+    color:color-mix(in srgb,var(--yellow) 78%,var(--text));
+    font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  }
+  .company-plan-card .field{background:var(--bg);border-color:var(--border-2)}
+  .company-plan-card .field:focus{border-color:var(--yellow);box-shadow:0 0 0 2px var(--yellow-soft)}
+  .company-plan-add{
+    background:var(--yellow)!important;border-color:var(--yellow)!important;color:#1d1d1b!important;
+    font-weight:800;box-shadow:0 4px 12px rgba(245,179,36,.16);
+  }
+  .company-plan-add:hover{opacity:.92}
   h1{font-size:19px;font-weight:600;margin:0 0 2px}
   h2{font-size:14px;font-weight:600;margin:0 0 10px;letter-spacing:-.01em}
   h3{font-size:12.5px;font-weight:600;margin:0 0 6px;letter-spacing:.01em;text-transform:uppercase;color:var(--text-2)}
@@ -67,6 +132,35 @@
   .metric .k{font-size:10.5px;color:var(--text-2);margin:0 0 2px;font-weight:500;text-transform:uppercase;letter-spacing:.03em}
   .metric .v{font-size:20px;font-weight:600;margin:0;letter-spacing:-.02em}
   .metric .hint{font-size:11px;color:var(--text-2);margin:2px 0 0}
+  /* soft color coding for top KPI metrics */
+  #metrics .metric{
+    position:relative;overflow:hidden;
+    transition:background .18s,border-color .18s;
+  }
+  #metrics .metric::before{
+    content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+    background:var(--metric-accent,var(--border-2));opacity:.78;
+  }
+  #metrics .metric--blue{
+    --metric-accent:var(--blue);
+    background:linear-gradient(135deg,var(--blue-soft) 0%,var(--bg) 72%);
+    border-color:color-mix(in srgb,var(--blue) 26%,var(--border));
+  }
+  #metrics .metric--orange{
+    --metric-accent:var(--orange);
+    background:linear-gradient(135deg,var(--orange-soft) 0%,var(--bg) 72%);
+    border-color:color-mix(in srgb,var(--orange) 26%,var(--border));
+  }
+  #metrics .metric--green{
+    --metric-accent:var(--green);
+    background:linear-gradient(135deg,var(--green-soft) 0%,var(--bg) 72%);
+    border-color:color-mix(in srgb,var(--green) 26%,var(--border));
+  }
+  #metrics .metric--red{
+    --metric-accent:var(--red);
+    background:linear-gradient(135deg,var(--red-soft) 0%,var(--bg) 72%);
+    border-color:color-mix(in srgb,var(--red) 26%,var(--border));
+  }
   .btn{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-md);padding:6px 11px;font-size:12.5px;color:var(--text);cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s}
   .btn:hover{background:var(--bg-soft);border-color:var(--border-2)}
   .btn--primary{background:var(--blue);border-color:var(--blue);color:#fff}
@@ -328,22 +422,22 @@
 
   <!-- Metrics row -->
   <div class="row cols-4" id="metrics" style="margin-bottom:12px">
-    <div class="metric">
+    <div class="metric metric--blue">
       <p class="k">Ngày làm việc còn lại</p>
       <p class="v num" style="color:var(--blue)">19</p>
       <p class="hint">Đã làm 5 ngày</p>
     </div>
-    <div class="metric">
+    <div class="metric metric--orange">
       <p class="k">Tab còn thiếu</p>
       <p class="v num" style="color:var(--orange)">179</p>
       <p class="hint">Trên chỉ tiêu 234 tab (= 100%)</p>
     </div>
-    <div class="metric">
+    <div class="metric metric--green">
       <p class="k">Tốc độ hiện tại/ngày <span style="color:var(--green)">▲</span></p>
       <p class="v num" style="color:var(--green)">11.0 tab</p>
       <p class="hint">7 ngày gần: <b>14.3 tab</b>/ngày</p>
     </div>
-    <div class="metric">
+    <div class="metric metric--green">
       <p class="k">Cần đạt/ngày</p>
       <p class="v num" style="color:var(--green)">9.4 tab</p>
       <p class="hint">Để đạt 100% (234 tab)</p>
@@ -369,9 +463,12 @@
         <p class="sub" style="margin:10px 0 0;font-size:11px">💡 <b>Click</b>: đổi nghỉ/làm · <b>Double-click</b> ngày đã qua: nhập tab luỹ kế · Số dưới mỗi ngày = <b>tab làm trong ngày đó</b></p>
       </div>
 
-      <div class="card">
-        <h2>⚡ Báo cáo nhanh theo ngày</h2>
-        <p class="sub" style="margin-top:-6px">Chọn ngày, nhập tab <b>trong ngày đó</b> — tool tự cộng luỹ kế.</p>
+      <div class="card quick-report-card">
+        <div class="quick-report-head">
+          <h2>⚡ Báo cáo nhanh theo ngày</h2>
+          <span class="quick-report-badge">● Nhập KPI</span>
+        </div>
+        <p class="sub" style="margin:2px 0 10px">Chọn ngày, nhập tab <b>trong ngày đó</b> — tool tự cộng luỹ kế.</p>
         <div class="row cols-2" style="gap:8px">
           <div>
             <label>Ngày</label>
@@ -382,7 +479,7 @@
             <input type="number" id="report-tabs" class="field num" step="1" min="0" placeholder="VD: 9">
           </div>
         </div>
-        <button class="btn btn--primary" style="width:100%;margin-top:8px;padding:8px 12px" onclick="submitReport()">✔️ Ghi nhận</button>
+        <button class="btn btn--primary quick-report-btn" onclick="submitReport()">✔ GHI NHẬN KPI</button>
         <p class="hint" id="report-result" style="margin-top:8px;font-size:11.5px"></p>
       </div>
 
@@ -432,13 +529,16 @@
         </div>
       </div>
 
-      <div class="card">
-        <h2>🏢 Kế hoạch công ty</h2>
-        <p class="sub" style="margin:-4px 0 8px">Ghi chú dạng <b>ngày/tháng: tên công việc</b> — thêm hoặc xoá tự do.</p>
+      <div class="card company-plan-card">
+        <div class="company-plan-head">
+          <h2>🏢 Kế hoạch công ty</h2>
+          <span class="company-plan-badge">● KẾ HOẠCH</span>
+        </div>
+        <p class="sub" style="margin:2px 0 9px">Ghi chú dạng <b>ngày/tháng: tên công việc</b> — thêm hoặc xoá tự do.</p>
         <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
           <input type="text" id="plan-date" class="field" style="flex:0 0 82px;text-align:center" placeholder="20/08" maxlength="5" onkeydown="if(event.key===&#39;Enter&#39;)addPlanNote()">
           <input type="text" id="plan-task" class="field" style="flex:1 1 auto" placeholder="Tên công việc" onkeydown="if(event.key===&#39;Enter&#39;)addPlanNote()">
-          <button class="btn btn--primary" style="flex:0 0 auto" onclick="addPlanNote()">+ Thêm</button>
+          <button class="btn company-plan-add" style="flex:0 0 auto" onclick="addPlanNote()">+ THÊM</button>
         </div>
         <div id="company-plan"><p class="hint" style="margin:2px 0 0">Chưa có ghi chú nào — nhập ngày và tên công việc ở trên rồi bấm + Thêm.</p></div>
       </div>
@@ -1242,24 +1342,25 @@ function calc(persist){
 
   // Metrics
   const neededColor = (needed > ratePerDay*1.5) ? 'var(--red)' : (needed > ratePerDay ? 'var(--orange)' : 'var(--green)');
+  const neededTone = (needed > ratePerDay*1.5) ? 'red' : (needed > ratePerDay ? 'orange' : 'green');
   const trendArrow = recent7Rate!=null ? (recent7Rate > ratePerDay*1.05 ? '<span style="color:var(--green)">▲</span>' : recent7Rate < ratePerDay*0.95 ? '<span style="color:var(--red)">▼</span>' : '<span style="color:var(--text-2)">▬</span>') : '';
   document.getElementById('metrics').innerHTML = `
-    <div class="metric">
+    <div class="metric metric--blue">
       <p class="k">Ngày làm việc còn lại</p>
       <p class="v num" style="color:var(--blue)">${workDaysLeft}</p>
       <p class="hint">Đã làm ${workedDays} ngày</p>
     </div>
-    <div class="metric">
+    <div class="metric metric--orange">
       <p class="k">Tab còn thiếu</p>
       <p class="v num" style="color:var(--orange)">${fmt(remaining,0)}</p>
       <p class="hint">Trên chỉ tiêu ${target} tab (= ${state.targetPct}%)</p>
     </div>
-    <div class="metric">
+    <div class="metric metric--green">
       <p class="k">Tốc độ hiện tại/ngày ${trendArrow}</p>
       <p class="v num" style="color:var(--green)">${fmt(ratePerDay,1)} tab</p>
       <p class="hint">${recent7Rate!=null ? '7 ngày gần: <b>'+fmt(recent7Rate,1)+' tab</b>/ngày' : 'Chưa đủ dữ liệu 7 ngày'}</p>
     </div>
-    <div class="metric">
+    <div class="metric metric--${neededTone}">
       <p class="k">Cần đạt/ngày</p>
       <p class="v num" style="color:${neededColor}">${workDaysLeft>0 ? fmt(needed,1)+' tab' : '—'}</p>
       <p class="hint">Để đạt ${state.targetPct}% (${target} tab)</p>
