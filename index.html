@@ -1,7 +1,7 @@
-<!doctype html>
-<html lang="vi">
-<head>
-<meta charset="utf-8">
+<!DOCTYPE html>
+<!-- saved from url=(0033)https://kvhao.github.io/T-nh-KPI/ -->
+<html lang="vi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Máy tính KPI</title>
 <style>
@@ -238,12 +238,6 @@
         <p class="sub" id="header-sub" style="margin:0">Theo dõi tiến độ · dự báo · mốc đạt · mô phỏng &amp; gợi ý hành động</p>
       </div>
     </div>
-    <div class="toolbar-actions" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
-      <button class="btn btn--ghost" onclick="syncSave()" title="Lưu & copy mã đồng bộ">💾 Lưu</button>
-      <button class="btn btn--ghost" onclick="syncLoad()" title="Đồng bộ dữ liệu từ bản kia">🔄 Đồng bộ</button>
-      <button class="btn btn--ghost" onclick="exportHtml()" title="Xuất file HTML chứa dữ liệu hiện tại">📤 Xuất HTML</button>
-      <button class="btn btn--ghost" onclick="exportJson()" title="Xuất dữ liệu JSON">🧾 Xuất JSON</button>
-    </div>
   </div>
 
   <!-- Params row (compact horizontal) -->
@@ -251,7 +245,7 @@
     <div class="row cols-4">
       <div>
         <label>Tháng</label>
-        <select id="month" class="field" onchange="onMonthChange()"></select>
+        <select id="month" class="field" onchange="onMonthChange()"><option value="1">Tháng 1</option><option value="2">Tháng 2</option><option value="3">Tháng 3</option><option value="4">Tháng 4</option><option value="5">Tháng 5</option><option value="6">Tháng 6</option><option value="7">Tháng 7</option><option value="8">Tháng 8</option><option value="9">Tháng 9</option><option value="10">Tháng 10</option><option value="11">Tháng 11</option><option value="12">Tháng 12</option></select>
       </div>
       <div>
         <label>Năm</label>
@@ -259,24 +253,45 @@
       </div>
       <div>
         <label>Ngày hôm nay</label>
-        <input type="number" id="today" class="field num" min="1" max="31" oninput="onTodayChange()">
+        <input type="number" id="today" class="field num" min="1" max="30" oninput="onTodayChange()" disabled="" title="Đang tự động theo ngày thật — tắt công tắc để nhập tay">
       </div>
-      <input type="hidden" id="done">
+      <input type="hidden" id="done" value="55">
       <div>
         <label>Mục tiêu tab (= 100%)</label>
         <input type="number" id="base-tabs" class="field num" step="1" oninput="calc(true)">
       </div>
     </div>
-        <p class="hint" id="base-hint" style="margin:8px 0 0"></p>
+        <p class="hint" id="base-hint" style="margin:8px 0 0">🎯 Mục tiêu <b>100% = 234 tab</b> · 120% = <b>281 tab</b> · 130% = <b>304 tab</b> · 150% = <b>351 tab</b></p>
 <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;align-items:center">
       <label class="switch"><input type="checkbox" id="auto-weekend" onchange="onAutoWeekendChange()"> Tự động đánh dấu Chủ Nhật là ngày nghỉ</label>
       <label class="switch"><input type="checkbox" id="auto-today" onchange="onAutoTodayChange()"> Tự động nhảy ngày theo hôm nay</label>
-      <label class="switch"><input type="checkbox" id="auto-save" checked disabled> Tự động lưu (localStorage)</label>
+      <label class="switch"><input type="checkbox" id="auto-save" checked="" disabled=""> Tự động lưu (localStorage)</label>
     </div>
   </div>
 
   <!-- Metrics row -->
-  <div class="row cols-4" id="metrics" style="margin-bottom:12px"></div>
+  <div class="row cols-4" id="metrics" style="margin-bottom:12px">
+    <div class="metric">
+      <p class="k">Ngày làm việc còn lại</p>
+      <p class="v num" style="color:var(--blue)">19</p>
+      <p class="hint">Đã làm 5 ngày</p>
+    </div>
+    <div class="metric">
+      <p class="k">Tab còn thiếu</p>
+      <p class="v num" style="color:var(--orange)">179</p>
+      <p class="hint">Trên chỉ tiêu 234 tab (= 100%)</p>
+    </div>
+    <div class="metric">
+      <p class="k">Tốc độ hiện tại/ngày <span style="color:var(--green)">▲</span></p>
+      <p class="v num" style="color:var(--green)">11.0 tab</p>
+      <p class="hint">7 ngày gần: <b>14.3 tab</b>/ngày</p>
+    </div>
+    <div class="metric">
+      <p class="k">Cần đạt/ngày</p>
+      <p class="v num" style="color:var(--green)">9.4 tab</p>
+      <p class="hint">Để đạt 100% (234 tab)</p>
+    </div>
+  </div>
 
   <!-- 3-column landscape dashboard -->
   <div class="dash">
@@ -284,7 +299,7 @@
     <div class="col-left">
       <div class="card card--soft">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px">
-          <h2 id="cal-title" style="margin:0">Lịch làm việc</h2>
+          <h2 id="cal-title" style="margin:0">Lịch làm việc — Tháng 9/2026</h2>
           <div class="legend">
             <span><span class="sw" style="background:var(--blue)"></span>Hôm nay</span>
             <span><span class="sw" style="background:var(--green-soft);border:1px solid var(--green)"></span>Làm</span>
@@ -292,8 +307,8 @@
             <span><span class="sw" style="background:#F5B324;border-radius:50%;box-shadow:0 0 4px 1px rgba(245,179,36,.8)"></span>Có kế hoạch</span>
           </div>
         </div>
-        <div class="cal" id="cal-head"></div>
-        <div class="cal" id="cal-body" style="margin-top:3px"></div>
+        <div class="cal" id="cal-head"><div class="h">CN</div><div class="h">T2</div><div class="h">T3</div><div class="h">T4</div><div class="h">T5</div><div class="h">T6</div><div class="h">T7</div></div>
+        <div class="cal" id="cal-body" style="margin-top:3px"><div class="d empty"></div><div class="d empty"></div><div class="d off" onclick="toggleOff(1)" ondblclick="openDayModal(1)" title="Click: nghỉ/làm · DblClick: nhập KPI">1</div><div class="d off" onclick="toggleOff(2)" ondblclick="openDayModal(2)" title="Click: nghỉ/làm · DblClick: nhập KPI">2</div><div class="d worked" onclick="toggleOff(3)" ondblclick="openDayModal(3)" title="Click: nghỉ/làm · DblClick: nhập KPI">3<span class="kpi" title="Trong ngày: 12 tab · Luỹ kế: 12 tab">12</span></div><div class="d worked" onclick="toggleOff(4)" ondblclick="openDayModal(4)" title="Click: nghỉ/làm · DblClick: nhập KPI">4<span class="kpi" title="Trong ngày: 15 tab · Luỹ kế: 27 tab">15</span></div><div class="d worked" onclick="toggleOff(5)" ondblclick="openDayModal(5)" title="Click: nghỉ/làm · DblClick: nhập KPI">5<span class="kpi" title="Trong ngày: 10 tab · Luỹ kế: 37 tab">10</span></div><div class="d off" onclick="toggleOff(6)" ondblclick="openDayModal(6)" title="Click: nghỉ/làm · DblClick: nhập KPI">6</div><div class="d worked" onclick="toggleOff(7)" ondblclick="openDayModal(7)" title="Click: nghỉ/làm · DblClick: nhập KPI">7<span class="kpi" title="Trong ngày: 18 tab · Luỹ kế: 55 tab">18</span></div><div class="d today" onclick="toggleOff(8)" ondblclick="openDayModal(8)" title="Click: nghỉ/làm · DblClick: nhập KPI">8</div><div class="d future" onclick="toggleOff(9)" ondblclick="openDayModal(9)" title="Click: nghỉ/làm · DblClick: nhập KPI">9</div><div class="d future" onclick="toggleOff(10)" ondblclick="openDayModal(10)" title="Click: nghỉ/làm · DblClick: nhập KPI">10</div><div class="d future" onclick="toggleOff(11)" ondblclick="openDayModal(11)" title="Click: nghỉ/làm · DblClick: nhập KPI">11</div><div class="d future" onclick="toggleOff(12)" ondblclick="openDayModal(12)" title="Click: nghỉ/làm · DblClick: nhập KPI">12</div><div class="d off" onclick="toggleOff(13)" ondblclick="openDayModal(13)" title="Click: nghỉ/làm · DblClick: nhập KPI">13</div><div class="d future" onclick="toggleOff(14)" ondblclick="openDayModal(14)" title="Click: nghỉ/làm · DblClick: nhập KPI">14</div><div class="d future" onclick="toggleOff(15)" ondblclick="openDayModal(15)" title="Click: nghỉ/làm · DblClick: nhập KPI">15</div><div class="d future" onclick="toggleOff(16)" ondblclick="openDayModal(16)" title="Click: nghỉ/làm · DblClick: nhập KPI">16</div><div class="d future" onclick="toggleOff(17)" ondblclick="openDayModal(17)" title="Click: nghỉ/làm · DblClick: nhập KPI">17</div><div class="d future" onclick="toggleOff(18)" ondblclick="openDayModal(18)" title="Click: nghỉ/làm · DblClick: nhập KPI">18</div><div class="d future" onclick="toggleOff(19)" ondblclick="openDayModal(19)" title="Click: nghỉ/làm · DblClick: nhập KPI">19</div><div class="d off" onclick="toggleOff(20)" ondblclick="openDayModal(20)" title="Click: nghỉ/làm · DblClick: nhập KPI">20</div><div class="d future" onclick="toggleOff(21)" ondblclick="openDayModal(21)" title="Click: nghỉ/làm · DblClick: nhập KPI">21</div><div class="d future" onclick="toggleOff(22)" ondblclick="openDayModal(22)" title="Click: nghỉ/làm · DblClick: nhập KPI">22</div><div class="d future" onclick="toggleOff(23)" ondblclick="openDayModal(23)" title="Click: nghỉ/làm · DblClick: nhập KPI">23</div><div class="d future" onclick="toggleOff(24)" ondblclick="openDayModal(24)" title="Click: nghỉ/làm · DblClick: nhập KPI">24</div><div class="d future" onclick="toggleOff(25)" ondblclick="openDayModal(25)" title="Click: nghỉ/làm · DblClick: nhập KPI">25</div><div class="d future" onclick="toggleOff(26)" ondblclick="openDayModal(26)" title="Click: nghỉ/làm · DblClick: nhập KPI">26</div><div class="d off" onclick="toggleOff(27)" ondblclick="openDayModal(27)" title="Click: nghỉ/làm · DblClick: nhập KPI">27</div><div class="d future" onclick="toggleOff(28)" ondblclick="openDayModal(28)" title="Click: nghỉ/làm · DblClick: nhập KPI">28</div><div class="d future" onclick="toggleOff(29)" ondblclick="openDayModal(29)" title="Click: nghỉ/làm · DblClick: nhập KPI">29</div><div class="d future" onclick="toggleOff(30)" ondblclick="openDayModal(30)" title="Click: nghỉ/làm · DblClick: nhập KPI">30</div></div>
         <p class="sub" style="margin:10px 0 0;font-size:11px">💡 <b>Click</b>: đổi nghỉ/làm · <b>Double-click</b> ngày đã qua: nhập tab luỹ kế · Số dưới mỗi ngày = <b>tab làm trong ngày đó</b></p>
       </div>
 
@@ -303,7 +318,7 @@
         <div class="row cols-2" style="gap:8px">
           <div>
             <label>Ngày</label>
-            <select id="report-day" class="field"></select>
+            <select id="report-day" class="field"><option value="1">01/09</option><option value="2">02/09</option><option value="3">03/09</option><option value="4">04/09</option><option value="5">05/09</option><option value="6">06/09</option><option value="7">07/09</option><option value="8" selected="">08/09</option><option value="9">09/09</option><option value="10">10/09</option><option value="11">11/09</option><option value="12">12/09</option><option value="13">13/09</option><option value="14">14/09</option><option value="15">15/09</option><option value="16">16/09</option><option value="17">17/09</option><option value="18">18/09</option><option value="19">19/09</option><option value="20">20/09</option><option value="21">21/09</option><option value="22">22/09</option><option value="23">23/09</option><option value="24">24/09</option><option value="25">25/09</option><option value="26">26/09</option><option value="27">27/09</option><option value="28">28/09</option><option value="29">29/09</option><option value="30">30/09</option></select>
           </div>
           <div>
             <label>Tab làm trong ngày</label>
@@ -316,18 +331,37 @@
 
       <div class="card">
         <h2>Tiến độ so với mục tiêu</h2>
-        <div id="progress-section"></div>
+        <div id="progress-section">
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:2px">
+        <span class="muted">Đã hoàn thành: <strong style="color:var(--text)" class="num">55</strong> / 234 tab (mục tiêu 100%)</span>
+        <span class="muted">23.5%</span>
+      </div>
+      <div class="progress">
+        <span style="width:23.504273504273502%;background:var(--blue)"></span>
+        <span class="marker" style="left:20.833333333333336%" title="Vạch chuẩn theo thời gian"></span>
+      </div>
+      <div class="sub" style="margin:0;font-size:11.5px">Vạch xám: mốc tuyến tính (20.8%)</div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:2px">
+        <span class="muted">Dự báo cuối tháng: <strong style="color:var(--text)" class="num">264</strong> tab</span>
+        <span class="muted">100.0%</span>
+      </div>
+      <div class="progress"><span style="width:100%;background:var(--green)"></span></div>
+    </div>
+  </div>
       </div>
 
       <div class="card">
         <h2>🏢 Kế hoạch công ty</h2>
         <p class="sub" style="margin:-4px 0 8px">Ghi chú dạng <b>ngày/tháng: tên công việc</b> — thêm hoặc xoá tự do.</p>
         <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
-          <input type="text" id="plan-date" class="field" style="flex:0 0 82px;text-align:center" placeholder="20/08" maxlength="5" onkeydown="if(event.key==='Enter')addPlanNote()">
-          <input type="text" id="plan-task" class="field" style="flex:1 1 auto" placeholder="Tên công việc" onkeydown="if(event.key==='Enter')addPlanNote()">
+          <input type="text" id="plan-date" class="field" style="flex:0 0 82px;text-align:center" placeholder="20/08" maxlength="5" onkeydown="if(event.key===&#39;Enter&#39;)addPlanNote()">
+          <input type="text" id="plan-task" class="field" style="flex:1 1 auto" placeholder="Tên công việc" onkeydown="if(event.key===&#39;Enter&#39;)addPlanNote()">
           <button class="btn btn--primary" style="flex:0 0 auto" onclick="addPlanNote()">+ Thêm</button>
         </div>
-        <div id="company-plan"></div>
+        <div id="company-plan"><p class="hint" style="margin:2px 0 0">Chưa có ghi chú nào — nhập ngày và tên công việc ở trên rồi bấm + Thêm.</p></div>
       </div>
 
     </div>
@@ -337,34 +371,47 @@
       <div class="insight-grid" id="smart-insights"></div>
       <div class="card">
         <h2>📋 Bảng KPI quy đổi</h2>
-        <p class="sub" style="margin-top:-6px">Chỉ số 1 tự tính từ số tab nhập hàng ngày · ô nền xanh là chỗ nhập tay · % đạt khi quy đổi được chặn tối đa 100%</p>
-        <div id="kpi-score"></div>
+        <p class="sub" style="margin-top:-6px">Chỉ số 1 tự tính từ số tab nhập hàng ngày · ô nền xanh là chỗ nhập tay · chỉ số 1 được tính vượt 100% theo thực tế, các chỉ số khác tối đa 100%</p>
+        <div id="kpi-score"><div style="overflow-x:auto"><table class="kpi"><thead><tr><th class="idx">#</th><th>Chỉ số đo lường</th><th class="c">Mục tiêu 100%</th><th class="c">Trọng số</th><th class="c">Thực tế</th><th class="r">% đạt</th><th class="r">KPI quy đổi</th></tr></thead><tbody><tr><td class="idx numc">1</td><td><span class="kname">Tỷ lệ hoàn thành ảnh thiết kế theo yêu cầu content</span><span class="tag">Chuyên môn · Kết quả</span></td><td class="c numc">234</td><td class="c numc">35%</td><td class="c numc"><span class="autoval">⚡ 55</span></td><td class="r numc"><span class="pct-low">24%</span></td><td class="r numc"><span class="conv">8%</span></td></tr><tr><td class="idx numc">2</td><td><span class="kname">Tỷ lệ hoàn thành thiết kế đúng hạn</span><span class="tag">Chuyên môn · Dẫn dắt</span></td><td class="c numc">1</td><td class="c numc">35%</td><td class="c numc"><span class="fixedval">1</span></td><td class="r numc"><span class="pct-ok">100%</span></td><td class="r numc"><span class="conv">35%</span></td></tr><tr><td class="idx numc">3</td><td><span class="kname">Tỷ lệ hoàn thành thiết kế hộp thương hiệu</span><span class="tag">Chuyên môn · Kết quả</span></td><td class="c numc">6</td><td class="c numc">20%</td><td class="c numc"><input type="number" class="kpi-in" step="1" min="0" value="0" data-field="boxDone"></td><td class="r numc"><span class="pct-low">0%</span></td><td class="r numc"><span class="conv">0%</span></td></tr><tr><td class="idx numc">4</td><td><span class="kname">Học tập &amp; đào tạo</span><span class="tag">Học tập · Dẫn dắt</span></td><td class="c numc">1</td><td class="c numc">5%</td><td class="c numc"><span class="fixedval">1</span></td><td class="r numc"><span class="pct-ok">100%</span></td><td class="r numc"><span class="conv">5%</span></td></tr><tr><td class="idx numc">5</td><td><span class="kname">Báo cáo công việc đúng hạn</span><span class="tag">Báo cáo · Dẫn dắt</span></td><td class="c numc">1</td><td class="c numc">5%</td><td class="c numc"><span class="fixedval">100%</span></td><td class="r numc"><span class="pct-ok">100%</span></td><td class="r numc"><span class="conv">5%</span></td></tr><tr class="ktotal"><td></td><td>TỔNG</td><td class="c"></td><td class="c numc">100%</td><td class="c"></td><td class="r"></td><td class="r numc"><span class="pct-low" style="font-size:13.5px">53%</span></td></tr></tbody></table></div></div>
       </div>
       <div class="card">
         <h2>Đường cong tiến độ</h2>
         <p class="sub" style="margin-top:-6px;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center">
-          <span style="display:inline-flex;align-items:center;gap:5px"><svg width="20" height="6" style="flex:none"><line x1="0" y1="3" x2="20" y2="3" stroke="var(--blue)" stroke-width="2.5"/></svg>Thực tế tháng này</span>
-          <span style="display:inline-flex;align-items:center;gap:5px"><svg width="20" height="6" style="flex:none"><line x1="0" y1="3" x2="20" y2="3" stroke="var(--blue)" stroke-width="2" stroke-dasharray="3 3"/></svg>Dự báo</span>
-          <span style="display:inline-flex;align-items:center;gap:5px"><svg width="20" height="6" style="flex:none"><line x1="0" y1="3" x2="20" y2="3" stroke="var(--orange)" stroke-width="2" stroke-dasharray="4 3"/></svg>Mục tiêu tuyến tính</span>
-          <span style="display:inline-flex;align-items:center;gap:5px"><svg width="20" height="6" style="flex:none"><line x1="0" y1="3" x2="20" y2="3" stroke="#b79df7" stroke-width="2" stroke-dasharray="5 4"/></svg>Tháng trước</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><svg width="20" height="6" style="flex:none"><line x1="0" y1="3" x2="20" y2="3" stroke="var(--blue)" stroke-width="2.5"></line></svg>Thực tế tháng này</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><svg width="20" height="6" style="flex:none"><line x1="0" y1="3" x2="20" y2="3" stroke="var(--blue)" stroke-width="2" stroke-dasharray="3 3"></line></svg>Dự báo</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><svg width="20" height="6" style="flex:none"><line x1="0" y1="3" x2="20" y2="3" stroke="var(--orange)" stroke-width="2" stroke-dasharray="4 3"></line></svg>Mục tiêu tuyến tính</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><svg width="20" height="6" style="flex:none"><line x1="0" y1="3" x2="20" y2="3" stroke="#b79df7" stroke-width="2" stroke-dasharray="5 4"></line></svg>Tháng trước</span>
         </p>
-        <svg class="chart" id="chart" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
+        <svg class="chart" id="chart" viewBox="0 0 600 200" preserveAspectRatio="none">
+    <line class="grid" x1="34" y1="178" x2="590" y2="178"></line><text x="28" y="181" text-anchor="end">0</text><line class="grid" x1="34" y1="136.5" x2="590" y2="136.5"></line><text x="28" y="139.5" text-anchor="end">78</text><line class="grid" x1="34" y1="95" x2="590" y2="95"></line><text x="28" y="98" text-anchor="end">156</text><line class="grid" x1="34" y1="53.5" x2="590" y2="53.5"></line><text x="28" y="56.5" text-anchor="end">234</text><line class="grid" x1="34" y1="12" x2="590" y2="12"></line><text x="28" y="15" text-anchor="end">312</text>
+    <path class="actual-area" d="M34,178 L72.34482758620689,171.6123136123136 L91.51724137931035,163.62770562770564 L110.6896551724138,158.30463363796696 L149.0344827586207,148.7231040564374 L168.20689655172416,148.7231040564374 L 168.20689655172416,178 L 34,178 Z"></path>
+    <path class="target-line" d="M 34,178 L 590,53.44011544011545"></path>
+    <path d="M34,178 L34,174.27384960718294 L91.51724137931035,165.22462722462723 L110.6896551724138,157.7723264389931 L129.86206896551727,151.9169472502806 L149.0344827586207,144.99695366362033 L168.20689655172416,139.67388167388168 L206.55172413793105,134.35080968414303 L225.7241379310345,129.02773769440438 L244.8965517241379,121.04312970979637 L264.0689655172414,112.52621452621453 L283.2413793103448,104.54160654160655 L302.4137931034483,104.00929934263267 L340.7586206896552,97.6216129549463 L359.9310344827586,90.16931216931218 L379.1034482758621,81.65239698573033 L398.2758620689655,77.3939393939394 L417.448275862069,69.40933140933141 L436.62068965517244,63.55395222061888 L474.9655172413793,55.569344236010906 L494.13793103448273,48.64935064935065 L513.3103448275862,40.664742664742676 L532.4827586206897,33.74474907808241 L551.6551724137931,26.292448292448285 L570.8275862068966,19.904761904761926" stroke="#b79df7" stroke-width="2" stroke-dasharray="5 4" fill="none" opacity=".9"></path><circle cx="570.8275862068966" cy="19.904761904761926" r="3" fill="#b79df7"></circle><text x="564.8275862068966" y="31.904761904761926" text-anchor="end" fill="#b79df7" style="font-weight:600">Tháng 8: 297 tab</text>
+    <path class="actual-line" d="M34,178 L72.34482758620689,171.6123136123136 L91.51724137931035,163.62770562770564 L110.6896551724138,158.30463363796696 L149.0344827586207,148.7231040564374 L168.20689655172416,148.7231040564374"></path>
+    <path d="M 168.20689655172416,148.7231040564374 L 590,37.47089947089947" stroke="var(--blue)" stroke-width="1.5" stroke-dasharray="3 3" fill="none" opacity=".7"></path>
+    <line class="axis" x1="34" y1="178" x2="590" y2="178"></line>
+    <line x1="168.20689655172416" y1="12" x2="168.20689655172416" y2="178" stroke="var(--blue)" stroke-width="1" stroke-dasharray="2 2" opacity=".55"></line><text x="168.20689655172416" y="20" text-anchor="middle" fill="var(--blue)" style="font-weight:600">hôm nay</text>
+    <circle class="dot" cx="72.34482758620689" cy="171.6123136123136" r="3"></circle><circle class="dot" cx="91.51724137931035" cy="163.62770562770564" r="3"></circle><circle class="dot" cx="110.6896551724138" cy="158.30463363796696" r="3"></circle><circle class="dot" cx="149.0344827586207" cy="148.7231040564374" r="3"></circle><circle class="dot" cx="168.20689655172416" cy="148.7231040564374" r="3"></circle>
+    <circle cx="590" cy="53.44011544011545" r="3" fill="var(--orange)"></circle>
+    <circle cx="590" cy="37.47089947089947" r="3" fill="var(--green)"></circle>
+    <text x="34" y="194" text-anchor="middle">1</text><text x="129.86206896551727" y="194" text-anchor="middle">6</text><text x="225.7241379310345" y="194" text-anchor="middle">11</text><text x="321.58620689655174" y="194" text-anchor="middle">16</text><text x="417.448275862069" y="194" text-anchor="middle">21</text><text x="513.3103448275862" y="194" text-anchor="middle">26</text><text x="590" y="194" text-anchor="end">30</text>
+  </svg>
       </div>
 
       <div class="card">
         <h2>Biên độ công việc (tab/ngày)</h2>
         <p class="sub" style="margin-top:-6px">Cột xanh: đạt nhịp · Cột cam: dưới nhịp · Đường đứt xanh: TB · Đường đứt đỏ: cần đạt</p>
-        <svg class="chart" id="chart-daily" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
-        <div id="daily-stats" style="display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text-2);margin-top:8px"></div>
+        <svg class="chart" id="chart-daily" viewBox="0 0 600 200" preserveAspectRatio="none"><line class="grid" x1="34" y1="178" x2="590" y2="178"></line><text x="28" y="181" text-anchor="end">0</text><line class="grid" x1="34" y1="122.66666666666667" x2="590" y2="122.66666666666667"></line><text x="28" y="125.66666666666667" text-anchor="end">7</text><line class="grid" x1="34" y1="67.33333333333334" x2="590" y2="67.33333333333334"></line><text x="28" y="70.33333333333334" text-anchor="end">14</text><line class="grid" x1="34" y1="12" x2="590" y2="12"></line><text x="28" y="15" text-anchor="end">21</text><rect x="34" y="33.65217391304347" width="556" height="64.15458937198068" fill="var(--blue)" opacity=".07"></rect><rect x="66.59949425287355" y="81.76811594202898" width="11.490666666666668" height="96.23188405797102" rx="2" fill="var(--green)" opacity=".85"></rect><rect x="85.77190804597701" y="57.710144927536234" width="11.490666666666668" height="120.28985507246377" rx="2" fill="var(--green)" opacity=".85"></rect><rect x="104.94432183908046" y="97.80676328502415" width="11.490666666666668" height="80.19323671497585" rx="2" fill="var(--green)" opacity=".85"></rect><rect x="143.28914942528738" y="33.65217391304347" width="11.490666666666668" height="144.34782608695653" rx="2" fill="var(--green)" opacity=".85"></rect><line x1="34" y1="67.73429951690821" x2="590" y2="67.73429951690821" stroke="var(--blue)" stroke-width="1.5" stroke-dasharray="6 3"></line><text x="38" y="62.73429951690821" fill="var(--blue)" style="font-weight:600">TB 13.8/ngày</text><line x1="34" y1="102.44952962115434" x2="590" y2="102.44952962115434" stroke="var(--red)" stroke-width="1.5" stroke-dasharray="4 3"></line><text x="588" y="98.44952962115434" text-anchor="end" fill="var(--red)" style="font-weight:600">cần 9.4/ngày</text><line class="axis" x1="34" y1="178" x2="590" y2="178"></line><text x="34" y="194" text-anchor="middle">1</text><text x="129.86206896551727" y="194" text-anchor="middle">6</text><text x="225.7241379310345" y="194" text-anchor="middle">11</text><text x="321.58620689655174" y="194" text-anchor="middle">16</text><text x="417.448275862069" y="194" text-anchor="middle">21</text><text x="513.3103448275862" y="194" text-anchor="middle">26</text><text x="590" y="194" text-anchor="end">30</text></svg>
+        <div id="daily-stats" style="display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text-2);margin-top:8px"><span>🔺 Cao nhất: <b class="num" style="color:var(--green)">18 tab</b> (ngày 7)</span><span>🔻 Thấp nhất: <b class="num" style="color:var(--red)">10 tab</b> (ngày 5)</span><span>⚖️ Trung bình: <b class="num" style="color:var(--blue)">13.8 tab/ngày</b></span><span>↕️ Dao động: <b class="num">8 tab</b></span></div>
       </div>
 
       <div class="card">
         <h2>📆 Kết quả theo tháng</h2>
         <p class="sub" style="margin-top:-6px">So sánh % chỉ tiêu qua các tháng · tháng hiện tại (viền xanh) là <b>dự báo cuối tháng</b>, vạch đứt là % đã đạt tới hôm nay</p>
-        <svg class="chart" id="chart-monthly" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
-        <div id="monthly-list" style="margin-top:10px"></div>
+        <svg class="chart" id="chart-monthly" viewBox="0 0 600 200" preserveAspectRatio="none"><line class="grid" x1="34" y1="174" x2="590" y2="174"></line><text x="28" y="177" text-anchor="end">0%</text><line class="grid" x1="34" y1="120.66666666666667" x2="590" y2="120.66666666666667"></line><text x="28" y="123.66666666666667" text-anchor="end">56%</text><line class="grid" x1="34" y1="67.33333333333334" x2="590" y2="67.33333333333334"></line><text x="28" y="70.33333333333334" text-anchor="end">112%</text><line class="grid" x1="34" y1="14" x2="590" y2="14"></line><text x="28" y="17" text-anchor="end">168%</text><line x1="34" y1="78.76190476190479" x2="590" y2="78.76190476190479" stroke="var(--orange)" stroke-width="1.5" stroke-dasharray="4 3"></line><text x="588" y="74.76190476190479" text-anchor="end" fill="var(--orange)" style="font-weight:600">100%</text><rect x="86.82000000000001" y="53.047619047619065" width="172.35999999999999" height="120.95238095238093" rx="3" fill="var(--green)" opacity=".85"></rect><text x="173" y="49.047619047619065" text-anchor="middle" fill="var(--text)" style="font-size:10px;font-weight:600">127.0%</text><rect x="364.82" y="66.55189255189258" width="172.35999999999999" height="107.44810744810742" rx="3" fill="var(--green)" opacity=".95" stroke="var(--blue)" stroke-width="2"></rect><text x="451" y="62.55189255189258" text-anchor="middle" fill="var(--text)" style="font-size:10px;font-weight:600">112.8%</text><line x1="362.82" y1="151.61497761497762" x2="539.18" y2="151.61497761497762" stroke="var(--blue)" stroke-width="1.8" stroke-dasharray="3 2"></line><text x="543.18" y="154.61497761497762" fill="var(--blue)" style="font-size:9.5px;font-weight:600">hiện tại 23.5%</text><line class="axis" x1="34" y1="174" x2="590" y2="174"></line><text x="173" y="192" text-anchor="middle">T8/26</text><text x="451" y="192" text-anchor="middle" fill="var(--blue)" style="font-weight:700">T9/26 (dự báo)</text></svg>
+        <div id="monthly-list" style="margin-top:10px"><div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--text-2);margin-bottom:8px"><span>TB các tháng trước: <b class="num" style="color:var(--text)">127.0%</b></span><span>🏆 Cao nhất: <b class="num" style="color:var(--green)">127.0%</b></span><span>🔻 Thấp nhất: <b class="num" style="color:var(--red)">127.0%</b></span><span>Tháng này vs TB: <b class="num" style="color:var(--red)">-14.2%</b></span></div><div style="display:flex;flex-wrap:wrap;gap:6px"><span style="display:inline-flex;align-items:center;gap:6px;padding:3px 4px 3px 10px;border-radius:99px;background:var(--bg-soft);border:1px solid var(--border);font-size:11.5px"><b>T8/2026</b><span style="color:var(--green);font-weight:600" class="num">127.00%</span><button class="btn btn--ghost" title="Xoá" style="padding:0 6px;font-size:13px;line-height:1" onclick="removeMonthEntry(&#39;2026-8&#39;)">×</button></span></div></div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1.4fr auto;gap:6px;margin-top:10px">
-          <select id="mh-month" class="field"></select>
+          <select id="mh-month" class="field"><option value="1">T1</option><option value="2">T2</option><option value="3">T3</option><option value="4">T4</option><option value="5">T5</option><option value="6">T6</option><option value="7">T7</option><option value="8" selected="">T8</option><option value="9">T9</option><option value="10">T10</option><option value="11">T11</option><option value="12">T12</option></select>
           <input type="number" id="mh-year" class="field num" placeholder="Năm">
           <input type="number" id="mh-pct" class="field num" placeholder="% đạt (VD: 156.07)" step="0.01">
           <button class="btn btn--primary" onclick="addMonthEntry()">Thêm</button>
@@ -378,27 +425,65 @@
     <div class="col-right">
       <div class="card">
         <h2>🧠 Kết luận &amp; gợi ý</h2>
-        <div id="conclusion"></div>
+        <div id="conclusion"><div class="conclusion good"><div><span class="tag tag--green">🎯 Có thể đạt mục tiêu</span></div><p>Với <b>11.0 tab/ngày</b> qua 5 ngày, dự báo cuối tháng <b class="num">264 tab</b> — vượt <b>30 tab</b>.</p><ul class="list"><li>🎯 Đang <b>vượt mục tiêu 30 tab</b>. Cân nhắc mục tiêu tham vọng hơn tháng sau.</li></ul></div><ul class="list" style="margin-top:10px"><li>🎯 Chỉ tiêu <b>120%</b>: cần <b class="num">281 tab</b> · còn <b class="num">226 tab</b> (≈ <b>11.9 tab/ngày</b>)</li><li>🚀 Mục tiêu tiếp theo <b>150%</b>: cần <b class="num">351 tab</b> · còn <b class="num">296 tab</b> (≈ <b>15.6 tab/ngày</b>)</li></ul></div>
       </div>
 
       <div class="card">
         <h2>Vòng tiến độ</h2>
-        <div id="rings" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;padding:4px 0;max-width:260px;margin:0 auto"></div>
+        <div id="rings" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;padding:4px 0;max-width:260px;margin:0 auto"><div style="text-align:center">
+      <svg width="100" height="100" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--bg-raised)" stroke-width="11"></circle>
+        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--green)" stroke-width="11" stroke-linecap="round" stroke-dasharray="56.11904825643305 238.76104167282426" transform="rotate(-90 60 60)"></circle>
+        <text x="60" y="62" text-anchor="middle" style="font-size:19px;font-weight:700" fill="var(--text)" class="num">24%</text>
+        <text x="60" y="78" text-anchor="middle" style="font-size:9.5px" fill="var(--text-2)">55/234</text>
+      </svg>
+      <div style="font-size:11px;color:var(--text-2);margin-top:-2px">Mục tiêu 100%</div>
+    </div><div style="text-align:center">
+      <svg width="100" height="100" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--bg-raised)" stroke-width="11"></circle>
+        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--blue)" stroke-width="11" stroke-linecap="round" stroke-dasharray="46.732588227777 238.76104167282426" transform="rotate(-90 60 60)"></circle>
+        <text x="60" y="62" text-anchor="middle" style="font-size:19px;font-weight:700" fill="var(--text)" class="num">20%</text>
+        <text x="60" y="78" text-anchor="middle" style="font-size:9.5px" fill="var(--text-2)">55/281</text>
+      </svg>
+      <div style="font-size:11px;color:var(--text-2);margin-top:-2px">Mốc 120%</div>
+    </div><div style="text-align:center">
+      <svg width="100" height="100" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--bg-raised)" stroke-width="11"></circle>
+        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--purple)" stroke-width="11" stroke-linecap="round" stroke-dasharray="49.741883681838395 238.76104167282426" transform="rotate(-90 60 60)"></circle>
+        <text x="60" y="62" text-anchor="middle" style="font-size:19px;font-weight:700" fill="var(--text)" class="num">21%</text>
+        <text x="60" y="78" text-anchor="middle" style="font-size:9.5px" fill="var(--text-2)">5/24d</text>
+      </svg>
+      <div style="font-size:11px;color:var(--text-2);margin-top:-2px">Thời gian đã qua</div>
+    </div><div style="text-align:center">
+      <svg width="100" height="100" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--bg-raised)" stroke-width="11"></circle>
+        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--orange)" stroke-width="11" stroke-linecap="round" stroke-dasharray="37.41269883762203 238.76104167282426" transform="rotate(-90 60 60)"></circle>
+        <text x="60" y="62" text-anchor="middle" style="font-size:19px;font-weight:700" fill="var(--text)" class="num">16%</text>
+        <text x="60" y="78" text-anchor="middle" style="font-size:9.5px" fill="var(--text-2)">55/351</text>
+      </svg>
+      <div style="font-size:11px;color:var(--text-2);margin-top:-2px">Mục tiêu tiếp theo 150%</div>
+    </div></div>
         <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:11.5px;color:var(--text-2);margin-top:2px">
           <span>Mục tiêu tiếp theo</span>
           <input type="number" id="next-pct" class="field num" step="5" min="1" style="width:76px;padding:4px 6px;text-align:center;font-size:12px" onchange="setNextTargetPct(this.value)">
-          <span>% = <b id="next-tabs"></b></span>
+          <span>% = <b id="next-tabs">351 tab</b></span>
         </div>
       </div>
 
       <div class="card">
         <h2>💰 Mốc thưởng theo tỷ lệ KPI</h2>
-        <div id="bonus"></div>
+        <div id="bonus"><div class="bonus-now none"><div><div class="lbl">Đang ứng với 23.5%</div><div class="amt" style="color:var(--text-2)">Chưa tới mốc</div></div><div style="text-align:right"><div class="lbl">Mốc kế tiếp 100%</div><div class="nx">còn <b class="num">179</b> tab</div><div class="nx"><b>1.400.000 đ</b></div></div></div><ul class="bonus-list"><li class="bonus-row next"><span class="dot"></span><span class="pct">≥ 100%</span><span class="gap">còn 179 tab</span><span class="money" contenteditable="true" spellcheck="false" data-pct="100">1.400.000 đ</span></li><li class="bonus-row"><span class="dot"></span><span class="pct">≥ 120%</span><span class="gap">còn 226 tab</span><span class="money" contenteditable="true" spellcheck="false" data-pct="120">2.400.000 đ</span></li><li class="bonus-row"><span class="dot"></span><span class="pct">≥ 130%</span><span class="gap">còn 250 tab</span><span class="money" contenteditable="true" spellcheck="false" data-pct="130">3.400.000 đ</span></li><li class="bonus-row"><span class="dot"></span><span class="pct">≥ 150%</span><span class="gap">còn 296 tab</span><span class="money" contenteditable="true" spellcheck="false" data-pct="150">4.400.000 đ</span></li></ul><p class="hint" style="margin:8px 0 0">Dự báo cuối tháng <b>112.8%</b> → <b>1.400.000 đ</b> · bấm vào số tiền để sửa</p></div>
       </div>
 
       <div class="card">
         <h2>📅 Tóm tắt theo tuần</h2>
-        <div id="weekly-table"></div>
+        <div id="weekly-table"><table class="wk">
+    <thead><tr><th>Tuần</th><th class="num" style="text-align:right">Tab</th><th class="num" style="text-align:right">Ngày làm</th><th class="num" style="text-align:right">TB/ngày</th></tr></thead>
+    <tbody>
+      <tr><td>01–06</td><td class="num">37</td><td class="num">3</td><td class="num">12.3</td></tr><tr><td>07–13 🏆</td><td class="num">18</td><td class="num">1</td><td class="num" style="color:var(--green);font-weight:600">18.0</td></tr><tr><td>14–20</td><td class="num">0</td><td class="num">0</td><td class="num">0.0</td></tr><tr><td>21–27</td><td class="num">0</td><td class="num">0</td><td class="num">0.0</td></tr><tr><td>28–30</td><td class="num">0</td><td class="num">0</td><td class="num">0.0</td></tr>
+      <tr class="total"><td>Tổng / TB</td><td class="num">55</td><td class="num">4</td><td class="num">13.8</td></tr>
+    </tbody>
+  </table></div>
       </div>
 
     </div>
@@ -1103,7 +1188,7 @@ function calc(persist){
 
   // Progress bars
   const pctOfTarget = Math.min((done / target) * 100, 100);
-  const projPct = Math.min((projected / target) * 100, 100);
+  const projPct = target > 0 ? (projected / target) * 100 : 0;
   const idealPct = ((workedDays) / (workedDays + workDaysLeft)) * 100;
   document.getElementById('progress-section').innerHTML = `
     <div style="margin-bottom:12px">
@@ -1368,10 +1453,12 @@ function renderKpiScore({ done, target }){
   ];
   let totalConv = 0;
   const body = rows.map((r, i) => {
-    const shown = cap(r.pct);
+    // Chỉ số 1 được phép vượt 100% và phần vượt tiếp tục nhân với trọng số 35%.
+    // Ví dụ đạt 120% => KPI quy đổi = 120% x 35% = 42%.
+    const shown = i === 0 ? Math.max(0, r.pct) : cap(r.pct);
     const conv = shown / 100 * r.weight;
     totalConv += conv;
-    const over = r.pct > 100 ? ' <span style="font-size:10px;color:var(--text-2)">(' + fmt(r.pct,0) + '%)</span>' : '';
+    const over = (i !== 0 && r.pct > 100) ? ' <span style="font-size:10px;color:var(--text-2)">(' + fmt(r.pct,0) + '%)</span>' : '';
     return '<tr>'
       + '<td class="idx numc">' + (i+1) + '</td>'
       + '<td><span class="kname">' + r.name + '</span><span class="tag">' + r.tag + '</span></td>'
@@ -1880,5 +1967,6 @@ function exportReport(ev){
 
 init();
 </script>
-</body>
-</html>
+
+
+</body></html>
