@@ -731,6 +731,30 @@
 }
 </style>
 
+
+<style id="rings-four-only-patch">
+.ring-card #rings{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px 12px !important;
+  justify-items:center !important;
+  align-items:start !important;
+  max-width:270px !important;
+  margin:0 auto !important;
+  padding:6px 0 4px !important;
+}
+.ring-card #rings > div{
+  width:100%;
+  min-width:0;
+}
+.ring-card #rings svg{
+  width:94px !important;
+  height:94px !important;
+  display:block;
+  margin:0 auto;
+}
+</style>
+
 </head>
 <body>
 <div class="quick-plan-float" id="quick-plan-float">
@@ -1005,32 +1029,13 @@
         <div id="conclusion"><div class="conclusion good"><div><span class="tag tag--green">🎯 Có thể đạt mục tiêu</span></div><p>Với <b>11.0 tab/ngày</b> qua 5 ngày, dự báo cuối tháng <b class="num">264 tab</b> — vượt <b>30 tab</b>.</p><ul class="list"><li>🎯 Đang <b>vượt mục tiêu 30 tab</b>. Cân nhắc mục tiêu tham vọng hơn tháng sau.</li></ul></div><ul class="list" style="margin-top:10px"><li>🎯 Chỉ tiêu <b>120%</b>: cần <b class="num">281 tab</b> · còn <b class="num">226 tab</b> (≈ <b>11.9 tab/ngày</b>)</li><li>🚀 Mục tiêu tiếp theo <b>150%</b>: cần <b class="num">351 tab</b> · còn <b class="num">296 tab</b> (≈ <b>15.6 tab/ngày</b>)</li></ul></div>
       </div>
 
+      
       <div class="card ring-card">
         <h2>Vòng tiến độ</h2>
-        <div class="ring-layout">
-          <div id="rings"></div>
-          
-            <div class="ring-setting reward">
-              <span class="rs-label">Mốc thưởng</span>
-              <div class="rs-input">
-                
-                <span class="rs-pct">%</span>
-              </div>
-              <div class="rs-tabs" id="reward-tabs">304 tab</div>
-            </div>
-            <div class="ring-setting next">
-              <span class="rs-label">Mục tiêu kế tiếp</span>
-              <div class="rs-input">
-                
-                <span class="rs-pct">%</span>
-              </div>
-              <div class="rs-tabs" id="next-tabs">351 tab</div>
-            </div>
-          </div>
-        </div>
+        <div id="rings"></div>
       </div>
 
-      <div class="card">
+<div class="card">
         <h2>💰 Mốc thưởng theo tỷ lệ KPI</h2>
         <div id="bonus"><div class="bonus-now none"><div><div class="lbl">Đang ứng với 23.5%</div><div class="amt" style="color:var(--text-2)">Chưa tới mốc</div></div><div style="text-align:right"><div class="lbl">Mốc kế tiếp 100%</div><div class="nx">còn <b class="num">179</b> tab</div><div class="nx"><b>1.400.000 đ</b></div></div></div><ul class="bonus-list"><li class="bonus-row next"><span class="dot"></span><span class="pct">≥ 100%</span><span class="gap">còn 179 tab</span><span class="money" contenteditable="true" spellcheck="false" data-pct="100">1.400.000 đ</span></li><li class="bonus-row"><span class="dot"></span><span class="pct">≥ 120%</span><span class="gap">còn 226 tab</span><span class="money" contenteditable="true" spellcheck="false" data-pct="120">2.400.000 đ</span></li><li class="bonus-row"><span class="dot"></span><span class="pct">≥ 130%</span><span class="gap">còn 250 tab</span><span class="money" contenteditable="true" spellcheck="false" data-pct="130">3.400.000 đ</span></li><li class="bonus-row"><span class="dot"></span><span class="pct">≥ 150%</span><span class="gap">còn 296 tab</span><span class="money" contenteditable="true" spellcheck="false" data-pct="150">4.400.000 đ</span></li></ul><div class="bonus-forecast"><div class="bf-title">🔮 Dự báo cuối tháng</div><div class="bf-main"><b>112.8%</b> → <b>1.400.000 đ</b></div><div class="bf-note">Bấm trực tiếp vào số tiền ở các mốc phía trên để sửa.</div></div></div>
       </div>
