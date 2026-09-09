@@ -4,6 +4,16 @@
 
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Máy tính KPI</title>
+<script>
+(function(){
+  try{
+    const savedTheme = localStorage.getItem('kpi_theme_v1');
+    if(savedTheme === 'light' || savedTheme === 'dark'){
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+  }catch(e){}
+})();
+</script>
 <link rel="icon" type="image/png" sizes="128x128" href="data:image/png;base64,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">
 <link rel="shortcut icon" type="image/png" href="data:image/png;base64,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">
 <style>
@@ -31,6 +41,31 @@
       --red:#E97366; --red-soft:rgba(233,115,102,.14);
       --purple:#A889D9; --purple-soft:rgba(168,137,217,.14);
     }
+  }
+  /* manual Light / Dark override */
+  html[data-theme="light"]{
+    color-scheme:light;
+    --bg:#FFFFFF; --bg-soft:#F9F8F7; --bg-raised:#F0EFED;
+    --border:#E6E5E3; --border-2:#D9D8D6;
+    --text:#2C2C2B; --text-2:#7D7A75;
+    --blue:#2783DE; --blue-soft:#E5F2FC;
+    --green:#46A171; --green-soft:#E8F1EC;
+    --orange:#D5803B; --orange-soft:#FBEBDE;
+    --yellow:#D69A00; --yellow-soft:#FFF7D6;
+    --red:#E56458; --red-soft:#FCE9E7;
+    --purple:#8A6BC7; --purple-soft:#EFE9F7;
+  }
+  html[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#191919; --bg-soft:#202020; --bg-raised:#2A2A2A;
+    --border:rgba(255,255,255,.14); --border-2:rgba(255,255,255,.22);
+    --text:#FFFFFF; --text-2:rgba(255,255,255,.65);
+    --blue:#5E9FE8; --blue-soft:rgba(94,159,232,.14);
+    --green:#72BC8F; --green-soft:rgba(114,188,143,.14);
+    --orange:#DE9255; --orange-soft:rgba(222,146,85,.14);
+    --yellow:#F5B324; --yellow-soft:rgba(245,179,36,.13);
+    --red:#E97366; --red-soft:rgba(233,115,102,.14);
+    --purple:#A889D9; --purple-soft:rgba(168,137,217,.14);
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',system-ui,sans-serif;font-size:13.5px;line-height:1.5}
@@ -170,6 +205,91 @@
   .btn--ghost{background:transparent;border-color:transparent;color:var(--text-2)}
   .btn--ghost:hover{color:var(--text);background:var(--bg-soft)}
   .data-btn{font-weight:600;padding:7px 11px;border-width:1px}
+  /* Light / Dark switch — fixed in the top toolbar, not floating */
+  .theme-inline{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:6px 9px;border:1px solid var(--border);border-radius:999px;
+    background:var(--bg-soft);white-space:nowrap;
+  }
+  .theme-inline .theme-icon{font-size:13px;line-height:1;opacity:.42;transition:opacity .18s,transform .18s}
+  .theme-inline[data-active="light"] .theme-sun,
+  .theme-inline[data-active="dark"] .theme-moon{opacity:1;transform:scale(1.08)}
+  .theme-toggle-control{display:inline-flex;align-items:center;margin:0;cursor:pointer}
+  .theme-toggle-control input{position:absolute;opacity:0;pointer-events:none}
+  .theme-slider{
+    width:38px;height:21px;border-radius:999px;position:relative;display:block;
+    background:var(--border-2);border:1px solid var(--border-2);
+    transition:background .2s,border-color .2s;
+  }
+  .theme-slider::before{
+    content:'';position:absolute;left:2px;top:2px;width:15px;height:15px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.28);transition:transform .2s;
+  }
+  .theme-toggle-control input:checked + .theme-slider{background:var(--purple);border-color:var(--purple)}
+  .theme-toggle-control input:checked + .theme-slider::before{transform:translateX(17px)}
+  .theme-toggle-control input:focus-visible + .theme-slider{outline:2px solid var(--blue);outline-offset:2px}
+
+  /* Floating quick KPI recorder */
+  .quick-kpi-float{position:fixed;right:18px;bottom:18px;z-index:90;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+  .quick-kpi-launch{
+    border:1px solid color-mix(in srgb,var(--red) 72%,var(--border));
+    background:var(--red);color:#fff;border-radius:999px;padding:10px 15px;
+    font:700 12.5px/1.2 inherit;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.22);
+    transition:transform .15s,opacity .15s;
+  }
+  .quick-kpi-launch:hover{transform:translateY(-1px);opacity:.94}
+  .quick-kpi-panel{
+    width:min(330px,calc(100vw - 24px));padding:13px;border-radius:12px;
+    border:1px solid color-mix(in srgb,var(--red) 55%,var(--border));
+    background:color-mix(in srgb,var(--bg) 95%,transparent);
+    box-shadow:0 14px 42px rgba(0,0,0,.28);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    display:none;
+  }
+  .quick-kpi-float.open .quick-kpi-panel{display:block;animation:kpiPop .16s ease-out}
+  .quick-kpi-float.open .quick-kpi-launch{display:none}
+  @keyframes kpiPop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+  .quick-kpi-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+  .quick-kpi-head strong{font-size:13px;color:var(--red)}
+  .quick-kpi-close{border:0;background:transparent;color:var(--text-2);font-size:18px;line-height:1;cursor:pointer;padding:2px 4px;border-radius:5px}
+  .quick-kpi-close:hover{background:var(--red-soft);color:var(--red)}
+  .quick-kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .quick-kpi-panel .field:focus{border-color:var(--red)}
+  .quick-kpi-submit{width:100%;margin-top:8px;background:var(--red);border-color:var(--red);font-weight:700;padding:8px 10px}
+  .quick-kpi-result{margin:7px 0 0;font-size:11px;color:var(--text-2);min-height:0}
+  .quick-kpi-float.action-hidden,.quick-plan-float.action-hidden{display:none}
+
+  /* Floating company plan quick action */
+  .quick-plan-float{position:fixed;right:18px;bottom:68px;z-index:89;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+  .quick-plan-launch{
+    border:1px solid color-mix(in srgb,var(--yellow) 62%,var(--border));
+    background:color-mix(in srgb,var(--yellow) 82%,#8a6a16);
+    color:#fff;border-radius:99px;padding:9px 14px;font-size:12.5px;font-weight:750;
+    cursor:pointer;font-family:inherit;box-shadow:0 6px 18px rgba(0,0,0,.18);transition:transform .15s,opacity .15s
+  }
+  .quick-plan-launch:hover{transform:translateY(-1px);opacity:.94}
+  .quick-plan-panel{
+    width:370px;display:none;background:var(--bg);border:1px solid color-mix(in srgb,var(--yellow) 48%,var(--border));
+    border-top:3px solid color-mix(in srgb,var(--yellow) 78%,var(--text));border-radius:12px;padding:12px;
+    box-shadow:0 16px 42px rgba(0,0,0,.26);max-height:min(62vh,520px);overflow:auto
+  }
+  .quick-plan-float.open .quick-plan-panel{display:block;animation:kpiPop .16s ease-out}
+  .quick-plan-float.open .quick-plan-launch{display:none}
+  .quick-plan-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px}
+  .quick-plan-head strong{font-size:13px;color:color-mix(in srgb,var(--yellow) 82%,var(--text))}
+  .quick-plan-close{border:0;background:transparent;color:var(--text-2);font-size:18px;line-height:1;cursor:pointer;padding:2px 4px;border-radius:5px}
+  .quick-plan-close:hover{background:var(--yellow-soft);color:var(--text)}
+  .quick-plan-entry{display:grid;grid-template-columns:82px minmax(0,1fr) auto;gap:6px;align-items:center;margin-bottom:9px}
+  .quick-plan-entry .field:focus{border-color:var(--yellow);box-shadow:0 0 0 2px var(--yellow-soft)}
+  .quick-plan-add{background:color-mix(in srgb,var(--yellow) 80%,#8a6a16);border-color:transparent;color:#fff;font-weight:750;padding:7px 10px}
+  .quick-plan-add:hover{opacity:.92}
+  .quick-plan-list{padding-top:2px}
+  .quick-plan-list ul.plan-notes{max-height:300px;overflow:auto;padding-right:2px}
+  @media(max-width:600px){
+    .quick-kpi-float{right:10px;bottom:10px}.quick-kpi-panel{width:min(318px,calc(100vw - 20px))}
+    .quick-plan-float{right:10px;bottom:62px}.quick-plan-panel{width:min(360px,calc(100vw - 20px))}
+    .quick-plan-entry{grid-template-columns:76px minmax(0,1fr)}
+    .quick-plan-add{grid-column:1 / -1;width:100%}
+  }
   .data-btn--export{border-color:rgba(70,161,113,.65);background:var(--green-soft);color:var(--green)}
   .data-btn--export:hover{border-color:var(--green);background:var(--green-soft)}
   .data-btn--import{border-color:rgba(39,131,222,.65);background:var(--blue-soft);color:var(--blue)}
@@ -397,6 +517,48 @@
 </style>
 </head>
 <body>
+<div class="quick-plan-float" id="quick-plan-float">
+  <div class="quick-plan-panel" id="quick-plan-panel">
+    <div class="quick-plan-head">
+      <strong>📌 Kế hoạch công ty</strong>
+      <button class="quick-plan-close" type="button" onclick="closeQuickPlan()" title="Đóng">×</button>
+    </div>
+    <p class="sub" style="margin:0 0 9px;font-size:11.5px">Thêm, đánh dấu hoàn thành hoặc xoá kế hoạch ngay tại đây.</p>
+    <div class="quick-plan-entry">
+      <input type="text" id="plan-date" class="field" placeholder="20/09" maxlength="5" onkeydown="if(event.key==='Enter')addPlanNote()">
+      <input type="text" id="plan-task" class="field" placeholder="Tên công việc" onkeydown="if(event.key==='Enter')addPlanNote()">
+      <button class="btn quick-plan-add" type="button" onclick="addPlanNote()">+ THÊM</button>
+    </div>
+    <div class="quick-plan-list" id="company-plan"><p class="hint" style="margin:2px 0 0">Chưa có kế hoạch nào.</p></div>
+  </div>
+  <button class="quick-plan-launch" type="button" onclick="openQuickPlan()" title="Mở kế hoạch công ty">📌 Kế hoạch</button>
+</div>
+
+<div class="quick-kpi-float" id="quick-kpi-float">
+  <div class="quick-kpi-panel" id="quick-kpi-panel">
+    <div class="quick-kpi-head">
+      <strong>⚡ Ghi nhận KPI nhanh</strong>
+      <button class="quick-kpi-close" type="button" onclick="closeQuickKpi()" title="Đóng">×</button>
+    </div>
+    <div class="quick-kpi-grid">
+      <div>
+        <label>Ngày</label>
+        <select id="floating-report-day" class="field"></select>
+      </div>
+      <div>
+        <label>Tab trong ngày</label>
+        <input type="number" id="floating-report-tabs" class="field num" step="1" min="0" placeholder="VD: 9" onkeydown="if(event.key==='Enter')submitFloatingReport()">
+      </div>
+    </div>
+    <button class="btn btn--primary quick-kpi-submit" type="button" onclick="submitFloatingReport()">✔ GHI NHẬN KPI</button>
+    <p class="quick-kpi-result" id="floating-report-result"></p>
+    <!-- Các trường ẩn giữ tương thích với logic ghi KPI hiện có -->
+    <input type="hidden" id="report-day">
+    <input type="hidden" id="report-tabs">
+    <div id="report-result" style="display:none"></div>
+  </div>
+  <button class="quick-kpi-launch" type="button" onclick="openQuickKpi()" title="Ghi KPI nhanh ở bất kỳ vị trí nào">⚡ Ghi KPI</button>
+</div>
 <div class="app">
 
   <div class="toolbar">
@@ -411,6 +573,14 @@
       <button class="btn data-btn data-btn--export" onclick="exportDataFile()" title="Lưu toàn bộ dữ liệu KPI ra file để mang sang máy khác">📤 Xuất dữ liệu</button>
       <button class="btn data-btn data-btn--import" onclick="chooseImportFile()" title="Nhập lại dữ liệu KPI từ file đã xuất">📥 Nhập dữ liệu</button>
       <input type="file" id="import-data-file" accept="application/json,.json" style="display:none" onchange="importDataFile(event)">
+      <div class="theme-inline" id="theme-inline" data-active="light" title="Chuyển giao diện Sáng / Tối">
+        <span class="theme-icon theme-sun" aria-hidden="true">☀️</span>
+        <label class="theme-toggle-control" aria-label="Bật hoặc tắt Dark mode">
+          <input type="checkbox" id="theme-toggle-switch" onchange="setThemeFromSwitch(this.checked)">
+          <span class="theme-slider"></span>
+        </label>
+        <span class="theme-icon theme-moon" aria-hidden="true">🌙</span>
+      </div>
     </div>
   </div>
 
@@ -484,40 +654,6 @@
         <div class="cal" id="cal-head"><div class="h">CN</div><div class="h">T2</div><div class="h">T3</div><div class="h">T4</div><div class="h">T5</div><div class="h">T6</div><div class="h">T7</div></div>
         <div class="cal" id="cal-body" style="margin-top:3px"><div class="d empty"></div><div class="d empty"></div><div class="d off" onclick="toggleOff(1)" ondblclick="openDayModal(1)" title="Click: nghỉ/làm · DblClick: nhập KPI">1</div><div class="d off" onclick="toggleOff(2)" ondblclick="openDayModal(2)" title="Click: nghỉ/làm · DblClick: nhập KPI">2</div><div class="d worked" onclick="toggleOff(3)" ondblclick="openDayModal(3)" title="Click: nghỉ/làm · DblClick: nhập KPI">3<span class="kpi" title="Trong ngày: 12 tab · Luỹ kế: 12 tab">12</span></div><div class="d worked" onclick="toggleOff(4)" ondblclick="openDayModal(4)" title="Click: nghỉ/làm · DblClick: nhập KPI">4<span class="kpi" title="Trong ngày: 15 tab · Luỹ kế: 27 tab">15</span></div><div class="d worked" onclick="toggleOff(5)" ondblclick="openDayModal(5)" title="Click: nghỉ/làm · DblClick: nhập KPI">5<span class="kpi" title="Trong ngày: 10 tab · Luỹ kế: 37 tab">10</span></div><div class="d off" onclick="toggleOff(6)" ondblclick="openDayModal(6)" title="Click: nghỉ/làm · DblClick: nhập KPI">6</div><div class="d worked" onclick="toggleOff(7)" ondblclick="openDayModal(7)" title="Click: nghỉ/làm · DblClick: nhập KPI">7<span class="kpi" title="Trong ngày: 18 tab · Luỹ kế: 55 tab">18</span></div><div class="d today" onclick="toggleOff(8)" ondblclick="openDayModal(8)" title="Click: nghỉ/làm · DblClick: nhập KPI">8</div><div class="d future" onclick="toggleOff(9)" ondblclick="openDayModal(9)" title="Click: nghỉ/làm · DblClick: nhập KPI">9</div><div class="d future" onclick="toggleOff(10)" ondblclick="openDayModal(10)" title="Click: nghỉ/làm · DblClick: nhập KPI">10</div><div class="d future" onclick="toggleOff(11)" ondblclick="openDayModal(11)" title="Click: nghỉ/làm · DblClick: nhập KPI">11</div><div class="d future" onclick="toggleOff(12)" ondblclick="openDayModal(12)" title="Click: nghỉ/làm · DblClick: nhập KPI">12</div><div class="d off" onclick="toggleOff(13)" ondblclick="openDayModal(13)" title="Click: nghỉ/làm · DblClick: nhập KPI">13</div><div class="d future" onclick="toggleOff(14)" ondblclick="openDayModal(14)" title="Click: nghỉ/làm · DblClick: nhập KPI">14</div><div class="d future" onclick="toggleOff(15)" ondblclick="openDayModal(15)" title="Click: nghỉ/làm · DblClick: nhập KPI">15</div><div class="d future" onclick="toggleOff(16)" ondblclick="openDayModal(16)" title="Click: nghỉ/làm · DblClick: nhập KPI">16</div><div class="d future" onclick="toggleOff(17)" ondblclick="openDayModal(17)" title="Click: nghỉ/làm · DblClick: nhập KPI">17</div><div class="d future" onclick="toggleOff(18)" ondblclick="openDayModal(18)" title="Click: nghỉ/làm · DblClick: nhập KPI">18</div><div class="d future" onclick="toggleOff(19)" ondblclick="openDayModal(19)" title="Click: nghỉ/làm · DblClick: nhập KPI">19</div><div class="d off" onclick="toggleOff(20)" ondblclick="openDayModal(20)" title="Click: nghỉ/làm · DblClick: nhập KPI">20</div><div class="d future" onclick="toggleOff(21)" ondblclick="openDayModal(21)" title="Click: nghỉ/làm · DblClick: nhập KPI">21</div><div class="d future" onclick="toggleOff(22)" ondblclick="openDayModal(22)" title="Click: nghỉ/làm · DblClick: nhập KPI">22</div><div class="d future" onclick="toggleOff(23)" ondblclick="openDayModal(23)" title="Click: nghỉ/làm · DblClick: nhập KPI">23</div><div class="d future" onclick="toggleOff(24)" ondblclick="openDayModal(24)" title="Click: nghỉ/làm · DblClick: nhập KPI">24</div><div class="d future" onclick="toggleOff(25)" ondblclick="openDayModal(25)" title="Click: nghỉ/làm · DblClick: nhập KPI">25</div><div class="d future" onclick="toggleOff(26)" ondblclick="openDayModal(26)" title="Click: nghỉ/làm · DblClick: nhập KPI">26</div><div class="d off" onclick="toggleOff(27)" ondblclick="openDayModal(27)" title="Click: nghỉ/làm · DblClick: nhập KPI">27</div><div class="d future" onclick="toggleOff(28)" ondblclick="openDayModal(28)" title="Click: nghỉ/làm · DblClick: nhập KPI">28</div><div class="d future" onclick="toggleOff(29)" ondblclick="openDayModal(29)" title="Click: nghỉ/làm · DblClick: nhập KPI">29</div><div class="d future" onclick="toggleOff(30)" ondblclick="openDayModal(30)" title="Click: nghỉ/làm · DblClick: nhập KPI">30</div></div>
         <p class="sub" style="margin:10px 0 0;font-size:11px">💡 <b>Click</b>: đổi nghỉ/làm · <b>Double-click</b> ngày đã qua: nhập tab luỹ kế · Số dưới mỗi ngày = <b>tab làm trong ngày đó</b></p>
-      </div>
-
-      <div class="card company-plan-card">
-        <div class="company-plan-head">
-          <h2>🏢 Kế hoạch công ty</h2>
-          <span class="company-plan-badge">● KẾ HOẠCH</span>
-        </div>
-        <p class="sub" style="margin:2px 0 9px">Ghi chú dạng <b>ngày/tháng: tên công việc</b> — thêm hoặc xoá tự do.</p>
-        <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
-          <input type="text" id="plan-date" class="field" style="flex:0 0 82px;text-align:center" placeholder="20/08" maxlength="5" onkeydown="if(event.key===&#39;Enter&#39;)addPlanNote()">
-          <input type="text" id="plan-task" class="field" style="flex:1 1 auto" placeholder="Tên công việc" onkeydown="if(event.key===&#39;Enter&#39;)addPlanNote()">
-          <button class="btn company-plan-add" style="flex:0 0 auto" onclick="addPlanNote()">+ THÊM</button>
-        </div>
-        <div id="company-plan"><p class="hint" style="margin:2px 0 0">Chưa có ghi chú nào — nhập ngày và tên công việc ở trên rồi bấm + Thêm.</p></div>
-      </div>
-
-      <div class="card quick-report-card">
-        <div class="quick-report-head">
-          <h2>⚡ Báo cáo nhanh theo ngày</h2>
-          <span class="quick-report-badge">● Nhập KPI</span>
-        </div>
-        <p class="sub" style="margin:2px 0 10px">Chọn ngày, nhập tab <b>trong ngày đó</b> — tool tự cộng luỹ kế.</p>
-        <div class="row cols-2" style="gap:8px">
-          <div>
-            <label>Ngày</label>
-            <select id="report-day" class="field"><option value="1">01/09</option><option value="2">02/09</option><option value="3">03/09</option><option value="4">04/09</option><option value="5">05/09</option><option value="6">06/09</option><option value="7">07/09</option><option value="8" selected="">08/09</option><option value="9">09/09</option><option value="10">10/09</option><option value="11">11/09</option><option value="12">12/09</option><option value="13">13/09</option><option value="14">14/09</option><option value="15">15/09</option><option value="16">16/09</option><option value="17">17/09</option><option value="18">18/09</option><option value="19">19/09</option><option value="20">20/09</option><option value="21">21/09</option><option value="22">22/09</option><option value="23">23/09</option><option value="24">24/09</option><option value="25">25/09</option><option value="26">26/09</option><option value="27">27/09</option><option value="28">28/09</option><option value="29">29/09</option><option value="30">30/09</option></select>
-          </div>
-          <div>
-            <label>Tab làm trong ngày</label>
-            <input type="number" id="report-tabs" class="field num" step="1" min="0" placeholder="VD: 9">
-          </div>
-        </div>
-        <button class="btn btn--primary quick-report-btn" onclick="submitReport()">✔ GHI NHẬN KPI</button>
-        <p class="hint" id="report-result" style="margin-top:8px;font-size:11.5px"></p>
       </div>
 
       <div class="card">
@@ -795,12 +931,67 @@ function refreshOffDays(){
 
 function populateReportDay(){
   const sel = document.getElementById('report-day');
-  if(!sel) return;
+  const floatSel = document.getElementById('floating-report-day');
   let opts = '';
   for(let d=1; d<=totalDaysInMonth; d++){
     opts += `<option value="${d}"${d===state.today?' selected':''}>${String(d).padStart(2,'0')}/${String(state.month).padStart(2,'0')}</option>`;
   }
-  sel.innerHTML = opts;
+  if(sel) sel.innerHTML = opts;
+  if(floatSel) floatSel.innerHTML = opts;
+}
+
+function openQuickKpi(){
+  const wrap = document.getElementById('quick-kpi-float');
+  const planWrap = document.getElementById('quick-plan-float');
+  if(!wrap) return;
+  if(planWrap){ planWrap.classList.remove('open'); planWrap.classList.add('action-hidden'); }
+  populateReportDay();
+  wrap.classList.add('open');
+  const inp = document.getElementById('floating-report-tabs');
+  setTimeout(()=>inp && inp.focus(), 50);
+}
+function closeQuickKpi(){
+  const wrap = document.getElementById('quick-kpi-float');
+  const planWrap = document.getElementById('quick-plan-float');
+  if(wrap) wrap.classList.remove('open');
+  if(planWrap) planWrap.classList.remove('action-hidden');
+}
+function openQuickPlan(){
+  const wrap = document.getElementById('quick-plan-float');
+  const kpiWrap = document.getElementById('quick-kpi-float');
+  if(!wrap) return;
+  if(kpiWrap){ kpiWrap.classList.remove('open'); kpiWrap.classList.add('action-hidden'); }
+  renderCompanyPlan();
+  wrap.classList.add('open');
+  const inp = document.getElementById('plan-task');
+  setTimeout(()=>inp && inp.focus(), 50);
+}
+function closeQuickPlan(){
+  const wrap = document.getElementById('quick-plan-float');
+  const kpiWrap = document.getElementById('quick-kpi-float');
+  if(wrap) wrap.classList.remove('open');
+  if(kpiWrap) kpiWrap.classList.remove('action-hidden');
+}
+function submitFloatingReport(){
+  const dayEl = document.getElementById('floating-report-day');
+  const tabsEl = document.getElementById('floating-report-tabs');
+  const result = document.getElementById('floating-report-result');
+  const raw = tabsEl ? tabsEl.value : '';
+  const v = +raw;
+  if(raw === '' || !isFinite(v) || v < 0){
+    if(result) result.innerHTML = '⚠️ Nhập số tab làm được trong ngày.';
+    if(tabsEl) tabsEl.focus();
+    return;
+  }
+  const mainDay = document.getElementById('report-day');
+  const mainTabs = document.getElementById('report-tabs');
+  if(mainDay && dayEl) mainDay.value = dayEl.value;
+  if(mainTabs) mainTabs.value = raw;
+  submitReport();
+  if(result) result.innerHTML = `✅ Đã ghi <b>${fmt(v,0)} tab</b> cho ngày <b>${String(+dayEl.value).padStart(2,'0')}/${String(state.month).padStart(2,'0')}</b>.`;
+  if(tabsEl) tabsEl.value = '';
+  showToast(`✅ Đã ghi nhận ${fmt(v,0)} tab ngày ${String(+dayEl.value).padStart(2,'0')}/${String(state.month).padStart(2,'0')}`);
+  setTimeout(closeQuickKpi, 850);
 }
 function submitReport(){
   const d = +document.getElementById('report-day').value;
@@ -894,8 +1085,36 @@ function submitReport(){
   document.getElementById('report-tabs').value = '';
 }
 
+const THEME_KEY = 'kpi_theme_v1';
+function getActiveTheme(){
+  const explicit = document.documentElement.getAttribute('data-theme');
+  if(explicit === 'light' || explicit === 'dark') return explicit;
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+function applyThemeToggleUi(){
+  const sw = document.getElementById('theme-toggle-switch');
+  const wrap = document.getElementById('theme-inline');
+  const theme = getActiveTheme();
+  if(sw) sw.checked = theme === 'dark';
+  if(wrap){
+    wrap.dataset.active = theme;
+    wrap.title = theme === 'dark' ? 'Đang dùng giao diện Tối — gạt để chuyển sang Sáng' : 'Đang dùng giao diện Sáng — gạt để chuyển sang Tối';
+  }
+}
+function setThemeFromSwitch(isDark){
+  const next = isDark ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  try{ localStorage.setItem(THEME_KEY, next); }catch(e){}
+  applyThemeToggleUi();
+  showToast(next === 'dark' ? '🌙 Đã chuyển sang giao diện Tối' : '☀️ Đã chuyển sang giao diện Sáng');
+}
+function toggleTheme(){
+  setThemeFromSwitch(getActiveTheme() !== 'dark');
+}
+
 function init(){
   load();
+  applyThemeToggleUi();
   state.dailyLog = state.dailyLog || {};
   Object.keys(SEED_LOG).forEach(k => { if(state.dailyLog[k] == null) state.dailyLog[k] = SEED_LOG[k]; });
   const monthSel = document.getElementById('month');
@@ -1329,7 +1548,9 @@ function addPlanNote(){
   state.companyPlan = state.companyPlan || [];
   state.companyPlan.push({ id: Date.now()+'-'+Math.random().toString(36).slice(2,7), date, task, done:false });
   dEl.value = ''; tEl.value = '';
-  save(); renderCompanyPlan(); renderCal(); tEl.focus();
+  save(); renderCompanyPlan(); renderCal();
+  showToast('📌 Đã thêm kế hoạch ' + date + ': ' + escPlan(task));
+  tEl.focus();
 }
 function removePlanNote(id){
   state.companyPlan = (state.companyPlan||[]).filter(x => x.id !== id);
@@ -2352,6 +2573,13 @@ function exportReport(ev){
     setTimeout(()=>{ btn.textContent = old; }, 1500);
   });
 }
+
+try{
+  const themeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+  themeMedia.addEventListener?.('change', ()=>{
+    try{ if(!localStorage.getItem(THEME_KEY)) applyThemeToggleUi(); }catch(e){ applyThemeToggleUi(); }
+  });
+}catch(e){}
 
 init();
 </script>
