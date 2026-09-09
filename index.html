@@ -577,6 +577,36 @@
     .dash{grid-template-columns:356px minmax(0,1fr) 356px;gap:14px}
     .col-left,.col-center,.col-right{min-width:0}
   }
+
+
+  /* ===== 2026-09-09: only style the two floating launcher buttons ===== */
+  .quick-kpi-launch{
+    background:var(--bg) !important;
+    color:var(--red) !important;
+    border:2px solid var(--red) !important;
+    box-shadow:0 7px 20px rgba(0,0,0,.18) !important;
+    font-weight:750 !important;
+  }
+  .quick-plan-launch{
+    background:var(--bg) !important;
+    color:color-mix(in srgb,var(--yellow) 88%,var(--text)) !important;
+    border:2px solid var(--yellow) !important;
+    box-shadow:0 7px 20px rgba(0,0,0,.18) !important;
+  }
+  html[data-theme="light"] .quick-kpi-launch,
+  html[data-theme="light"] .quick-plan-launch{background:#fff !important}
+  html[data-theme="dark"] .quick-kpi-launch,
+  html[data-theme="dark"] .quick-plan-launch{background:#191919 !important}
+  @media (prefers-color-scheme: light){
+    html:not([data-theme]) .quick-kpi-launch,
+    html:not([data-theme]) .quick-plan-launch{background:#fff !important}
+  }
+  @media (prefers-color-scheme: dark){
+    html:not([data-theme]) .quick-kpi-launch,
+    html:not([data-theme]) .quick-plan-launch{background:#191919 !important}
+  }
+  .quick-kpi-launch:hover{background:var(--red-soft) !important;opacity:1}
+  .quick-plan-launch:hover{background:var(--yellow-soft) !important;opacity:1}
 </style>
 </head>
 <body>
