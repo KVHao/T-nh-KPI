@@ -396,7 +396,30 @@
   @media(max-width:900px){.insight-grid{grid-template-columns:1fr}}
 
   .chart{width:100%;height:210px;display:block}
-  #chart-monthly{height:auto;aspect-ratio:600/236;min-height:190px;overflow:visible}
+
+  /* monthly result overview - compact, readable in narrow right column */
+  #chart-monthly{height:220px;aspect-ratio:auto;min-height:220px;overflow:visible;margin-top:4px}
+  .monthly-head{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 6px}
+  .monthly-main{
+    padding:9px 10px;border-radius:8px;background:var(--bg-soft);border:1px solid var(--border);
+    min-width:0;
+  }
+  .monthly-main.current{border-color:color-mix(in srgb,var(--blue) 55%,var(--border));background:color-mix(in srgb,var(--blue-soft) 60%,var(--bg))}
+  .monthly-main .mm-label{font-size:9.5px;color:var(--text-2);font-weight:700;text-transform:uppercase;letter-spacing:.035em;margin-bottom:2px}
+  .monthly-main .mm-value{font-size:20px;font-weight:800;line-height:1.12;font-variant-numeric:tabular-nums;color:var(--text)}
+  .monthly-main.current .mm-value{color:var(--blue)}
+  .monthly-main .mm-sub{font-size:10.5px;color:var(--text-2);margin-top:3px;white-space:normal}
+  .monthly-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:9px 0}
+  .monthly-stat{padding:7px 8px;border:1px solid var(--border);border-radius:7px;background:var(--bg-soft);min-width:0}
+  .monthly-stat .ms-label{font-size:9.5px;color:var(--text-2);margin-bottom:1px}
+  .monthly-stat .ms-value{font-size:13px;font-weight:750;font-variant-numeric:tabular-nums;color:var(--text);white-space:nowrap}
+  .monthly-history-title{font-size:10px;color:var(--text-2);font-weight:700;text-transform:uppercase;letter-spacing:.035em;margin:9px 0 5px}
+  .monthly-history-chips{display:flex;flex-wrap:wrap;gap:5px}
+  .monthly-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 5px 4px 8px;border-radius:99px;background:var(--bg-soft);border:1px solid var(--border);font-size:10.5px}
+  .monthly-chip .btn{padding:0 5px;font-size:12px;line-height:1.25}
+  .monthly-add{display:grid;grid-template-columns:62px 72px minmax(0,1fr) auto;gap:5px;margin-top:9px}
+  @media(max-width:390px){.monthly-head,.monthly-stats{grid-template-columns:1fr}.monthly-add{grid-template-columns:1fr 1fr}.monthly-add #mh-pct{grid-column:1/-1}.monthly-add button{grid-column:1/-1}}
+
   .chart text{font-size:11px;fill:var(--text-2);font-family:inherit}
   .chart .grid{stroke:var(--border);stroke-width:1;stroke-dasharray:2 3}
   .chart .axis{stroke:var(--border-2);stroke-width:1}
@@ -652,6 +675,28 @@
   }
   .quick-kpi-launch:hover{background:var(--red-soft) !important;opacity:1}
   .quick-plan-launch:hover{background:var(--yellow-soft) !important;opacity:1}
+
+
+  /* Progress rings: 4 rings on the left, editable targets on the right */
+  .ring-card .ring-layout{display:grid;grid-template-columns:minmax(0,1fr) 132px;gap:10px;align-items:stretch}
+  .ring-card #rings{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important;align-content:center;justify-items:center;padding:2px 0!important;margin:0!important}
+  .ring-card .ring-item{text-align:center;min-width:0;width:100%}
+  .ring-card .ring-item svg{width:82px;height:82px;display:block;margin:0 auto}
+  .ring-card .ring-label{font-size:10.5px;color:var(--text-2);margin-top:-1px;line-height:1.25;white-space:normal}
+  .ring-settings{border:1px solid var(--border);background:var(--bg-soft);border-radius:9px;padding:9px;display:flex;flex-direction:column;gap:7px;justify-content:center}
+  .ring-settings-title{font-size:10px;text-transform:uppercase;letter-spacing:.045em;color:var(--text-2);font-weight:700;margin-bottom:1px}
+  .ring-setting{padding:7px;border-radius:7px;background:var(--bg);border:1px solid var(--border)}
+  .ring-setting .rs-label{display:block;font-size:10px;color:var(--text-2);margin:0 0 4px;font-weight:600;line-height:1.2}
+  .ring-setting .rs-input{display:flex;align-items:center;gap:4px}
+  .ring-setting input{width:58px!important;padding:4px 5px!important;text-align:center;font-size:11.5px!important;font-weight:700}
+  .ring-setting .rs-pct{font-size:10.5px;color:var(--text-2)}
+  .ring-setting .rs-tabs{font-size:10.5px;margin-top:4px;color:var(--text);font-weight:600;line-height:1.2}
+  .ring-setting.milestone{border-color:color-mix(in srgb,var(--blue) 45%,var(--border))}
+  .ring-setting.reward{border-color:color-mix(in srgb,var(--purple) 45%,var(--border))}
+  .ring-setting.next{border-color:color-mix(in srgb,var(--orange) 45%,var(--border))}
+  @media(max-width:1180px){.ring-card .ring-layout{grid-template-columns:minmax(0,1fr) 150px}}
+  @media(max-width:520px){.ring-card .ring-layout{grid-template-columns:1fr}.ring-settings{display:grid;grid-template-columns:repeat(3,1fr)}.ring-settings-title{grid-column:1/-1}.ring-setting{min-width:0}.ring-setting input{width:100%!important}}
+
 </style>
 </head>
 <body>
@@ -905,10 +950,11 @@
 
       <div class="card">
         <h2>📆 Kết quả theo tháng</h2>
-        <p class="sub" style="margin-top:-6px">So sánh % chỉ tiêu qua các tháng · tháng hiện tại (viền xanh) là <b>dự báo cuối tháng</b>, vạch đứt là % đã đạt tới hôm nay</p>
+        <p class="sub" style="margin-top:-6px">So sánh kết quả tháng trước với tháng hiện tại · tháng hiện tại hiển thị <b>dự báo cuối tháng</b>.</p>
+        <div id="monthly-head" class="monthly-head"></div>
         <svg class="chart" id="chart-monthly" viewBox="0 0 600 236" preserveAspectRatio="xMidYMid meet"><line class="grid" x1="34" y1="174" x2="590" y2="174"></line><text x="28" y="177" text-anchor="end">0%</text><line class="grid" x1="34" y1="120.66666666666667" x2="590" y2="120.66666666666667"></line><text x="28" y="123.66666666666667" text-anchor="end">56%</text><line class="grid" x1="34" y1="67.33333333333334" x2="590" y2="67.33333333333334"></line><text x="28" y="70.33333333333334" text-anchor="end">112%</text><line class="grid" x1="34" y1="14" x2="590" y2="14"></line><text x="28" y="17" text-anchor="end">168%</text><line x1="34" y1="78.76190476190479" x2="590" y2="78.76190476190479" stroke="var(--orange)" stroke-width="1.5" stroke-dasharray="4 3"></line><text x="588" y="74.76190476190479" text-anchor="end" fill="var(--orange)" style="font-weight:600">100%</text><rect x="86.82000000000001" y="53.047619047619065" width="172.35999999999999" height="120.95238095238093" rx="3" fill="var(--green)" opacity=".85"></rect><text x="173" y="49.047619047619065" text-anchor="middle" fill="var(--text)" style="font-size:10px;font-weight:600">127.0%</text><rect x="364.82" y="66.55189255189258" width="172.35999999999999" height="107.44810744810742" rx="3" fill="var(--green)" opacity=".95" stroke="var(--blue)" stroke-width="2"></rect><text x="451" y="62.55189255189258" text-anchor="middle" fill="var(--text)" style="font-size:10px;font-weight:600">112.8%</text><line x1="362.82" y1="151.61497761497762" x2="539.18" y2="151.61497761497762" stroke="var(--blue)" stroke-width="1.8" stroke-dasharray="3 2"></line><text x="543.18" y="154.61497761497762" fill="var(--blue)" style="font-size:9.5px;font-weight:600">hiện tại 23.5%</text><line class="axis" x1="34" y1="174" x2="590" y2="174"></line><text x="173" y="192" text-anchor="middle">T8/26</text><text x="451" y="192" text-anchor="middle" fill="var(--blue)" style="font-weight:700">T9/26 (dự báo)</text></svg>
         <div id="monthly-list" style="margin-top:10px"><div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--text-2);margin-bottom:8px"><span>TB các tháng trước: <b class="num" style="color:var(--text)">127.0%</b></span><span>🏆 Cao nhất: <b class="num" style="color:var(--green)">127.0%</b></span><span>🔻 Thấp nhất: <b class="num" style="color:var(--red)">127.0%</b></span><span>Tháng này vs TB: <b class="num" style="color:var(--red)">-14.2%</b></span></div><div style="display:flex;flex-wrap:wrap;gap:6px"><span style="display:inline-flex;align-items:center;gap:6px;padding:3px 4px 3px 10px;border-radius:99px;background:var(--bg-soft);border:1px solid var(--border);font-size:11.5px"><b>T8/2026</b><span style="color:var(--green);font-weight:600" class="num">127.00%</span><button class="btn btn--ghost" title="Xoá" style="padding:0 6px;font-size:13px;line-height:1" onclick="removeMonthEntry(&#39;2026-8&#39;)">×</button></span></div></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1.4fr auto;gap:6px;margin-top:10px">
+        <div class="monthly-add">
           <select id="mh-month" class="field"><option value="1">T1</option><option value="2">T2</option><option value="3">T3</option><option value="4">T4</option><option value="5">T5</option><option value="6">T6</option><option value="7">T7</option><option value="8" selected="">T8</option><option value="9">T9</option><option value="10">T10</option><option value="11">T11</option><option value="12">T12</option></select>
           <input type="number" id="mh-year" class="field num" placeholder="Năm">
           <input type="number" id="mh-pct" class="field num" placeholder="% đạt (VD: 156.07)" step="0.01">
@@ -926,46 +972,37 @@
         <div id="conclusion"><div class="conclusion good"><div><span class="tag tag--green">🎯 Có thể đạt mục tiêu</span></div><p>Với <b>11.0 tab/ngày</b> qua 5 ngày, dự báo cuối tháng <b class="num">264 tab</b> — vượt <b>30 tab</b>.</p><ul class="list"><li>🎯 Đang <b>vượt mục tiêu 30 tab</b>. Cân nhắc mục tiêu tham vọng hơn tháng sau.</li></ul></div><ul class="list" style="margin-top:10px"><li>🎯 Chỉ tiêu <b>120%</b>: cần <b class="num">281 tab</b> · còn <b class="num">226 tab</b> (≈ <b>11.9 tab/ngày</b>)</li><li>🚀 Mục tiêu tiếp theo <b>150%</b>: cần <b class="num">351 tab</b> · còn <b class="num">296 tab</b> (≈ <b>15.6 tab/ngày</b>)</li></ul></div>
       </div>
 
-      <div class="card">
+      <div class="card ring-card">
         <h2>Vòng tiến độ</h2>
-        <div id="rings" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;padding:4px 0;max-width:100%;margin:0 auto"><div style="text-align:center">
-      <svg width="100" height="100" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--bg-raised)" stroke-width="11"></circle>
-        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--green)" stroke-width="11" stroke-linecap="round" stroke-dasharray="56.11904825643305 238.76104167282426" transform="rotate(-90 60 60)"></circle>
-        <text x="60" y="62" text-anchor="middle" style="font-size:19px;font-weight:700" fill="var(--text)" class="num">24%</text>
-        <text x="60" y="78" text-anchor="middle" style="font-size:9.5px" fill="var(--text-2)">55/234</text>
-      </svg>
-      <div style="font-size:11px;color:var(--text-2);margin-top:-2px">Mục tiêu 100%</div>
-    </div><div style="text-align:center">
-      <svg width="100" height="100" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--bg-raised)" stroke-width="11"></circle>
-        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--blue)" stroke-width="11" stroke-linecap="round" stroke-dasharray="46.732588227777 238.76104167282426" transform="rotate(-90 60 60)"></circle>
-        <text x="60" y="62" text-anchor="middle" style="font-size:19px;font-weight:700" fill="var(--text)" class="num">20%</text>
-        <text x="60" y="78" text-anchor="middle" style="font-size:9.5px" fill="var(--text-2)">55/281</text>
-      </svg>
-      <div style="font-size:11px;color:var(--text-2);margin-top:-2px">Mốc 120%</div>
-    </div><div style="text-align:center">
-    </div><div style="text-align:center">
-      <svg width="100" height="100" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--bg-raised)" stroke-width="11"></circle>
-        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--purple)" stroke-width="11" stroke-linecap="round" stroke-dasharray="43 238.76104167282426" transform="rotate(-90 60 60)"></circle>
-        <text x="60" y="62" text-anchor="middle" style="font-size:19px;font-weight:700" fill="var(--text)" class="num">18%</text>
-        <text x="60" y="78" text-anchor="middle" style="font-size:9.5px" fill="var(--text-2)">55/304</text>
-      </svg>
-      <div style="font-size:11px;color:var(--text-2);margin-top:-2px">Mốc thưởng 130%</div>
-    </div><div style="text-align:center">
-      <svg width="100" height="100" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--bg-raised)" stroke-width="11"></circle>
-        <circle cx="60" cy="60" r="38" fill="none" stroke="var(--orange)" stroke-width="11" stroke-linecap="round" stroke-dasharray="37.41269883762203 238.76104167282426" transform="rotate(-90 60 60)"></circle>
-        <text x="60" y="62" text-anchor="middle" style="font-size:19px;font-weight:700" fill="var(--text)" class="num">16%</text>
-        <text x="60" y="78" text-anchor="middle" style="font-size:9.5px" fill="var(--text-2)">55/351</text>
-      </svg>
-      <div style="font-size:11px;color:var(--text-2);margin-top:-2px">Mục tiêu tiếp theo 150%</div>
-    </div></div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:11.5px;color:var(--text-2);margin-top:2px">
-          <span>Mục tiêu tiếp theo</span>
-          <input type="number" id="next-pct" class="field num" step="5" min="135" style="width:76px;padding:4px 6px;text-align:center;font-size:12px" onchange="setNextTargetPct(this.value)">
-          <span>% = <b id="next-tabs">351 tab</b></span>
+        <div class="ring-layout">
+          <div id="rings"></div>
+          <div class="ring-settings">
+            <div class="ring-settings-title">Cài đặt mốc</div>
+            <div class="ring-setting milestone">
+              <span class="rs-label">Mốc tham chiếu</span>
+              <div class="rs-input">
+                <input type="number" id="milestone-pct" class="field num" step="5" min="101" onchange="setTrackedTargetPct('milestone',this.value)">
+                <span class="rs-pct">%</span>
+              </div>
+              <div class="rs-tabs" id="milestone-tabs">281 tab</div>
+            </div>
+            <div class="ring-setting reward">
+              <span class="rs-label">Mốc thưởng</span>
+              <div class="rs-input">
+                <input type="number" id="reward-pct" class="field num" step="5" min="101" onchange="setTrackedTargetPct('reward',this.value)">
+                <span class="rs-pct">%</span>
+              </div>
+              <div class="rs-tabs" id="reward-tabs">304 tab</div>
+            </div>
+            <div class="ring-setting next">
+              <span class="rs-label">Mục tiêu kế tiếp</span>
+              <div class="rs-input">
+                <input type="number" id="next-pct" class="field num" step="5" min="101" onchange="setTrackedTargetPct('next',this.value)">
+                <span class="rs-pct">%</span>
+              </div>
+              <div class="rs-tabs" id="next-tabs">351 tab</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1042,6 +1079,8 @@ let state = {
   },
   companyPlan: [],
   bonusTiers: [{pct:100, amount:1400000},{pct:120, amount:2400000},{pct:130, amount:3400000},{pct:150, amount:4400000}],
+  milestonePct: 120,
+  rewardTargetPct: 130,
   nextTargetPct: 150,
   kpiScore: { onTime: 1, boxDone: 1, boxTarget: 6, learn: 1 },
   dailyLog: {
@@ -1297,8 +1336,12 @@ function init(){
   document.getElementById('auto-weekend').checked = state.autoWeekend;
   state.companyPlan = state.companyPlan || [];
   if(!Array.isArray(state.bonusTiers) || !state.bonusTiers.length) state.bonusTiers = [{pct:100, amount:1400000},{pct:120, amount:2400000},{pct:130, amount:3400000},{pct:150, amount:4400000}];
-  if(!state.nextTargetPct || state.nextTargetPct <= REWARD_TARGET_PCT) state.nextTargetPct = 150;
+  if(!isFinite(+state.milestonePct) || +state.milestonePct <= 100) state.milestonePct = 120;
+  if(!isFinite(+state.rewardTargetPct) || +state.rewardTargetPct <= 100) state.rewardTargetPct = 130;
+  if(!isFinite(+state.nextTargetPct) || +state.nextTargetPct <= 100) state.nextTargetPct = 150;
   state.kpiScore = Object.assign({ onTime: 1, boxDone: 1, boxTarget: 6, learn: 1 }, state.kpiScore || {});
+  const mpIn = document.getElementById('milestone-pct'); if(mpIn) mpIn.value = state.milestonePct;
+  const rpIn = document.getElementById('reward-pct'); if(rpIn) rpIn.value = state.rewardTargetPct;
   const npIn = document.getElementById('next-pct'); if(npIn) npIn.value = state.nextTargetPct;
   if(state.autoToday === undefined) state.autoToday = true;
   syncToday(false);
@@ -1378,10 +1421,13 @@ function renderBaseHint(){
   const base = state.baseTabs || 0;
   const pct = state.targetPct || 0;
   const tgt = state.target || 0;
+  const mp = state.milestonePct || 120;
+  const rp = state.rewardTargetPct || 130;
+  const np = state.nextTargetPct || 150;
   el.innerHTML = '🎯 Mục tiêu <b>100% = ' + fmt(base,0) + ' tab</b>'
-    + ' · 120% = <b>' + fmt(Math.round(base*1.2),0) + ' tab</b>'
-    + ' · 130% = <b>' + fmt(Math.round(base*1.3),0) + ' tab</b>'
-    + ' · 150% = <b>' + fmt(Math.round(base*1.5),0) + ' tab</b>';
+    + ' · ' + mp + '% = <b>' + fmt(Math.round(base*mp/100),0) + ' tab</b>'
+    + ' · ' + rp + '% = <b>' + fmt(Math.round(base*rp/100),0) + ' tab</b>'
+    + ' · ' + np + '% = <b>' + fmt(Math.round(base*np/100),0) + ' tab</b>';
 }
 
 function readTargetInputs(){
@@ -1861,7 +1907,7 @@ function calc(persist){
   const trendArrow = recent7Rate!=null ? (recent7Rate > ratePerDay*1.05 ? '<span style="color:var(--green)">▲</span>' : recent7Rate < ratePerDay*0.95 ? '<span style="color:var(--red)">▼</span>' : '<span style="color:var(--text-2)">▬</span>') : '';
 
   // Hai nhip cong viec theo cac moc uu tien: moc thuong 130% (co dinh) va muc tieu ke tiep (co the doi)
-  const rewardPct = REWARD_TARGET_PCT;
+  const rewardPct = state.rewardTargetPct || 130;
   const rewardTarget = Math.round(state.baseTabs * rewardPct / 100);
   const rewardLeft = Math.max(0, rewardTarget - done);
   const rewardNeed = workDaysLeft > 0 ? rewardLeft / workDaysLeft : Infinity;
@@ -1921,9 +1967,12 @@ function calc(persist){
     : (paceGap < -1 ? `▼ Chậm hơn tiến độ ${fmt(paceAbs,1)}%` : '● Đúng nhịp tiến độ');
   const forecastGapTabs = projected - target;
   const forecastColor = forecastGapTabs >= 0 ? 'var(--green)' : 'var(--red)';
-  const scaleMin = 100, scaleMax = 150;
+  const milestonePctTrack = state.milestonePct || 120;
+  const rewardPctTrack = state.rewardTargetPct || 130;
+  const nextPctTrack = state.nextTargetPct || 150;
+  const forecastTiers = [...new Set([100,milestonePctTrack,rewardPctTrack,nextPctTrack])].sort((a,b)=>a-b);
+  const scaleMin = 100, scaleMax = Math.max(110, ...forecastTiers);
   const scalePos = Math.max(0, Math.min(100, (projPct - scaleMin) / (scaleMax - scaleMin) * 100));
-  const forecastTiers = [100,120,130,150];
   const passedTier = forecastTiers.filter(p => projPct >= p).pop() || null;
   const nextTier = forecastTiers.find(p => projPct < p) || null;
   let forecastMilestone = '';
@@ -1934,7 +1983,7 @@ function calc(persist){
       ? `🎯 Dự báo đã vượt mốc <b>${passedTier}%</b> · còn khoảng <b>${leftToNext} tab</b> để chạm <b>${nextTier}%</b> (${nextTabs} tab).`
       : `🎯 Dự báo còn khoảng <b>${leftToNext} tab</b> để chạm mốc <b>${nextTier}%</b> (${nextTabs} tab).`;
   } else {
-    forecastMilestone = `🏆 Dự báo vượt mốc cao nhất <b>150%</b>.`;
+    forecastMilestone = `🏆 Dự báo vượt mốc theo dõi cao nhất <b>${scaleMax}%</b>.`;
   }
 
   document.getElementById('progress-section').innerHTML = `
@@ -1985,10 +2034,10 @@ function calc(persist){
           <div class="forecast-milestone">${forecastMilestone}</div>
           <div class="forecast-scale">
             <div class="ticks">
-              <span class="tick" style="left:0%">100%</span>
-              <span class="tick" style="left:40%">120%</span>
-              <span class="tick" style="left:60%">130%</span>
-              <span class="tick" style="left:100%">150%</span>
+              ${forecastTiers.map((p,i)=>{
+                const left = Math.max(0, Math.min(100, (p-scaleMin)/(scaleMax-scaleMin)*100));
+                return `<span class="tick" style="left:${left}%">${p}%</span>`;
+              }).join('')}
             </div>
             <div class="track"><span class="fill" style="width:${scalePos}%;background:${forecastColor}"></span></div>
             <span class="marker" style="left:${scalePos}%"></span>
@@ -2216,12 +2265,23 @@ function editBonusAmount(pct, value){
   if(tier && isFinite(num) && num >= 0) tier.amount = num;
   save(); calc(false);
 }
-function setNextTargetPct(value){
+function setTrackedTargetPct(kind, value){
   const num = parseFloat(String(value).replace(',', '.'));
-  if(isFinite(num) && num > 0) state.nextTargetPct = num;
+  if(!isFinite(num) || num <= 100){
+    showToast('⚠️ Mốc theo dõi phải lớn hơn 100%.');
+    const fallback = kind === 'milestone' ? (state.milestonePct||120) : kind === 'reward' ? (state.rewardTargetPct||130) : (state.nextTargetPct||150);
+    const el = document.getElementById(kind === 'milestone' ? 'milestone-pct' : kind === 'reward' ? 'reward-pct' : 'next-pct');
+    if(el) el.value = fallback;
+    return;
+  }
+  if(kind === 'milestone') state.milestonePct = num;
+  else if(kind === 'reward') state.rewardTargetPct = num;
+  else state.nextTargetPct = num;
   save();
+  renderBaseHint();
   setTimeout(() => calc(false), 0);
 }
+function setNextTargetPct(value){ setTrackedTargetPct('next', value); }
 function setKpiField(field, value){
   const num = parseFloat(String(value).replace(',', '.'));
   state.kpiScore = state.kpiScore || {};
@@ -2233,7 +2293,7 @@ function kpiPctClass(p){
   return p >= 100 ? 'pct-ok' : (p >= 60 ? 'pct-mid' : 'pct-low');
 }
 const KPI_GOAL_1 = 234; // muc tieu 100% cua chi so 1 trong bang KPI (co dinh)
-const REWARD_TARGET_PCT = 130; // moc thuong co dinh de theo doi toc do va vong tien do
+const REWARD_TARGET_PCT = 130; // gia tri mac dinh cu; moc thuong thuc te dung state.rewardTargetPct
 function renderKpiScore({ done, target }){
   const el = document.getElementById('kpi-score'); if(!el) return;
   const k = state.kpiScore || {};
@@ -2365,38 +2425,46 @@ function renderBonus({ done, projected }){
 
 function renderRings({ done, target, workedDays, workDaysLeft }){
   const el = document.getElementById('rings');
+  if(!el) return;
   const ring = (pct, label, sub, color)=>{
     const r = 38, c = 2*Math.PI*r;
     const p = Math.max(0, Math.min(1, pct/100));
-    return `<div style="text-align:center">
-      <svg width="100" height="100" viewBox="0 0 120 120">
+    return `<div class="ring-item">
+      <svg viewBox="0 0 120 120">
         <circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--bg-raised)" stroke-width="11"/>
         <circle cx="60" cy="60" r="${r}" fill="none" stroke="${color}" stroke-width="11" stroke-linecap="round"
           stroke-dasharray="${c*p} ${c}" transform="rotate(-90 60 60)"/>
         <text x="60" y="62" text-anchor="middle" style="font-size:19px;font-weight:700" fill="var(--text)" class="num">${fmt(pct,0)}%</text>
         <text x="60" y="78" text-anchor="middle" style="font-size:9.5px" fill="var(--text-2)">${sub}</text>
       </svg>
-      <div style="font-size:11px;color:var(--text-2);margin-top:-2px">${label}</div>
+      <div class="ring-label">${label}</div>
     </div>`;
   };
-  const workPct = target>0 ? done/target*100 : 0;
-  const basePct = state.baseTabs>0 ? done/state.baseTabs*100 : 0;
-  const timePct = (workedDays+workDaysLeft)>0 ? workedDays/(workedDays+workDaysLeft)*100 : 0;
-  const workColor = workPct >= timePct ? 'var(--green)' : (workPct >= timePct*0.75 ? 'var(--orange)' : 'var(--red)');
-  const t120 = Math.round(state.baseTabs * 1.2);
-  const rewardPct = REWARD_TARGET_PCT;
-  const rewardTarget = Math.round(state.baseTabs * rewardPct / 100);
-  const rewardRingPct = rewardTarget > 0 ? done/rewardTarget*100 : 0;
+  const base = state.baseTabs || 0;
+  const basePct = base>0 ? done/base*100 : 0;
+  const totalWD = workedDays + workDaysLeft;
+  const timePct = totalWD>0 ? workedDays/totalWD*100 : 0;
+  const workColor = basePct >= timePct ? 'var(--green)' : (basePct >= timePct*0.75 ? 'var(--orange)' : 'var(--red)');
+
+  const milestonePct = state.milestonePct || 120;
+  const rewardPct = state.rewardTargetPct || 130;
   const nextPct = state.nextTargetPct || 150;
-  const nextTarget = Math.round(state.baseTabs * nextPct / 100);
-  const nextRingPct = nextTarget > 0 ? done/nextTarget*100 : 0;
-  const ntEl = document.getElementById('next-tabs');
-  if(ntEl) ntEl.textContent = fmt(nextTarget,0) + ' tab';
+  const milestoneTarget = Math.round(base * milestonePct / 100);
+  const rewardTarget = Math.round(base * rewardPct / 100);
+  const nextTarget = Math.round(base * nextPct / 100);
+
+  const mpEl = document.getElementById('milestone-pct'); if(mpEl && document.activeElement !== mpEl) mpEl.value = milestonePct;
+  const rpEl = document.getElementById('reward-pct'); if(rpEl && document.activeElement !== rpEl) rpEl.value = rewardPct;
+  const npEl = document.getElementById('next-pct'); if(npEl && document.activeElement !== npEl) npEl.value = nextPct;
+  const mtEl = document.getElementById('milestone-tabs'); if(mtEl) mtEl.textContent = fmt(milestoneTarget,0) + ' tab';
+  const rtEl = document.getElementById('reward-tabs'); if(rtEl) rtEl.textContent = fmt(rewardTarget,0) + ' tab';
+  const ntEl = document.getElementById('next-tabs'); if(ntEl) ntEl.textContent = fmt(nextTarget,0) + ' tab';
+
   el.innerHTML =
-    ring(basePct, 'Mục tiêu 100%', fmt(done,0)+'/'+state.baseTabs, workColor) +
-    ring(t120 > 0 ? done/t120*100 : 0, 'Mốc 120%', fmt(done,0)+'/'+t120, 'var(--blue)') +
-    ring(rewardRingPct, 'Mốc thưởng ' + rewardPct + '%', fmt(done,0)+'/'+rewardTarget, 'var(--purple)') +
-    ring(nextRingPct, 'Mục tiêu kế tiếp ' + nextPct + '%', fmt(done,0)+'/'+nextTarget, 'var(--orange)');
+    ring(basePct, 'Mục tiêu 100%', fmt(done,0)+'/'+fmt(base,0), workColor) +
+    ring(milestoneTarget>0 ? done/milestoneTarget*100 : 0, 'Mốc tham chiếu ' + milestonePct + '%', fmt(done,0)+'/'+fmt(milestoneTarget,0), 'var(--blue)') +
+    ring(rewardTarget>0 ? done/rewardTarget*100 : 0, 'Mốc thưởng ' + rewardPct + '%', fmt(done,0)+'/'+fmt(rewardTarget,0), 'var(--purple)') +
+    ring(nextTarget>0 ? done/nextTarget*100 : 0, 'Mục tiêu kế tiếp ' + nextPct + '%', fmt(done,0)+'/'+fmt(nextTarget,0), 'var(--orange)');
 }
 
 // ---------- Milestones ----------
@@ -2573,6 +2641,7 @@ function populateMonthHistorySelect(){
 function renderMonthly({ liveRaw, liveDone }){
   const svg = document.getElementById('chart-monthly');
   const listEl = document.getElementById('monthly-list');
+  const headEl = document.getElementById('monthly-head');
   if(!svg || !listEl) return;
   state.monthlyHistory = state.monthlyHistory || {};
   const curKey = state.year+'-'+state.month;
@@ -2584,91 +2653,88 @@ function renderMonthly({ liveRaw, liveDone }){
     return (ay*12+am) - (by*12+bm);
   });
   const entries = keys.map(k=>({ k, v:+merged[k], isCur:k===curKey }));
-  const show = entries.slice(-12);
+  const show = entries.slice(-6); // card hẹp: tối đa 6 tháng để chữ không chen nhau
+  const pastEntries = entries.filter(e=>!e.isCur);
+  const prev = pastEntries.length ? pastEntries[pastEntries.length-1] : null;
 
-  // Bố cục rộng rãi hơn để số và nhãn không bị chồng/cắt khi card hẹp.
-  const W=600, H=236, PL=50, PR=26, PT=30, PB=38;
-  const innerW=W-PL-PR, innerH=H-PT-PB;
-  const rawMax = Math.max(...show.map(e=>e.v), liveDone||0, 150);
-  const maxV = Math.max(175, Math.ceil((rawMax + 15) / 25) * 25);
-  const x = i => PL + (i+0.5)/Math.max(1,show.length) * innerW;
-  const y = v => PT + innerH - Math.max(0, Math.min(1, v/maxV))*innerH;
-  const bw = Math.min(132, Math.max(34, (innerW/Math.max(1,show.length))*0.52));
-
-  // Trục Y dùng các mốc tròn, dễ đọc; đường 100% được nhấn riêng.
-  const tickStep = maxV <= 200 ? 50 : (maxV <= 400 ? 100 : Math.ceil(maxV/4/100)*100);
-  let yTicks='';
-  for(let val=0; val<=maxV; val+=tickStep){
-    const yy=y(val);
-    yTicks += `<line class="grid" x1="${PL}" y1="${yy}" x2="${W-PR}" y2="${yy}"/>`+
-              `<text x="${PL-10}" y="${yy+4}" text-anchor="end" style="font-size:12px">${fmt(val,0)}%</text>`;
+  // Hai số quan trọng đặt riêng phía trên, đọc nhanh hơn nhìn vào cột.
+  if(headEl){
+    const curDiff = prev ? liveRaw - prev.v : null;
+    headEl.innerHTML =
+      `<div class="monthly-main"><div class="mm-label">Tháng gần nhất</div>`+
+        `<div class="mm-value">${prev ? fmt(prev.v,1)+'%' : '—'}</div>`+
+        `<div class="mm-sub">${prev ? 'T'+prev.k.split('-')[1]+'/'+prev.k.split('-')[0] : 'Chưa có dữ liệu lịch sử'}</div></div>`+
+      `<div class="monthly-main current"><div class="mm-label">Tháng này · dự báo</div>`+
+        `<div class="mm-value">${fmt(liveRaw,1)}%</div>`+
+        `<div class="mm-sub">Đã đạt ${fmt(liveDone||0,1)}%${curDiff!=null ? ` · ${curDiff>=0?'+':''}${fmt(curDiff,1)}đ so tháng trước` : ''}</div></div>`;
   }
-  const y100=y(100);
-  const line100 = `<line x1="${PL}" y1="${y100}" x2="${W-PR}" y2="${y100}" stroke="var(--orange)" stroke-width="2" stroke-dasharray="6 4"/>`+
-                  `<rect x="${W-PR-48}" y="${y100-18}" width="46" height="16" rx="8" fill="var(--bg)" opacity=".94"/>`+
-                  `<text x="${W-PR-7}" y="${y100-6}" text-anchor="end" fill="var(--orange)" style="font-size:11.5px;font-weight:700">100%</text>`;
 
-  const bars = show.map((e,i)=>{
+  // Biểu đồ giản lược: chỉ giữ mốc 100%, nhãn cột và mốc đã đạt của tháng hiện tại.
+  const W=600, H=220, PL=42, PR=16, PT=28, PB=34;
+  const innerW=W-PL-PR, innerH=H-PT-PB;
+  const rawMax=Math.max(...show.map(e=>e.v), liveDone||0, 120);
+  const maxV=Math.max(150, Math.ceil((rawMax+10)/25)*25);
+  const x=i=>PL+(i+0.5)/Math.max(1,show.length)*innerW;
+  const y=v=>PT+innerH-Math.max(0,Math.min(1,v/maxV))*innerH;
+  const bw=Math.min(92,Math.max(34,(innerW/Math.max(1,show.length))*.56));
+
+  let guides='';
+  [0,100,maxV].filter((v,i,a)=>a.indexOf(v)===i).forEach(val=>{
+    const yy=y(val);
+    const is100=val===100;
+    guides += `<line x1="${PL}" y1="${yy}" x2="${W-PR}" y2="${yy}" stroke="${is100?'var(--orange)':'var(--border)'}" stroke-width="${is100?1.6:1}" stroke-dasharray="${is100?'5 4':'2 4'}"/>`+
+      `<text x="${PL-7}" y="${yy+4}" text-anchor="end" fill="${is100?'var(--orange)':'var(--text-2)'}" style="font-size:10.5px;font-weight:${is100?700:500}">${fmt(val,0)}%</text>`;
+  });
+
+  const bars=show.map((e,i)=>{
     const cx=x(i), top=y(e.v);
     const color=e.v>=100?'var(--green)':e.v>=85?'var(--orange)':'var(--red)';
     const stroke=e.isCur?' stroke="var(--blue)" stroke-width="2.5"':'';
-    const valueY=Math.max(PT+13, top-8);
-    return `<rect x="${cx-bw/2}" y="${top}" width="${bw}" height="${(H-PB)-top}" rx="5" fill="${color}" opacity="${e.isCur?'.94':'.82'}"${stroke}/>`+
-           `<text x="${cx}" y="${valueY}" text-anchor="middle" fill="var(--text)" style="font-size:13px;font-weight:800">${fmt(e.v,1)}%</text>`;
-  }).join('');
-
-  const labels = show.map((e,i)=>{
     const [yr,m]=e.k.split('-');
-    const label=e.isCur ? `T${m}/${String(yr).slice(2)} · dự báo` : `T${m}/${String(yr).slice(2)}`;
-    return `<text x="${x(i)}" y="${H-12}" text-anchor="middle" fill="${e.isCur?'var(--blue)':'var(--text-2)'}" style="font-size:${e.isCur?'12.5':'12'}px;font-weight:${e.isCur?'700':'500'}">${label}</text>`;
+    const label=e.isCur?`T${m}/${String(yr).slice(2)} · DB`:`T${m}/${String(yr).slice(2)}`;
+    return `<rect x="${cx-bw/2}" y="${top}" width="${bw}" height="${H-PB-top}" rx="5" fill="${color}" opacity="${e.isCur?'.94':'.78'}"${stroke}/>`+
+      `<text x="${cx}" y="${Math.max(PT+12,top-7)}" text-anchor="middle" fill="var(--text)" style="font-size:12px;font-weight:800">${fmt(e.v,1)}%</text>`+
+      `<text x="${cx}" y="${H-10}" text-anchor="middle" fill="${e.isCur?'var(--blue)':'var(--text-2)'}" style="font-size:10.5px;font-weight:${e.isCur?750:550}">${label}</text>`;
   }).join('');
 
-  // Mốc đã đạt của tháng hiện tại: đặt nhãn ngay trong cột, không tràn sang mép phải.
   const curIdx=show.findIndex(e=>e.isCur);
   let curMarker='';
-  if(curIdx>=0 && liveDone!=null && Math.abs(liveDone-liveRaw)>0.5){
+  if(curIdx>=0 && liveDone!=null && liveDone < liveRaw-0.3){
     const cx=x(curIdx), my=y(liveDone);
-    const textY = Math.max(PT+30, Math.min(H-PB-10, my-7));
-    curMarker = `<line x1="${cx-bw/2}" y1="${my}" x2="${cx+bw/2}" y2="${my}" stroke="var(--blue)" stroke-width="2.2" stroke-dasharray="5 3"/>`+
-      `<rect x="${cx-48}" y="${textY-13}" width="96" height="17" rx="8.5" fill="var(--bg)" opacity=".92" stroke="var(--blue)" stroke-width=".8"/>`+
-      `<text x="${cx}" y="${textY}" text-anchor="middle" fill="var(--blue)" style="font-size:10.5px;font-weight:700">Đã đạt ${fmt(liveDone,1)}%</text>`;
+    curMarker=`<line x1="${cx-bw/2}" y1="${my}" x2="${cx+bw/2}" y2="${my}" stroke="var(--blue)" stroke-width="2"/>`+
+      `<rect x="${cx-34}" y="${Math.max(PT+2,my-18)}" width="68" height="15" rx="7.5" fill="var(--blue)"/>`+
+      `<text x="${cx}" y="${Math.max(PT+13,my-7)}" text-anchor="middle" fill="#fff" style="font-size:9px;font-weight:750">HIỆN TẠI ${fmt(liveDone,1)}%</text>`;
   }
 
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
-  svg.innerHTML = `${yTicks}${line100}${bars}${curMarker}<line class="axis" x1="${PL}" y1="${H-PB}" x2="${W-PR}" y2="${H-PB}"/>${labels}`;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('preserveAspectRatio','none');
+  svg.innerHTML=`${guides}${bars}${curMarker}<line x1="${PL}" y1="${H-PB}" x2="${W-PR}" y2="${H-PB}" stroke="var(--border-2)" stroke-width="1"/>`;
 
-  // Summary stats
-  const pastVals = entries.filter(e=>!e.isCur).map(e=>e.v);
-  let summary='';
+  const pastVals=pastEntries.map(e=>e.v);
+  let stats='';
   if(pastVals.length){
     const avg=pastVals.reduce((a,b)=>a+b,0)/pastVals.length;
-    const best=Math.max(...pastVals);
-    const worst=Math.min(...pastVals);
-    const vsAvg=liveRaw-avg;
-    summary = `<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--text-2);margin-bottom:8px">`+
-      `<span>TB các tháng trước: <b class="num" style="color:var(--text)">${fmt(avg,1)}%</b></span>`+
-      `<span>🏆 Cao nhất: <b class="num" style="color:var(--green)">${fmt(best,1)}%</b></span>`+
-      `<span>🔻 Thấp nhất: <b class="num" style="color:var(--red)">${fmt(worst,1)}%</b></span>`+
-      `<span>Tháng này vs TB: <b class="num" style="color:${vsAvg>=0?'var(--green)':'var(--red)'}">${vsAvg>=0?'+':''}${fmt(vsAvg,1)}%</b></span>`+
+    const best=Math.max(...pastVals), worst=Math.min(...pastVals), vsAvg=liveRaw-avg;
+    stats=`<div class="monthly-stats">`+
+      `<div class="monthly-stat"><div class="ms-label">Trung bình trước</div><div class="ms-value">${fmt(avg,1)}%</div></div>`+
+      `<div class="monthly-stat"><div class="ms-label">So với trung bình</div><div class="ms-value" style="color:${vsAvg>=0?'var(--green)':'var(--red)'}">${vsAvg>=0?'+':''}${fmt(vsAvg,1)}%</div></div>`+
+      `<div class="monthly-stat"><div class="ms-label">🏆 Cao nhất</div><div class="ms-value" style="color:var(--green)">${fmt(best,1)}%</div></div>`+
+      `<div class="monthly-stat"><div class="ms-label">🔻 Thấp nhất</div><div class="ms-value" style="color:var(--red)">${fmt(worst,1)}%</div></div>`+
     `</div>`;
   }
 
-  const chips = Object.keys(state.monthlyHistory).sort((a,b)=>{
-    const [ay,am]=a.split('-').map(Number), [by,bm]=b.split('-').map(Number);
-    return (by*12+bm) - (ay*12+am);
+  const chips=Object.keys(state.monthlyHistory).sort((a,b)=>{
+    const [ay,am]=a.split('-').map(Number),[by,bm]=b.split('-').map(Number);
+    return (by*12+bm)-(ay*12+am);
   }).map(k=>{
-    const [yr,m]=k.split('-');
-    const v=+state.monthlyHistory[k];
+    const [yr,m]=k.split('-'),v=+state.monthlyHistory[k];
     const color=v>=100?'var(--green)':v>=85?'var(--orange)':'var(--red)';
-    return `<span style="display:inline-flex;align-items:center;gap:6px;padding:3px 4px 3px 10px;border-radius:99px;background:var(--bg-soft);border:1px solid var(--border);font-size:11.5px">`+
-      `<b>T${m}/${yr}</b>`+
-      `<span style="color:${color};font-weight:600" class="num">${fmt(v,2)}%</span>`+
-      `<button class="btn btn--ghost" title="Xoá" style="padding:0 6px;font-size:13px;line-height:1" onclick="removeMonthEntry('${k}')">×</button>`+
-    `</span>`;
+    return `<span class="monthly-chip"><b>T${m}/${yr}</b><span class="num" style="color:${color};font-weight:700">${fmt(v,1)}%</span>`+
+      `<button class="btn btn--ghost" title="Xoá" onclick="removeMonthEntry('${k}')">×</button></span>`;
   }).join('');
-  const chipsHtml = chips ? `<div style="display:flex;flex-wrap:wrap;gap:6px">${chips}</div>` : `<p class="sub" style="margin:0;font-size:11.5px">Chưa có tháng nào trong lịch sử. Thêm bên dưới để so sánh.</p>`;
-  listEl.innerHTML = summary + chipsHtml;
+  const history=chips?`<div class="monthly-history-title">Lịch sử đã lưu</div><div class="monthly-history-chips">${chips}</div>`:
+    `<p class="sub" style="margin:4px 0 0;font-size:10.5px">Chưa có tháng lịch sử. Thêm bên dưới để so sánh.</p>`;
+  listEl.innerHTML=stats+history;
 }
 
 function addMonthEntry(){
@@ -2801,7 +2867,7 @@ function renderConclusion({ canReach, projected, target, needed, ratePerDay, rec
     return '<li>' + label + ': ' + body + '</li>';
   };
   el.innerHTML += '<ul class="list" style="margin-top:10px">'
-    + milestoneLines('💰 Mốc thưởng <b>' + REWARD_TARGET_PCT + '%</b>', REWARD_TARGET_PCT)
+    + milestoneLines('💰 Mốc thưởng <b>' + (state.rewardTargetPct||130) + '%</b>', (state.rewardTargetPct||130))
     + milestoneLines('🚀 Mục tiêu kế tiếp <b>' + nextP + '%</b>', nextP)
     + '</ul>';
 
