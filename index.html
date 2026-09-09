@@ -514,6 +514,69 @@
   .wk-summary b{color:var(--blue)}
 
   ::selection{background:var(--blue-soft);color:var(--text)}
+
+
+  /* ===== 2026-09-09: light surface + clearer quick actions + balanced columns ===== */
+  :root{--page-bg:#EEF2F6}
+  @media (prefers-color-scheme: dark){:root{--page-bg:#141414}}
+  html[data-theme="light"]{--page-bg:#EEF2F6}
+  html[data-theme="dark"]{--page-bg:#141414}
+  html,body{background:var(--page-bg)}
+
+  /* Light mode: gray workspace, white content panels (like the reference screenshot) */
+  html[data-theme="light"] .card,
+  html[data-theme="light"] .card--soft,
+  html[data-theme="light"] .theme-inline,
+  html[data-theme="light"] .field,
+  html[data-theme="light"] .insight-card,
+  html[data-theme="light"] .metric{
+    background-color:#fff;
+  }
+  @media (prefers-color-scheme: light){
+    html:not([data-theme]) .card,
+    html:not([data-theme]) .card--soft,
+    html:not([data-theme]) .theme-inline,
+    html:not([data-theme]) .field,
+    html:not([data-theme]) .insight-card,
+    html:not([data-theme]) .metric{background-color:#fff}
+  }
+
+  /* Keep the four top KPI tiles softly tinted, even in Light mode */
+  html[data-theme="light"] #metrics .metric--blue{background:linear-gradient(135deg,var(--blue-soft) 0%,#fff 72%)}
+  html[data-theme="light"] #metrics .metric--orange{background:linear-gradient(135deg,var(--orange-soft) 0%,#fff 72%)}
+  html[data-theme="light"] #metrics .metric--green{background:linear-gradient(135deg,var(--green-soft) 0%,#fff 72%)}
+  html[data-theme="light"] #metrics .metric--red{background:linear-gradient(135deg,var(--red-soft) 0%,#fff 72%)}
+  @media (prefers-color-scheme: light){
+    html:not([data-theme]) #metrics .metric--blue{background:linear-gradient(135deg,var(--blue-soft) 0%,#fff 72%)}
+    html:not([data-theme]) #metrics .metric--orange{background:linear-gradient(135deg,var(--orange-soft) 0%,#fff 72%)}
+    html:not([data-theme]) #metrics .metric--green{background:linear-gradient(135deg,var(--green-soft) 0%,#fff 72%)}
+    html:not([data-theme]) #metrics .metric--red{background:linear-gradient(135deg,var(--red-soft) 0%,#fff 72%)}
+  }
+
+  /* Stronger outlines for the two corner quick actions and their opened panels */
+  .quick-kpi-launch{
+    border:2px solid color-mix(in srgb,var(--red) 82%,#fff 18%);
+    box-shadow:0 0 0 1px color-mix(in srgb,var(--red) 28%,transparent),0 8px 24px rgba(0,0,0,.22);
+  }
+  .quick-plan-launch{
+    border:2px solid color-mix(in srgb,var(--yellow) 78%,#fff 22%);
+    box-shadow:0 0 0 1px color-mix(in srgb,var(--yellow) 26%,transparent),0 8px 22px rgba(0,0,0,.20);
+  }
+  .quick-kpi-panel{
+    border:2px solid color-mix(in srgb,var(--red) 68%,var(--border));
+    box-shadow:0 0 0 1px color-mix(in srgb,var(--red) 16%,transparent),0 14px 42px rgba(0,0,0,.28);
+  }
+  .quick-plan-panel{
+    border:2px solid color-mix(in srgb,var(--yellow) 62%,var(--border));
+    border-top:3px solid color-mix(in srgb,var(--yellow) 76%,var(--text));
+    box-shadow:0 0 0 1px color-mix(in srgb,var(--yellow) 14%,transparent),0 16px 42px rgba(0,0,0,.26);
+  }
+
+  /* Make the three desktop columns feel more balanced */
+  @media (min-width:1181px){
+    .dash{grid-template-columns:356px minmax(0,1fr) 356px;gap:14px}
+    .col-left,.col-center,.col-right{min-width:0}
+  }
 </style>
 </head>
 <body>
@@ -2581,6 +2644,27 @@ try{
   });
 }catch(e){}
 
+
+// Rebalance desktop dashboard after the two old input cards were moved to floating actions.
+// Left: calendar + progress + weekly. Center: KPI + two performance charts.
+// Right: conclusion + rings + bonus + monthly history.
+function rebalanceDashboard(){
+  const left = document.querySelector('.col-left');
+  const center = document.querySelector('.col-center');
+  const right = document.querySelector('.col-right');
+  if(!left || !center || !right) return;
+  const findCard = (root, needle) => Array.from(root.children).find(el => {
+    if(!el.classList || !el.classList.contains('card')) return false;
+    const h = el.querySelector('h2');
+    return h && h.textContent.includes(needle);
+  });
+  const weekly = findCard(right, 'Tóm tắt theo tuần');
+  if(weekly) left.appendChild(weekly);
+  const monthly = findCard(center, 'Kết quả theo tháng');
+  if(monthly) right.appendChild(monthly);
+}
+
+rebalanceDashboard();
 init();
 </script>
 
