@@ -421,6 +421,43 @@
   .plan-del{flex:0 0 auto;background:transparent;border:none;color:var(--text-2);font-size:16px;line-height:1;cursor:pointer;padding:0 2px;border-radius:4px}
   .plan-del:hover{color:var(--red);background:var(--red-soft)}
 
+
+  /* plan overview shown permanently under calendar */
+  .calendar-plan-box{
+    margin-top:12px;padding:10px;border-radius:8px;
+    background:color-mix(in srgb,var(--yellow-soft) 48%,var(--bg));
+    border:1px solid color-mix(in srgb,var(--yellow) 32%,var(--border));
+  }
+  .calendar-plan-head{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    margin-bottom:7px;
+  }
+  .calendar-plan-title{font-size:12px;font-weight:750;color:var(--text)}
+  .calendar-plan-count{
+    display:inline-flex;align-items:center;padding:2px 7px;border-radius:99px;
+    font-size:10px;font-weight:750;color:color-mix(in srgb,var(--yellow) 72%,var(--text));
+    background:var(--bg);border:1px solid color-mix(in srgb,var(--yellow) 30%,var(--border));
+  }
+  .calendar-plan-list{display:flex;flex-direction:column;gap:5px;max-height:180px;overflow:auto;padding-right:2px}
+  .calendar-plan-empty{font-size:11px;color:var(--text-2);padding:2px 0}
+  .calendar-plan-item{
+    display:grid;grid-template-columns:auto 48px minmax(0,1fr) auto;
+    gap:7px;align-items:center;padding:7px 8px;border-radius:7px;
+    background:var(--bg);border:1px solid var(--border);font-size:11.5px;
+  }
+  .calendar-plan-item.is-today{border-color:var(--yellow);box-shadow:inset 3px 0 0 var(--yellow)}
+  .calendar-plan-item.is-done{opacity:.58}
+  .calendar-plan-item.is-done .calendar-plan-task{text-decoration:line-through}
+  .calendar-plan-check{width:14px;height:14px;margin:0;accent-color:var(--yellow);cursor:pointer}
+  .calendar-plan-date{font-weight:800;color:color-mix(in srgb,var(--yellow) 76%,var(--text));font-variant-numeric:tabular-nums}
+  .calendar-plan-task{min-width:0;word-break:break-word;color:var(--text)}
+  .calendar-plan-status{font-size:9.5px;font-weight:750;white-space:nowrap;color:var(--text-2)}
+  .calendar-plan-status.today{color:color-mix(in srgb,var(--yellow) 78%,var(--text))}
+  @media(max-width:420px){
+    .calendar-plan-item{grid-template-columns:auto 44px minmax(0,1fr)}
+    .calendar-plan-status{grid-column:2 / -1;margin-top:-3px}
+  }
+
   /* bonus tiers */
   .bonus-now{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:var(--radius-md);background:var(--green-soft);margin-bottom:8px}
   .bonus-now.none{background:var(--bg-soft)}
@@ -747,6 +784,15 @@
         <div class="cal" id="cal-head"><div class="h">CN</div><div class="h">T2</div><div class="h">T3</div><div class="h">T4</div><div class="h">T5</div><div class="h">T6</div><div class="h">T7</div></div>
         <div class="cal" id="cal-body" style="margin-top:3px"><div class="d empty"></div><div class="d empty"></div><div class="d off" onclick="toggleOff(1)" ondblclick="openDayModal(1)" title="Click: nghỉ/làm · DblClick: nhập KPI">1</div><div class="d off" onclick="toggleOff(2)" ondblclick="openDayModal(2)" title="Click: nghỉ/làm · DblClick: nhập KPI">2</div><div class="d worked" onclick="toggleOff(3)" ondblclick="openDayModal(3)" title="Click: nghỉ/làm · DblClick: nhập KPI">3<span class="kpi" title="Trong ngày: 12 tab · Luỹ kế: 12 tab">12</span></div><div class="d worked" onclick="toggleOff(4)" ondblclick="openDayModal(4)" title="Click: nghỉ/làm · DblClick: nhập KPI">4<span class="kpi" title="Trong ngày: 15 tab · Luỹ kế: 27 tab">15</span></div><div class="d worked" onclick="toggleOff(5)" ondblclick="openDayModal(5)" title="Click: nghỉ/làm · DblClick: nhập KPI">5<span class="kpi" title="Trong ngày: 10 tab · Luỹ kế: 37 tab">10</span></div><div class="d off" onclick="toggleOff(6)" ondblclick="openDayModal(6)" title="Click: nghỉ/làm · DblClick: nhập KPI">6</div><div class="d worked" onclick="toggleOff(7)" ondblclick="openDayModal(7)" title="Click: nghỉ/làm · DblClick: nhập KPI">7<span class="kpi" title="Trong ngày: 18 tab · Luỹ kế: 55 tab">18</span></div><div class="d today" onclick="toggleOff(8)" ondblclick="openDayModal(8)" title="Click: nghỉ/làm · DblClick: nhập KPI">8</div><div class="d future" onclick="toggleOff(9)" ondblclick="openDayModal(9)" title="Click: nghỉ/làm · DblClick: nhập KPI">9</div><div class="d future" onclick="toggleOff(10)" ondblclick="openDayModal(10)" title="Click: nghỉ/làm · DblClick: nhập KPI">10</div><div class="d future" onclick="toggleOff(11)" ondblclick="openDayModal(11)" title="Click: nghỉ/làm · DblClick: nhập KPI">11</div><div class="d future" onclick="toggleOff(12)" ondblclick="openDayModal(12)" title="Click: nghỉ/làm · DblClick: nhập KPI">12</div><div class="d off" onclick="toggleOff(13)" ondblclick="openDayModal(13)" title="Click: nghỉ/làm · DblClick: nhập KPI">13</div><div class="d future" onclick="toggleOff(14)" ondblclick="openDayModal(14)" title="Click: nghỉ/làm · DblClick: nhập KPI">14</div><div class="d future" onclick="toggleOff(15)" ondblclick="openDayModal(15)" title="Click: nghỉ/làm · DblClick: nhập KPI">15</div><div class="d future" onclick="toggleOff(16)" ondblclick="openDayModal(16)" title="Click: nghỉ/làm · DblClick: nhập KPI">16</div><div class="d future" onclick="toggleOff(17)" ondblclick="openDayModal(17)" title="Click: nghỉ/làm · DblClick: nhập KPI">17</div><div class="d future" onclick="toggleOff(18)" ondblclick="openDayModal(18)" title="Click: nghỉ/làm · DblClick: nhập KPI">18</div><div class="d future" onclick="toggleOff(19)" ondblclick="openDayModal(19)" title="Click: nghỉ/làm · DblClick: nhập KPI">19</div><div class="d off" onclick="toggleOff(20)" ondblclick="openDayModal(20)" title="Click: nghỉ/làm · DblClick: nhập KPI">20</div><div class="d future" onclick="toggleOff(21)" ondblclick="openDayModal(21)" title="Click: nghỉ/làm · DblClick: nhập KPI">21</div><div class="d future" onclick="toggleOff(22)" ondblclick="openDayModal(22)" title="Click: nghỉ/làm · DblClick: nhập KPI">22</div><div class="d future" onclick="toggleOff(23)" ondblclick="openDayModal(23)" title="Click: nghỉ/làm · DblClick: nhập KPI">23</div><div class="d future" onclick="toggleOff(24)" ondblclick="openDayModal(24)" title="Click: nghỉ/làm · DblClick: nhập KPI">24</div><div class="d future" onclick="toggleOff(25)" ondblclick="openDayModal(25)" title="Click: nghỉ/làm · DblClick: nhập KPI">25</div><div class="d future" onclick="toggleOff(26)" ondblclick="openDayModal(26)" title="Click: nghỉ/làm · DblClick: nhập KPI">26</div><div class="d off" onclick="toggleOff(27)" ondblclick="openDayModal(27)" title="Click: nghỉ/làm · DblClick: nhập KPI">27</div><div class="d future" onclick="toggleOff(28)" ondblclick="openDayModal(28)" title="Click: nghỉ/làm · DblClick: nhập KPI">28</div><div class="d future" onclick="toggleOff(29)" ondblclick="openDayModal(29)" title="Click: nghỉ/làm · DblClick: nhập KPI">29</div><div class="d future" onclick="toggleOff(30)" ondblclick="openDayModal(30)" title="Click: nghỉ/làm · DblClick: nhập KPI">30</div></div>
         <p class="sub" style="margin:10px 0 0;font-size:11px">💡 <b>Click</b>: đổi nghỉ/làm · <b>Double-click</b> ngày đã qua: nhập tab luỹ kế · Số dưới mỗi ngày = <b>tab làm trong ngày đó</b></p>
+        <div class="calendar-plan-box">
+          <div class="calendar-plan-head">
+            <span class="calendar-plan-title">📌 Kế hoạch trong tháng</span>
+            <span class="calendar-plan-count" id="calendar-plan-count">0 việc</span>
+          </div>
+          <div class="calendar-plan-list" id="calendar-plan-list">
+            <div class="calendar-plan-empty">Chưa có kế hoạch trong tháng này.</div>
+          </div>
+        </div>
       </div>
 
       <div class="card">
@@ -1364,6 +1410,7 @@ function renderCal(){
     html += `<div class="${cls}" onclick="toggleOff(${d})" ondblclick="openDayModal(${d})" title="Click: nghỉ/làm · DblClick: nhập KPI${planTip}">${d}${kpiText}${planDot}</div>`;
   }
   body.innerHTML = html;
+  renderCalendarPlanList();
   calc(false);
 }
 
@@ -1672,6 +1719,47 @@ function escPlan(s){
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
+
+function renderCalendarPlanList(){
+  const el = document.getElementById('calendar-plan-list');
+  const countEl = document.getElementById('calendar-plan-count');
+  if(!el) return;
+  const monthStr = String(state.month).padStart(2,'0');
+  const todayStr = String(state.today).padStart(2,'0') + '/' + monthStr;
+  const items = (state.companyPlan||[])
+    .filter(it => {
+      const m = String(it.date||'').match(/^(\d{1,2})\/(\d{1,2})$/);
+      return m && +m[2] === state.month;
+    })
+    .slice()
+    .sort((a,b)=> planSortValue(a.date) - planSortValue(b.date));
+
+  if(countEl) countEl.textContent = items.length + ' việc';
+  if(!items.length){
+    el.innerHTML = '<div class="calendar-plan-empty">Chưa có kế hoạch trong tháng này — bấm <b>📌 Kế hoạch</b> ở góc để thêm.</div>';
+    return;
+  }
+
+  el.innerHTML = items.map(it => {
+    const id = escPlan(it.id);
+    const isToday = it.date === todayStr;
+    const cls = 'calendar-plan-item' + (isToday ? ' is-today' : '') + (it.done ? ' is-done' : '');
+    const status = it.done
+      ? '<span class="calendar-plan-status">✓ Đã xong</span>'
+      : (isToday ? '<span class="calendar-plan-status today">● Hôm nay</span>' : '<span class="calendar-plan-status">Chưa xong</span>');
+    return `<div class="${cls}">`
+      + `<input type="checkbox" class="calendar-plan-check" data-id="${id}"${it.done ? ' checked' : ''} title="Đánh dấu hoàn thành">`
+      + `<span class="calendar-plan-date">${escPlan(it.date)}</span>`
+      + `<span class="calendar-plan-task">${escPlan(it.task)}</span>`
+      + status
+      + `</div>`;
+  }).join('');
+
+  el.querySelectorAll('.calendar-plan-check').forEach(c => {
+    c.addEventListener('change', () => togglePlanNote(c.dataset.id));
+  });
+}
+
 function renderCompanyPlan(){
   const el = document.getElementById('company-plan'); if(!el) return;
   const items = (state.companyPlan||[]).slice().sort((a,b)=> planSortValue(a.date) - planSortValue(b.date));
