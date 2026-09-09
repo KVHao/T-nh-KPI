@@ -1222,6 +1222,20 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
 }
 </style>
 
+
+<style id="status-icon-before-number-fix">
+/* Thứ tự đúng: icon → số → nội dung */
+.work-status-pill .numv{
+  order:0 !important;
+}
+.work-status-pill .ic{
+  order:0 !important;
+}
+.work-status-pill .txt{
+  order:0 !important;
+}
+</style>
+
 </head>
 <body>
 <div id="quick-modal-backdrop" onclick="closeQuickActions()"></div>
@@ -1703,7 +1717,11 @@ function submitFloatingReport(){
   const famousQuote = '💬 “Thành công là tổng của những nỗ lực nhỏ, lặp lại ngày này qua ngày khác.” — Robert Collier';
 
   if(result){
-    result.innerHTML = (rich ? rich.innerHTML : `✅ Đã ghi ${fmt(v,0)} tab.`)
+    // submitReport() vốn có thêm 1 câu động viên ngẫu nhiên ở dòng cuối.
+    // Popup nhanh đã có phần động viên riêng bên dưới, nên bỏ dòng cuối đó để tránh lặp.
+    let richHtml = rich ? rich.innerHTML : `✅ Đã ghi ${fmt(v,0)} tab.`;
+    richHtml = richHtml.replace(/<br>[^<]*$/i, '');
+    result.innerHTML = richHtml
       + `<div class="kpi-extra-cheer">${encouragement}</div>`
       + `<div class="kpi-famous-quote">${famousQuote}</div>`;
   }
@@ -1711,11 +1729,11 @@ function submitFloatingReport(){
   if(tabsEl) tabsEl.value = '';
   showToast(`✅ Đã ghi nhận ${fmt(v,0)} tab ngày ${String(+dayEl.value).padStart(2,'0')}/${String(state.month).padStart(2,'0')}`);
 
-  // Cho người dùng khoảng 5 giây đọc phần tổng kết rồi tự đóng.
+  // Cho người dùng khoảng 10 giây đọc phần tổng kết rồi tự đóng.
   clearTimeout(quickKpiCloseTimer);
   quickKpiCloseTimer = setTimeout(()=>{
     closeQuickKpi();
-  }, 5000);
+  }, 10000);
 }
 function submitReport(){
   const d = +document.getElementById('report-day').value;
