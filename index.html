@@ -1171,6 +1171,57 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
 }
 </style>
 
+
+<style id="centered-overview-topbar-patch">
+.overview-topbar{
+  justify-content:center !important;
+  gap:10px !important;
+  margin:3px auto 14px !important;
+  width:100% !important;
+}
+.top-quick-actions{
+  gap:9px !important;
+}
+.top-quick-btn{
+  min-height:43px !important;
+  padding:9px 16px !important;
+  font-size:12.5px !important;
+  border-radius:999px !important;
+}
+.overview-topbar .work-status-strip{
+  justify-content:center !important;
+  gap:9px !important;
+}
+.overview-topbar .work-status-pill{
+  min-height:43px !important;
+  padding:9px 14px !important;
+}
+.overview-topbar .work-status-pill .numv{
+  font-size:17px !important;
+}
+.overview-topbar .work-status-pill .lbl{
+  font-size:11.5px !important;
+}
+.overview-topbar .work-status-pill .subtxt{
+  font-size:10.5px !important;
+}
+@media(max-width:760px){
+  .overview-topbar{
+    justify-content:flex-start !important;
+  }
+  .top-quick-actions{
+    width:100%;
+  }
+  .top-quick-btn{
+    flex:1 1 0;
+  }
+  .overview-topbar .work-status-strip{
+    width:100%;
+    justify-content:flex-start !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="quick-modal-backdrop" onclick="closeQuickActions()"></div>
@@ -1576,10 +1627,13 @@ function populateReportDay(){
   if(floatSel) floatSel.innerHTML = opts;
 }
 
+let quickKpiCloseTimer = null;
 function setQuickModalState(open){
   document.body.classList.toggle('quick-modal-open', !!open);
 }
 function openQuickKpi(){
+  clearTimeout(quickKpiCloseTimer);
+  quickKpiCloseTimer = null;
   const wrap = document.getElementById('quick-kpi-float');
   const planWrap = document.getElementById('quick-plan-float');
   if(!wrap) return;
@@ -1593,6 +1647,8 @@ function openQuickKpi(){
   setTimeout(()=>inp && inp.focus(), 60);
 }
 function closeQuickKpi(){
+  clearTimeout(quickKpiCloseTimer);
+  quickKpiCloseTimer = null;
   const wrap = document.getElementById('quick-kpi-float');
   if(wrap) wrap.classList.remove('open');
   setQuickModalState(false);
@@ -1654,7 +1710,12 @@ function submitFloatingReport(){
 
   if(tabsEl) tabsEl.value = '';
   showToast(`✅ Đã ghi nhận ${fmt(v,0)} tab ngày ${String(+dayEl.value).padStart(2,'0')}/${String(state.month).padStart(2,'0')}`);
-  // Không tự đóng: để người dùng đọc phần tổng kết, động viên và câu nói.
+
+  // Cho người dùng khoảng 5 giây đọc phần tổng kết rồi tự đóng.
+  clearTimeout(quickKpiCloseTimer);
+  quickKpiCloseTimer = setTimeout(()=>{
+    closeQuickKpi();
+  }, 5000);
 }
 function submitReport(){
   const d = +document.getElementById('report-day').value;
@@ -2227,7 +2288,12 @@ function addPlanNote(){
   dEl.value = ''; tEl.value = '';
   save(); renderCompanyPlan(); renderCal();
   showToast('📌 Đã thêm kế hoạch ' + date + ': ' + escPlan(task));
-  tEl.focus();
+  const quickPlanWrap = document.getElementById('quick-plan-float');
+  if(quickPlanWrap && quickPlanWrap.classList.contains('open')){
+    closeQuickPlan();
+  } else {
+    tEl.focus();
+  }
 }
 function removePlanNote(id){
   state.companyPlan = (state.companyPlan||[]).filter(x => x.id !== id);
