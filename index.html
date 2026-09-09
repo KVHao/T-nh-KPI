@@ -698,6 +698,39 @@
   @media(max-width:520px){.ring-card .ring-layout{grid-template-columns:1fr}.ring-settings{display:grid;grid-template-columns:repeat(3,1fr)}.ring-settings-title{grid-column:1/-1}.ring-setting{min-width:0}.ring-setting input{width:100%!important}}
 
 </style>
+
+<style id="fixed-ring-layout-patch">
+/* Vòng tiến độ: 4 mốc cố định 100 / 120 / 130 / 150 */
+#rings{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:12px 10px !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:4px 0 2px !important;
+  align-items:start !important;
+}
+#rings > div{
+  min-width:0;
+}
+#rings svg{
+  width:92px;
+  height:92px;
+}
+.ring-settings,
+.ring-config,
+#ring-settings,
+#target-settings,
+#ring-target-settings{
+  display:none !important;
+}
+@media (min-width:1181px){
+  #rings{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="quick-plan-float" id="quick-plan-float">
@@ -976,20 +1009,11 @@
         <h2>Vòng tiến độ</h2>
         <div class="ring-layout">
           <div id="rings"></div>
-          <div class="ring-settings">
-            <div class="ring-settings-title">Cài đặt mốc</div>
-            <div class="ring-setting milestone">
-              <span class="rs-label">Mốc tham chiếu</span>
-              <div class="rs-input">
-                <input type="number" id="milestone-pct" class="field num" step="5" min="101" onchange="setTrackedTargetPct('milestone',this.value)">
-                <span class="rs-pct">%</span>
-              </div>
-              <div class="rs-tabs" id="milestone-tabs">281 tab</div>
-            </div>
+          
             <div class="ring-setting reward">
               <span class="rs-label">Mốc thưởng</span>
               <div class="rs-input">
-                <input type="number" id="reward-pct" class="field num" step="5" min="101" onchange="setTrackedTargetPct('reward',this.value)">
+                
                 <span class="rs-pct">%</span>
               </div>
               <div class="rs-tabs" id="reward-tabs">304 tab</div>
@@ -997,7 +1021,7 @@
             <div class="ring-setting next">
               <span class="rs-label">Mục tiêu kế tiếp</span>
               <div class="rs-input">
-                <input type="number" id="next-pct" class="field num" step="5" min="101" onchange="setTrackedTargetPct('next',this.value)">
+                
                 <span class="rs-pct">%</span>
               </div>
               <div class="rs-tabs" id="next-tabs">351 tab</div>
@@ -1317,6 +1341,12 @@ function toggleTheme(){
 }
 
 function init(){
+  // Hai mốc dùng cho tốc độ được cố định theo yêu cầu: 130% và 150%.
+  state.bonusTargetPct = 130;
+  state.milestonePct = 130;
+  state.referencePct = 120;
+  state.nextTargetPct = 150;
+
   load();
   applyThemeToggleUi();
   state.dailyLog = state.dailyLog || {};
@@ -1422,8 +1452,8 @@ function renderBaseHint(){
   const pct = state.targetPct || 0;
   const tgt = state.target || 0;
   const mp = state.milestonePct || 120;
-  const rp = state.rewardTargetPct || 130;
-  const np = state.nextTargetPct || 150;
+  const rp = 130;
+  const np = 150;
   el.innerHTML = '🎯 Mục tiêu <b>100% = ' + fmt(base,0) + ' tab</b>'
     + ' · ' + mp + '% = <b>' + fmt(Math.round(base*mp/100),0) + ' tab</b>'
     + ' · ' + rp + '% = <b>' + fmt(Math.round(base*rp/100),0) + ' tab</b>'
@@ -1907,11 +1937,11 @@ function calc(persist){
   const trendArrow = recent7Rate!=null ? (recent7Rate > ratePerDay*1.05 ? '<span style="color:var(--green)">▲</span>' : recent7Rate < ratePerDay*0.95 ? '<span style="color:var(--red)">▼</span>' : '<span style="color:var(--text-2)">▬</span>') : '';
 
   // Hai nhip cong viec theo cac moc uu tien: moc thuong 130% (co dinh) va muc tieu ke tiep (co the doi)
-  const rewardPct = state.rewardTargetPct || 130;
+  const rewardPct = 130;
   const rewardTarget = Math.round(state.baseTabs * rewardPct / 100);
   const rewardLeft = Math.max(0, rewardTarget - done);
   const rewardNeed = workDaysLeft > 0 ? rewardLeft / workDaysLeft : Infinity;
-  const nextPct = state.nextTargetPct || 150;
+  const nextPct = 150;
   const nextTarget = Math.round(state.baseTabs * nextPct / 100);
   const nextLeft = Math.max(0, nextTarget - done);
   const nextNeed = workDaysLeft > 0 ? nextLeft / workDaysLeft : Infinity;
@@ -1968,8 +1998,8 @@ function calc(persist){
   const forecastGapTabs = projected - target;
   const forecastColor = forecastGapTabs >= 0 ? 'var(--green)' : 'var(--red)';
   const milestonePctTrack = state.milestonePct || 120;
-  const rewardPctTrack = state.rewardTargetPct || 130;
-  const nextPctTrack = state.nextTargetPct || 150;
+  const rewardPctTrack = 130;
+  const nextPctTrack = 150;
   const forecastTiers = [...new Set([100,milestonePctTrack,rewardPctTrack,nextPctTrack])].sort((a,b)=>a-b);
   const scaleMin = 100, scaleMax = Math.max(110, ...forecastTiers);
   const scalePos = Math.max(0, Math.min(100, (projPct - scaleMin) / (scaleMax - scaleMin) * 100));
@@ -2426,45 +2456,41 @@ function renderBonus({ done, projected }){
 function renderRings({ done, target, workedDays, workDaysLeft }){
   const el = document.getElementById('rings');
   if(!el) return;
+
   const ring = (pct, label, sub, color)=>{
     const r = 38, c = 2*Math.PI*r;
     const p = Math.max(0, Math.min(1, pct/100));
-    return `<div class="ring-item">
-      <svg viewBox="0 0 120 120">
+    return `<div style="text-align:center">
+      <svg width="100" height="100" viewBox="0 0 120 120">
         <circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--bg-raised)" stroke-width="11"/>
         <circle cx="60" cy="60" r="${r}" fill="none" stroke="${color}" stroke-width="11" stroke-linecap="round"
           stroke-dasharray="${c*p} ${c}" transform="rotate(-90 60 60)"/>
         <text x="60" y="62" text-anchor="middle" style="font-size:19px;font-weight:700" fill="var(--text)" class="num">${fmt(pct,0)}%</text>
         <text x="60" y="78" text-anchor="middle" style="font-size:9.5px" fill="var(--text-2)">${sub}</text>
       </svg>
-      <div class="ring-label">${label}</div>
+      <div style="font-size:11px;color:var(--text-2);margin-top:-2px">${label}</div>
     </div>`;
   };
+
   const base = state.baseTabs || 0;
-  const basePct = base>0 ? done/base*100 : 0;
-  const totalWD = workedDays + workDaysLeft;
-  const timePct = totalWD>0 ? workedDays/totalWD*100 : 0;
-  const workColor = basePct >= timePct ? 'var(--green)' : (basePct >= timePct*0.75 ? 'var(--orange)' : 'var(--red)');
+  const t100 = Math.round(base);
+  const t120 = Math.round(base * 1.20);
+  const t130 = Math.round(base * 1.30);
+  const t150 = Math.round(base * 1.50);
 
-  const milestonePct = state.milestonePct || 120;
-  const rewardPct = state.rewardTargetPct || 130;
-  const nextPct = state.nextTargetPct || 150;
-  const milestoneTarget = Math.round(base * milestonePct / 100);
-  const rewardTarget = Math.round(base * rewardPct / 100);
-  const nextTarget = Math.round(base * nextPct / 100);
+  const p100 = t100 > 0 ? done/t100*100 : 0;
+  const p120 = t120 > 0 ? done/t120*100 : 0;
+  const p130 = t130 > 0 ? done/t130*100 : 0;
+  const p150 = t150 > 0 ? done/t150*100 : 0;
 
-  const mpEl = document.getElementById('milestone-pct'); if(mpEl && document.activeElement !== mpEl) mpEl.value = milestonePct;
-  const rpEl = document.getElementById('reward-pct'); if(rpEl && document.activeElement !== rpEl) rpEl.value = rewardPct;
-  const npEl = document.getElementById('next-pct'); if(npEl && document.activeElement !== npEl) npEl.value = nextPct;
-  const mtEl = document.getElementById('milestone-tabs'); if(mtEl) mtEl.textContent = fmt(milestoneTarget,0) + ' tab';
-  const rtEl = document.getElementById('reward-tabs'); if(rtEl) rtEl.textContent = fmt(rewardTarget,0) + ' tab';
-  const ntEl = document.getElementById('next-tabs'); if(ntEl) ntEl.textContent = fmt(nextTarget,0) + ' tab';
+  const timePct = (workedDays+workDaysLeft)>0 ? workedDays/(workedDays+workDaysLeft)*100 : 0;
+  const workColor = p100 >= timePct ? 'var(--green)' : (p100 >= timePct*0.75 ? 'var(--orange)' : 'var(--red)');
 
   el.innerHTML =
-    ring(basePct, 'Mục tiêu 100%', fmt(done,0)+'/'+fmt(base,0), workColor) +
-    ring(milestoneTarget>0 ? done/milestoneTarget*100 : 0, 'Mốc tham chiếu ' + milestonePct + '%', fmt(done,0)+'/'+fmt(milestoneTarget,0), 'var(--blue)') +
-    ring(rewardTarget>0 ? done/rewardTarget*100 : 0, 'Mốc thưởng ' + rewardPct + '%', fmt(done,0)+'/'+fmt(rewardTarget,0), 'var(--purple)') +
-    ring(nextTarget>0 ? done/nextTarget*100 : 0, 'Mục tiêu kế tiếp ' + nextPct + '%', fmt(done,0)+'/'+fmt(nextTarget,0), 'var(--orange)');
+    ring(p100, 'Mục tiêu 100%', fmt(done,0)+'/'+t100, workColor) +
+    ring(p120, 'Mốc 120%', fmt(done,0)+'/'+t120, 'var(--blue)') +
+    ring(p130, 'Mốc thưởng 130%', fmt(done,0)+'/'+t130, 'var(--purple)') +
+    ring(p150, 'Mục tiêu 150%', fmt(done,0)+'/'+t150, 'var(--orange)');
 }
 
 // ---------- Milestones ----------
@@ -2855,7 +2881,7 @@ function renderConclusion({ canReach, projected, target, needed, ratePerDay, rec
 
   // --- 2 dong muc tieu uu tien: moc thuong 130% va muc tieu ke tiep ---
   const cbase = state.baseTabs || 0;
-  const nextP = state.nextTargetPct || 150;
+  const nextP = 150;
   const milestoneLines = (label, pct) => {
     const needTotal = Math.round(cbase * pct / 100);
     const left = needTotal - done;
