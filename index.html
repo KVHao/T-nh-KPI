@@ -1236,6 +1236,20 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
 }
 </style>
 
+
+<style id="conclusion-four-milestones-patch">
+.conclusion-milestones{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  padding-left:18px !important;
+}
+.conclusion-milestones li{
+  margin:0 !important;
+  line-height:1.5;
+}
+</style>
+
 </head>
 <body>
 <div id="quick-modal-backdrop" onclick="closeQuickActions()"></div>
@@ -3429,10 +3443,9 @@ function renderConclusion({ canReach, projected, target, needed, ratePerDay, rec
       `<ul class="list">${suggestions.map(s=>`<li>${s}</li>`).join('')}</ul>`);
   }
 
-  // --- 2 dong muc tieu uu tien: moc thuong 130% va muc tieu ke tiep ---
+  // --- 4 mốc cố định: 100% / 120% / 130% / 150% ---
   const cbase = state.baseTabs || 0;
-  const nextP = 150;
-  const milestoneLines = (label, pct) => {
+  const milestoneLines = (pct) => {
     const needTotal = Math.round(cbase * pct / 100);
     const left = needTotal - done;
     const perDay = (workDaysLeft > 0 && left > 0) ? left/workDaysLeft : 0;
@@ -3440,11 +3453,13 @@ function renderConclusion({ canReach, projected, target, needed, ratePerDay, rec
       ? 'cần <b class="num">' + fmt(needTotal,0) + ' tab</b> · còn <b class="num">' + fmt(left,0) + ' tab</b>'
         + (perDay > 0 ? ' (≈ <b>' + fmt(perDay,1) + ' tab/ngày</b>)' : '')
       : 'cần <b class="num">' + fmt(needTotal,0) + ' tab</b> · <b>đã đạt</b>, vượt <b class="num">' + fmt(-left,0) + ' tab</b>';
-    return '<li>' + label + ': ' + body + '</li>';
+    return '<li><b>' + pct + '%:</b> ' + body + '</li>';
   };
-  el.innerHTML += '<ul class="list" style="margin-top:10px">'
-    + milestoneLines('💰 Mốc thưởng <b>' + (state.rewardTargetPct||130) + '%</b>', (state.rewardTargetPct||130))
-    + milestoneLines('🚀 Mục tiêu kế tiếp <b>' + nextP + '%</b>', nextP)
+  el.innerHTML += '<ul class="list conclusion-milestones" style="margin-top:10px">'
+    + milestoneLines(100)
+    + milestoneLines(120)
+    + milestoneLines(130)
+    + milestoneLines(150)
     + '</ul>';
 
 }
