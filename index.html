@@ -989,8 +989,191 @@
 }
 </style>
 
+
+<style id="top-actions-modal-monthly-redesign">
+/* ===== Quick actions placed before status pills ===== */
+.overview-topbar{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:0 0 10px;
+}
+.top-quick-actions{
+  display:flex;
+  gap:7px;
+  flex:0 0 auto;
+}
+.top-quick-btn{
+  min-height:38px;
+  padding:7px 12px;
+  border-radius:999px;
+  background:var(--bg);
+  font-size:11.5px;
+  font-family:inherit;
+  font-weight:800;
+  cursor:pointer;
+  transition:transform .12s,background .12s,box-shadow .12s;
+  white-space:nowrap;
+}
+.top-quick-btn:hover{transform:translateY(-1px)}
+.top-quick-btn.kpi{
+  border:1.5px solid color-mix(in srgb,var(--red) 80%,var(--border));
+  color:var(--red);
+}
+.top-quick-btn.kpi:hover{background:var(--red-soft)}
+.top-quick-btn.plan{
+  border:1.5px solid color-mix(in srgb,var(--yellow) 82%,var(--border));
+  color:color-mix(in srgb,var(--yellow) 82%,var(--text));
+}
+.top-quick-btn.plan:hover{background:var(--yellow-soft)}
+.overview-topbar .work-status-strip{
+  margin:0 !important;
+}
+
+/* Hide the old floating launcher buttons; panels remain reused as modals */
+.quick-kpi-launch,.quick-plan-launch{display:none !important}
+.quick-kpi-float,.quick-plan-float{
+  position:static !important;
+  display:block !important;
+  z-index:auto !important;
+}
+
+/* Blurred modal backdrop */
+#quick-modal-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:none;
+  background:rgba(0,0,0,.42);
+  backdrop-filter:blur(5px);
+  -webkit-backdrop-filter:blur(5px);
+}
+body.quick-modal-open #quick-modal-backdrop{display:block}
+
+/* Reuse existing panels but center them */
+.quick-kpi-panel,.quick-plan-panel{
+  position:fixed !important;
+  left:50% !important;
+  top:50% !important;
+  right:auto !important;
+  bottom:auto !important;
+  transform:translate(-50%,-50%) !important;
+  z-index:1002 !important;
+  display:none !important;
+  width:min(430px,calc(100vw - 28px)) !important;
+  max-height:min(82vh,650px);
+  overflow:auto;
+  background:var(--bg) !important;
+  box-shadow:0 24px 70px rgba(0,0,0,.32) !important;
+  animation:none !important;
+}
+.quick-kpi-float.open .quick-kpi-panel,
+.quick-plan-float.open .quick-plan-panel{
+  display:block !important;
+  animation:modalEnter .18s ease-out !important;
+}
+.quick-kpi-panel{
+  border:1.5px solid color-mix(in srgb,var(--red) 74%,var(--border)) !important;
+  border-radius:13px !important;
+  padding:16px !important;
+}
+.quick-plan-panel{
+  border:1.5px solid color-mix(in srgb,var(--yellow) 78%,var(--border)) !important;
+  border-radius:13px !important;
+  padding:16px !important;
+}
+@keyframes modalEnter{
+  from{opacity:0;transform:translate(-50%,-47%) scale(.98)}
+  to{opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+.quick-kpi-grid{gap:9px !important}
+.quick-kpi-submit{min-height:39px}
+.quick-kpi-result{
+  margin-top:10px !important;
+  padding:0;
+  color:var(--text) !important;
+  font-size:11.5px !important;
+  line-height:1.55 !important;
+}
+.quick-kpi-result:not(:empty){
+  padding:10px 11px;
+  border:1px solid color-mix(in srgb,var(--red) 26%,var(--border));
+  border-radius:9px;
+  background:color-mix(in srgb,var(--red-soft) 45%,var(--bg));
+}
+.kpi-extra-cheer{
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px solid var(--border);
+}
+.kpi-famous-quote{
+  margin-top:7px;
+  padding:8px 9px;
+  border-radius:8px;
+  background:var(--bg-soft);
+  color:var(--text-2);
+  font-style:italic;
+}
+.quick-plan-list ul.plan-notes{
+  max-height:310px !important;
+}
+
+/* ===== Monthly comparison: columns are the main story ===== */
+#monthly-head{display:none !important}
+#chart-monthly{
+  height:260px !important;
+  min-height:260px !important;
+  margin-top:8px !important;
+  overflow:visible !important;
+}
+#chart-monthly text{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',system-ui,sans-serif !important;
+}
+.monthly-compare-note{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin:4px 0 2px;
+  font-size:10.5px;
+  color:var(--text-2);
+}
+.monthly-compare-note span{display:inline-flex;align-items:center;gap:5px}
+.monthly-compare-note .box{
+  width:9px;height:9px;border-radius:3px;background:var(--green);
+}
+.monthly-compare-note .cur{
+  width:10px;height:10px;border-radius:3px;
+  border:2px solid var(--blue);
+  background:var(--green);
+}
+#monthly-list{margin-top:6px !important}
+.monthly-history-title{
+  margin-top:4px !important;
+  font-size:9.5px !important;
+}
+.monthly-history-chips{gap:5px !important}
+.monthly-chip{
+  font-size:10.5px !important;
+  padding:3px 4px 3px 8px !important;
+}
+.monthly-chip .btn{padding:0 5px !important}
+.monthly-stats{display:none !important}
+
+@media(max-width:680px){
+  .overview-topbar{align-items:stretch}
+  .top-quick-actions{width:100%}
+  .top-quick-btn{flex:1 1 0}
+  .overview-topbar .work-status-strip{width:100%}
+  .quick-kpi-grid{grid-template-columns:1fr !important}
+  #chart-monthly{height:245px !important;min-height:245px !important}
+}
+</style>
+
 </head>
 <body>
+<div id="quick-modal-backdrop" onclick="closeQuickActions()"></div>
 <div class="quick-plan-float" id="quick-plan-float">
   <div class="quick-plan-panel" id="quick-plan-panel">
     <div class="quick-plan-head">
@@ -1088,7 +1271,12 @@
   </div>
 
   <!-- Work status + speed overview -->
-  <div class="work-status-strip" id="work-status">
+  <div class="overview-topbar">
+    <div class="top-quick-actions">
+      <button class="top-quick-btn kpi" type="button" onclick="openQuickKpi()">⚡ Ghi KPI</button>
+      <button class="top-quick-btn plan" type="button" onclick="openQuickPlan()">📌 Kế hoạch</button>
+    </div>
+<div class="work-status-strip" id="work-status">
     <div class="work-status-pill work-status-pill--blue">
       <div class="left"><span class="ic">📅</span><div class="numv">—</div><div class="txt"><div class="lbl">ngày còn lại</div></div></div>
     </div>
@@ -1096,6 +1284,8 @@
       <div class="left"><span class="ic">🎯</span><div class="numv">—</div><div class="txt"><div class="lbl">tab tới 100%</div></div></div>
     </div>
   </div>
+
+    </div>
 
   <div id="metrics" style="margin-bottom:12px"></div>
 
@@ -1219,7 +1409,8 @@
 
       <div class="card">
         <h2>📆 Kết quả theo tháng</h2>
-        <p class="sub" style="margin-top:-6px">So sánh kết quả tháng trước với tháng hiện tại · tháng hiện tại hiển thị <b>dự báo cuối tháng</b>.</p>
+        <p class="sub" style="margin-top:-6px">So sánh trực tiếp <b>% KPI giữa các tháng</b> bằng chiều cao cột.</p>
+        <div class="monthly-compare-note"><span><i class="box"></i> Tháng đã lưu</span><span><i class="cur"></i> Tháng hiện tại · dự báo</span></div>
         <div id="monthly-head" class="monthly-head"></div>
         <svg class="chart" id="chart-monthly" viewBox="0 0 600 236" preserveAspectRatio="xMidYMid meet"><line class="grid" x1="34" y1="174" x2="590" y2="174"></line><text x="28" y="177" text-anchor="end">0%</text><line class="grid" x1="34" y1="120.66666666666667" x2="590" y2="120.66666666666667"></line><text x="28" y="123.66666666666667" text-anchor="end">56%</text><line class="grid" x1="34" y1="67.33333333333334" x2="590" y2="67.33333333333334"></line><text x="28" y="70.33333333333334" text-anchor="end">112%</text><line class="grid" x1="34" y1="14" x2="590" y2="14"></line><text x="28" y="17" text-anchor="end">168%</text><line x1="34" y1="78.76190476190479" x2="590" y2="78.76190476190479" stroke="var(--orange)" stroke-width="1.5" stroke-dasharray="4 3"></line><text x="588" y="74.76190476190479" text-anchor="end" fill="var(--orange)" style="font-weight:600">100%</text><rect x="86.82000000000001" y="53.047619047619065" width="172.35999999999999" height="120.95238095238093" rx="3" fill="var(--green)" opacity=".85"></rect><text x="173" y="49.047619047619065" text-anchor="middle" fill="var(--text)" style="font-size:10px;font-weight:600">127.0%</text><rect x="364.82" y="66.55189255189258" width="172.35999999999999" height="107.44810744810742" rx="3" fill="var(--green)" opacity=".95" stroke="var(--blue)" stroke-width="2"></rect><text x="451" y="62.55189255189258" text-anchor="middle" fill="var(--text)" style="font-size:10px;font-weight:600">112.8%</text><line x1="362.82" y1="151.61497761497762" x2="539.18" y2="151.61497761497762" stroke="var(--blue)" stroke-width="1.8" stroke-dasharray="3 2"></line><text x="543.18" y="154.61497761497762" fill="var(--blue)" style="font-size:9.5px;font-weight:600">hiện tại 23.5%</text><line class="axis" x1="34" y1="174" x2="590" y2="174"></line><text x="173" y="192" text-anchor="middle">T8/26</text><text x="451" y="192" text-anchor="middle" fill="var(--blue)" style="font-weight:700">T9/26 (dự báo)</text></svg>
         <div id="monthly-list" style="margin-top:10px"><div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--text-2);margin-bottom:8px"><span>TB các tháng trước: <b class="num" style="color:var(--text)">127.0%</b></span><span>🏆 Cao nhất: <b class="num" style="color:var(--green)">127.0%</b></span><span>🔻 Thấp nhất: <b class="num" style="color:var(--red)">127.0%</b></span><span>Tháng này vs TB: <b class="num" style="color:var(--red)">-14.2%</b></span></div><div style="display:flex;flex-wrap:wrap;gap:6px"><span style="display:inline-flex;align-items:center;gap:6px;padding:3px 4px 3px 10px;border-radius:99px;background:var(--bg-soft);border:1px solid var(--border);font-size:11.5px"><b>T8/2026</b><span style="color:var(--green);font-weight:600" class="num">127.00%</span><button class="btn btn--ghost" title="Xoá" style="padding:0 6px;font-size:13px;line-height:1" onclick="removeMonthEntry(&#39;2026-8&#39;)">×</button></span></div></div>
@@ -1385,37 +1576,49 @@ function populateReportDay(){
   if(floatSel) floatSel.innerHTML = opts;
 }
 
+function setQuickModalState(open){
+  document.body.classList.toggle('quick-modal-open', !!open);
+}
 function openQuickKpi(){
   const wrap = document.getElementById('quick-kpi-float');
   const planWrap = document.getElementById('quick-plan-float');
   if(!wrap) return;
-  if(planWrap){ planWrap.classList.remove('open'); planWrap.classList.add('action-hidden'); }
+  if(planWrap) planWrap.classList.remove('open');
   populateReportDay();
+  const res = document.getElementById('floating-report-result');
+  if(res) res.innerHTML = '';
   wrap.classList.add('open');
+  setQuickModalState(true);
   const inp = document.getElementById('floating-report-tabs');
-  setTimeout(()=>inp && inp.focus(), 50);
+  setTimeout(()=>inp && inp.focus(), 60);
 }
 function closeQuickKpi(){
   const wrap = document.getElementById('quick-kpi-float');
-  const planWrap = document.getElementById('quick-plan-float');
   if(wrap) wrap.classList.remove('open');
-  if(planWrap) planWrap.classList.remove('action-hidden');
+  setQuickModalState(false);
 }
 function openQuickPlan(){
   const wrap = document.getElementById('quick-plan-float');
   const kpiWrap = document.getElementById('quick-kpi-float');
   if(!wrap) return;
-  if(kpiWrap){ kpiWrap.classList.remove('open'); kpiWrap.classList.add('action-hidden'); }
+  if(kpiWrap) kpiWrap.classList.remove('open');
   renderCompanyPlan();
   wrap.classList.add('open');
+  setQuickModalState(true);
   const inp = document.getElementById('plan-task');
-  setTimeout(()=>inp && inp.focus(), 50);
+  setTimeout(()=>inp && inp.focus(), 60);
 }
 function closeQuickPlan(){
   const wrap = document.getElementById('quick-plan-float');
-  const kpiWrap = document.getElementById('quick-kpi-float');
   if(wrap) wrap.classList.remove('open');
-  if(kpiWrap) kpiWrap.classList.remove('action-hidden');
+  setQuickModalState(false);
+}
+function closeQuickActions(){
+  const kpi = document.getElementById('quick-kpi-float');
+  const plan = document.getElementById('quick-plan-float');
+  if(kpi) kpi.classList.remove('open');
+  if(plan) plan.classList.remove('open');
+  setQuickModalState(false);
 }
 function submitFloatingReport(){
   const dayEl = document.getElementById('floating-report-day');
@@ -1428,15 +1631,30 @@ function submitFloatingReport(){
     if(tabsEl) tabsEl.focus();
     return;
   }
+
   const mainDay = document.getElementById('report-day');
   const mainTabs = document.getElementById('report-tabs');
   if(mainDay && dayEl) mainDay.value = dayEl.value;
   if(mainTabs) mainTabs.value = raw;
+
+  // Dùng lại toàn bộ phần phản hồi chi tiết vốn có của "Báo cáo nhanh theo ngày".
   submitReport();
-  if(result) result.innerHTML = `✅ Đã ghi <b>${fmt(v,0)} tab</b> cho ngày <b>${String(+dayEl.value).padStart(2,'0')}/${String(state.month).padStart(2,'0')}</b>.`;
+
+  const rich = document.getElementById('report-result');
+  const encouragement = v > 0
+    ? '💪 <b>Giữ nhịp này nhé.</b> Một ngày làm tốt không cần hoàn hảo — quan trọng là bạn đang tích luỹ đều vào mục tiêu tháng.'
+    : '🌱 <b>Hôm nay chưa có tab cũng không sao.</b> Ghi nhận đúng dữ liệu giúp bạn biết ngày mai cần điều chỉnh nhịp thế nào.';
+  const famousQuote = '💬 “Thành công là tổng của những nỗ lực nhỏ, lặp lại ngày này qua ngày khác.” — Robert Collier';
+
+  if(result){
+    result.innerHTML = (rich ? rich.innerHTML : `✅ Đã ghi ${fmt(v,0)} tab.`)
+      + `<div class="kpi-extra-cheer">${encouragement}</div>`
+      + `<div class="kpi-famous-quote">${famousQuote}</div>`;
+  }
+
   if(tabsEl) tabsEl.value = '';
   showToast(`✅ Đã ghi nhận ${fmt(v,0)} tab ngày ${String(+dayEl.value).padStart(2,'0')}/${String(state.month).padStart(2,'0')}`);
-  setTimeout(closeQuickKpi, 850);
+  // Không tự đóng: để người dùng đọc phần tổng kết, động viên và câu nói.
 }
 function submitReport(){
   const d = +document.getElementById('report-day').value;
@@ -2934,6 +3152,8 @@ function renderMonthly({ liveRaw, liveDone }){
   const listEl = document.getElementById('monthly-list');
   const headEl = document.getElementById('monthly-head');
   if(!svg || !listEl) return;
+  if(headEl) headEl.innerHTML = '';
+
   state.monthlyHistory = state.monthlyHistory || {};
   const curKey = state.year+'-'+state.month;
   const merged = Object.assign({}, state.monthlyHistory);
@@ -2944,88 +3164,71 @@ function renderMonthly({ liveRaw, liveDone }){
     return (ay*12+am) - (by*12+bm);
   });
   const entries = keys.map(k=>({ k, v:+merged[k], isCur:k===curKey }));
-  const show = entries.slice(-6); // card hẹp: tối đa 6 tháng để chữ không chen nhau
-  const pastEntries = entries.filter(e=>!e.isCur);
-  const prev = pastEntries.length ? pastEntries[pastEntries.length-1] : null;
+  const show = entries.slice(-6);
 
-  // Hai số quan trọng đặt riêng phía trên, đọc nhanh hơn nhìn vào cột.
-  if(headEl){
-    const curDiff = prev ? liveRaw - prev.v : null;
-    headEl.innerHTML =
-      `<div class="monthly-main"><div class="mm-label">Tháng gần nhất</div>`+
-        `<div class="mm-value">${prev ? fmt(prev.v,1)+'%' : '—'}</div>`+
-        `<div class="mm-sub">${prev ? 'T'+prev.k.split('-')[1]+'/'+prev.k.split('-')[0] : 'Chưa có dữ liệu lịch sử'}</div></div>`+
-      `<div class="monthly-main current"><div class="mm-label">Tháng này · dự báo</div>`+
-        `<div class="mm-value">${fmt(liveRaw,1)}%</div>`+
-        `<div class="mm-sub">Đã đạt ${fmt(liveDone||0,1)}%${curDiff!=null ? ` · ${curDiff>=0?'+':''}${fmt(curDiff,1)}đ so tháng trước` : ''}</div></div>`;
-  }
-
-  // Biểu đồ giản lược: chỉ giữ mốc 100%, nhãn cột và mốc đã đạt của tháng hiện tại.
-  const W=600, H=220, PL=42, PR=16, PT=28, PB=34;
+  // Card cột phải hẹp: dùng hệ tọa độ 360px để font không bị co quá nhỏ.
+  const W=360, H=250, PL=38, PR=10, PT=28, PB=42;
   const innerW=W-PL-PR, innerH=H-PT-PB;
-  const rawMax=Math.max(...show.map(e=>e.v), liveDone||0, 120);
-  const maxV=Math.max(150, Math.ceil((rawMax+10)/25)*25);
+  const rawMax=Math.max(...show.map(e=>e.v), 120);
+  const maxV=Math.max(150, Math.ceil((rawMax+12)/25)*25);
   const x=i=>PL+(i+0.5)/Math.max(1,show.length)*innerW;
   const y=v=>PT+innerH-Math.max(0,Math.min(1,v/maxV))*innerH;
-  const bw=Math.min(92,Math.max(34,(innerW/Math.max(1,show.length))*.56));
+  const slot=innerW/Math.max(1,show.length);
+  const bw=Math.max(28,Math.min(52,slot*.58));
 
+  // Chỉ các đường tham chiếu tối thiểu để cột là yếu tố chính.
   let guides='';
   [0,100,maxV].filter((v,i,a)=>a.indexOf(v)===i).forEach(val=>{
     const yy=y(val);
-    const is100=val===100;
-    guides += `<line x1="${PL}" y1="${yy}" x2="${W-PR}" y2="${yy}" stroke="${is100?'var(--orange)':'var(--border)'}" stroke-width="${is100?1.6:1}" stroke-dasharray="${is100?'5 4':'2 4'}"/>`+
-      `<text x="${PL-7}" y="${yy+4}" text-anchor="end" fill="${is100?'var(--orange)':'var(--text-2)'}" style="font-size:10.5px;font-weight:${is100?700:500}">${fmt(val,0)}%</text>`;
+    const main=val===100;
+    guides += `<line x1="${PL}" y1="${yy}" x2="${W-PR}" y2="${yy}" stroke="${main?'var(--orange)':'var(--border)'}" stroke-width="${main?1.4:1}" stroke-dasharray="${main?'4 3':'2 4'}"/>`
+      + `<text x="${PL-6}" y="${yy+4}" text-anchor="end" fill="${main?'var(--orange)':'var(--text-2)'}" style="font-size:10px;font-weight:${main?750:550}">${fmt(val,0)}%</text>`;
   });
 
   const bars=show.map((e,i)=>{
     const cx=x(i), top=y(e.v);
     const color=e.v>=100?'var(--green)':e.v>=85?'var(--orange)':'var(--red)';
-    const stroke=e.isCur?' stroke="var(--blue)" stroke-width="2.5"':'';
     const [yr,m]=e.k.split('-');
-    const label=e.isCur?`T${m}/${String(yr).slice(2)} · DB`:`T${m}/${String(yr).slice(2)}`;
-    return `<rect x="${cx-bw/2}" y="${top}" width="${bw}" height="${H-PB-top}" rx="5" fill="${color}" opacity="${e.isCur?'.94':'.78'}"${stroke}/>`+
-      `<text x="${cx}" y="${Math.max(PT+12,top-7)}" text-anchor="middle" fill="var(--text)" style="font-size:12px;font-weight:800">${fmt(e.v,1)}%</text>`+
-      `<text x="${cx}" y="${H-10}" text-anchor="middle" fill="${e.isCur?'var(--blue)':'var(--text-2)'}" style="font-size:10.5px;font-weight:${e.isCur?750:550}">${label}</text>`;
+    const label=`T${m}/${String(yr).slice(2)}`;
+    const stroke=e.isCur?' stroke="var(--blue)" stroke-width="2.2"':'';
+    const opacity=e.isCur?'.96':'.80';
+    return `<rect x="${cx-bw/2}" y="${top}" width="${bw}" height="${H-PB-top}" rx="5" fill="${color}" opacity="${opacity}"${stroke}/>`
+      + `<text x="${cx}" y="${Math.max(PT+12,top-7)}" text-anchor="middle" fill="var(--text)" style="font-size:11.5px;font-weight:800">${fmt(e.v,1)}%</text>`
+      + `<text x="${cx}" y="${H-17}" text-anchor="middle" fill="${e.isCur?'var(--blue)':'var(--text-2)'}" style="font-size:10.5px;font-weight:${e.isCur?800:600}">${label}</text>`
+      + (e.isCur ? `<text x="${cx}" y="${H-5}" text-anchor="middle" fill="var(--blue)" style="font-size:8.8px;font-weight:700">DỰ BÁO</text>` : '');
   }).join('');
 
+  // Tháng hiện tại: đánh dấu phần đã đạt ngay trong cột, không thêm card thống kê ngoài biểu đồ.
   const curIdx=show.findIndex(e=>e.isCur);
-  let curMarker='';
+  let currentMarker='';
   if(curIdx>=0 && liveDone!=null && liveDone < liveRaw-0.3){
-    const cx=x(curIdx), my=y(liveDone);
-    curMarker=`<line x1="${cx-bw/2}" y1="${my}" x2="${cx+bw/2}" y2="${my}" stroke="var(--blue)" stroke-width="2"/>`+
-      `<rect x="${cx-34}" y="${Math.max(PT+2,my-18)}" width="68" height="15" rx="7.5" fill="var(--blue)"/>`+
-      `<text x="${cx}" y="${Math.max(PT+13,my-7)}" text-anchor="middle" fill="#fff" style="font-size:9px;font-weight:750">HIỆN TẠI ${fmt(liveDone,1)}%</text>`;
+    const cx=x(curIdx), yy=y(liveDone);
+    currentMarker=
+      `<line x1="${cx-bw/2}" y1="${yy}" x2="${cx+bw/2}" y2="${yy}" stroke="var(--blue)" stroke-width="2"/>`
+      + `<text x="${cx}" y="${Math.max(PT+10,yy-5)}" text-anchor="middle" fill="var(--blue)" style="font-size:8.7px;font-weight:800">ĐÃ ĐẠT ${fmt(liveDone,1)}%</text>`;
   }
 
   svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  svg.setAttribute('preserveAspectRatio','none');
-  svg.innerHTML=`${guides}${bars}${curMarker}<line x1="${PL}" y1="${H-PB}" x2="${W-PR}" y2="${H-PB}" stroke="var(--border-2)" stroke-width="1"/>`;
+  svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+  svg.innerHTML=
+    `${guides}${bars}${currentMarker}`
+    + `<line x1="${PL}" y1="${H-PB}" x2="${W-PR}" y2="${H-PB}" stroke="var(--border-2)" stroke-width="1"/>`;
 
-  const pastVals=pastEntries.map(e=>e.v);
-  let stats='';
-  if(pastVals.length){
-    const avg=pastVals.reduce((a,b)=>a+b,0)/pastVals.length;
-    const best=Math.max(...pastVals), worst=Math.min(...pastVals), vsAvg=liveRaw-avg;
-    stats=`<div class="monthly-stats">`+
-      `<div class="monthly-stat"><div class="ms-label">Trung bình trước</div><div class="ms-value">${fmt(avg,1)}%</div></div>`+
-      `<div class="monthly-stat"><div class="ms-label">So với trung bình</div><div class="ms-value" style="color:${vsAvg>=0?'var(--green)':'var(--red)'}">${vsAvg>=0?'+':''}${fmt(vsAvg,1)}%</div></div>`+
-      `<div class="monthly-stat"><div class="ms-label">🏆 Cao nhất</div><div class="ms-value" style="color:var(--green)">${fmt(best,1)}%</div></div>`+
-      `<div class="monthly-stat"><div class="ms-label">🔻 Thấp nhất</div><div class="ms-value" style="color:var(--red)">${fmt(worst,1)}%</div></div>`+
-    `</div>`;
-  }
-
+  // Dưới biểu đồ chỉ giữ lịch sử để xoá/sửa dữ liệu nguồn, không lặp lại thống kê.
   const chips=Object.keys(state.monthlyHistory).sort((a,b)=>{
     const [ay,am]=a.split('-').map(Number),[by,bm]=b.split('-').map(Number);
     return (by*12+bm)-(ay*12+am);
   }).map(k=>{
     const [yr,m]=k.split('-'),v=+state.monthlyHistory[k];
     const color=v>=100?'var(--green)':v>=85?'var(--orange)':'var(--red)';
-    return `<span class="monthly-chip"><b>T${m}/${yr}</b><span class="num" style="color:${color};font-weight:700">${fmt(v,1)}%</span>`+
-      `<button class="btn btn--ghost" title="Xoá" onclick="removeMonthEntry('${k}')">×</button></span>`;
+    return `<span class="monthly-chip"><b>T${m}/${yr}</b>`
+      + `<span class="num" style="color:${color};font-weight:700">${fmt(v,1)}%</span>`
+      + `<button class="btn btn--ghost" title="Xoá" onclick="removeMonthEntry('${k}')">×</button></span>`;
   }).join('');
-  const history=chips?`<div class="monthly-history-title">Lịch sử đã lưu</div><div class="monthly-history-chips">${chips}</div>`:
-    `<p class="sub" style="margin:4px 0 0;font-size:10.5px">Chưa có tháng lịch sử. Thêm bên dưới để so sánh.</p>`;
-  listEl.innerHTML=stats+history;
+
+  listEl.innerHTML = chips
+    ? `<div class="monthly-history-title">Lịch sử đã lưu</div><div class="monthly-history-chips">${chips}</div>`
+    : `<p class="sub" style="margin:4px 0 0;font-size:10.5px">Chưa có tháng lịch sử. Thêm bên dưới để bắt đầu so sánh.</p>`;
 }
 
 function addMonthEntry(){
@@ -3208,6 +3411,13 @@ function rebalanceDashboard(){
 }
 
 rebalanceDashboard();
+
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape' && document.body.classList.contains('quick-modal-open')){
+    closeQuickActions();
+  }
+});
+
 init();
 </script>
 
