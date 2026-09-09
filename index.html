@@ -928,6 +928,67 @@
 }
 </style>
 
+
+<style id="compact-work-status-patch">
+.work-status-strip{
+  display:flex !important;
+  gap:8px !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  margin:0 0 10px !important;
+}
+.work-status-pill{
+  flex:0 0 auto !important;
+  width:auto !important;
+  min-height:38px !important;
+  padding:7px 10px !important;
+  border-radius:999px !important;
+  gap:8px !important;
+  justify-content:flex-start !important;
+  background:var(--bg) !important;
+}
+.work-status-pill .left{
+  gap:6px !important;
+}
+.work-status-pill .ic{
+  width:22px !important;
+  height:22px !important;
+  border-radius:50% !important;
+  font-size:11px !important;
+}
+.work-status-pill .txt{
+  display:flex !important;
+  align-items:baseline !important;
+  gap:5px !important;
+}
+.work-status-pill .lbl{
+  font-size:11px !important;
+  text-transform:none !important;
+  letter-spacing:0 !important;
+  font-weight:650 !important;
+  color:var(--text) !important;
+  white-space:nowrap !important;
+}
+.work-status-pill .subtxt{
+  font-size:10.5px !important;
+  margin:0 !important;
+  white-space:nowrap !important;
+}
+.work-status-pill .numv{
+  order:-1;
+  font-size:15px !important;
+  font-weight:800 !important;
+}
+@media(max-width:680px){
+  .work-status-strip{align-items:stretch !important}
+  .work-status-pill{
+    flex:1 1 100% !important;
+    border-radius:9px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="quick-plan-float" id="quick-plan-float">
@@ -1029,18 +1090,10 @@
   <!-- Work status + speed overview -->
   <div class="work-status-strip" id="work-status">
     <div class="work-status-pill work-status-pill--blue">
-      <div class="left">
-        <span class="ic">📅</span>
-        <div class="txt"><div class="lbl">Ngày làm việc còn lại</div><div class="subtxt">Đã làm 0 ngày</div></div>
-      </div>
-      <div class="numv">—</div>
+      <div class="left"><span class="ic">📅</span><div class="numv">—</div><div class="txt"><div class="lbl">ngày còn lại</div></div></div>
     </div>
     <div class="work-status-pill work-status-pill--orange">
-      <div class="left">
-        <span class="ic">🎯</span>
-        <div class="txt"><div class="lbl">Tab còn thiếu tới 100%</div><div class="subtxt">Mục tiêu 100%</div></div>
-      </div>
-      <div class="numv">—</div>
+      <div class="left"><span class="ic">🎯</span><div class="numv">—</div><div class="txt"><div class="lbl">tab tới 100%</div></div></div>
     </div>
   </div>
 
@@ -2135,22 +2188,22 @@ function calc(persist){
       <div class="work-status-pill work-status-pill--blue">
         <div class="left">
           <span class="ic">📅</span>
+          <div class="numv">${workDaysLeft}</div>
           <div class="txt">
-            <div class="lbl">Ngày làm việc còn lại</div>
-            <div class="subtxt">Đã làm <b>${workedDays}</b> ngày</div>
+            <div class="lbl">ngày còn lại</div>
+            <div class="subtxt">· đã làm <b>${workedDays}</b> ngày</div>
           </div>
         </div>
-        <div class="numv">${workDaysLeft}</div>
       </div>
       <div class="work-status-pill work-status-pill--orange">
         <div class="left">
           <span class="ic">🎯</span>
+          <div class="numv">${fmt(Math.max(0,remaining),0)}</div>
           <div class="txt">
-            <div class="lbl">Tab còn thiếu tới 100%</div>
-            <div class="subtxt">Mục tiêu <b>${target} tab</b></div>
+            <div class="lbl">tab tới 100%</div>
+            <div class="subtxt">· mục tiêu <b>${target}</b></div>
           </div>
         </div>
-        <div class="numv">${fmt(Math.max(0,remaining),0)}</div>
       </div>`;
   }
 
