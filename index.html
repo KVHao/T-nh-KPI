@@ -1384,6 +1384,122 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
 }
 </style>
 
+
+<style id="milestone-sheet-compact-fix">
+.milestone-sheet-compact{
+  margin-top:10px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+  background:var(--bg);
+}
+.milestone-sheet-compact .ms-sheet-row{
+  display:block !important;
+  min-height:0 !important;
+  padding:9px 10px !important;
+  margin:0 !important;
+  border:none !important;
+  border-bottom:1px solid var(--border) !important;
+  border-radius:0 !important;
+  font-size:11.5px !important;
+}
+.milestone-sheet-compact .ms-sheet-row:last-child{
+  border-bottom:none !important;
+}
+.milestone-sheet-compact .ms-row-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.milestone-sheet-compact .ms-target-main{
+  display:flex;
+  align-items:baseline;
+  gap:7px;
+  min-width:0;
+}
+.milestone-sheet-compact .ms-target-main b{
+  font-size:14px;
+  line-height:1;
+  color:var(--text);
+}
+.milestone-sheet-compact .ms-target-main span{
+  font-size:10px;
+  color:var(--text-2);
+  white-space:nowrap;
+}
+.milestone-sheet-compact .ms-status{
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:flex-end;
+  gap:5px;
+  white-space:nowrap;
+  flex:0 0 auto;
+  font-size:10.5px;
+}
+.milestone-sheet-compact .ms-status-dot{
+  font-size:9px;
+}
+.milestone-sheet-compact .ms-row-detail{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px 6px;
+  align-items:center;
+  margin-top:6px;
+  color:var(--text-2);
+  font-size:10.5px;
+  line-height:1.4;
+}
+.milestone-sheet-compact .ms-row-detail b{
+  color:var(--text);
+  font-weight:750;
+}
+.milestone-sheet-compact .dotsep{
+  opacity:.45;
+}
+.milestone-sheet-compact .is-active{
+  position:relative;
+  z-index:1;
+  border:1.5px solid var(--ms-tone) !important;
+  border-radius:8px !important;
+  margin:4px 5px !important;
+  padding:9px 9px !important;
+  background:color-mix(in srgb,var(--ms-soft) 62%,var(--bg)) !important;
+}
+.milestone-sheet-compact .is-reached{
+  background:color-mix(in srgb,var(--blue-soft) 52%,var(--bg)) !important;
+}
+.milestone-sheet-compact .is-waiting{
+  opacity:.42 !important;
+  background:var(--bg-soft) !important;
+}
+.milestone-sheet-compact .is-waiting .ms-row-detail{
+  margin-top:4px;
+}
+.milestone-sheet-compact .ms-reached-text{
+  color:var(--blue);
+  font-weight:700;
+}
+.milestone-sheet-compact .ms-wait-text{
+  color:var(--text-2);
+}
+.milestone-sheet-compact .tone-red{color:var(--red)}
+.milestone-sheet-compact .tone-yellow{color:#D7A72C}
+.milestone-sheet-compact .tone-green{color:var(--green)}
+.milestone-sheet-compact .tone-blue{color:var(--blue)}
+.milestone-sheet-compact .tone-wait{color:var(--text-2)}
+
+@media(max-width:420px){
+  .milestone-sheet-compact .ms-row-top{
+    align-items:flex-start;
+  }
+  .milestone-sheet-compact .ms-target-main{
+    flex-direction:column;
+    gap:2px;
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="quick-modal-backdrop" onclick="closeQuickActions()"></div>
@@ -3614,8 +3730,7 @@ function renderConclusion({ canReach, projected, target, needed, ratePerDay, rec
       statusIcon = '…';
       tone = 'wait';
     } else {
-      // Tiến độ tính riêng trong từng chặng:
-      // 0→100, 100→120, 120→130, 130→150.
+      // Tiến độ theo từng chặng: 0→100, 100→120, 120→130, 130→150
       const span = Math.max(1, m.pct - m.prev);
       const stagePct = Math.max(0, Math.min(100, (currentPct - m.prev) / span * 100));
       if(stagePct < 45){
@@ -3623,37 +3738,45 @@ function renderConclusion({ canReach, projected, target, needed, ratePerDay, rec
         statusIcon = '●';
         tone = 'red';
       } else if(stagePct < 80){
-        status = 'Trung bình';
+        status = 'Đang tiến tới';
         statusIcon = '●';
         tone = 'yellow';
       } else {
-        status = 'Sắp xong';
+        status = 'Sắp đạt';
         statusIcon = '●';
         tone = 'green';
       }
       cls += ' is-active tone-' + tone;
     }
 
-    const remainText = reached
-      ? '<span class="ms-reached-text">+' + fmt(Math.max(0,done-needTotal),0) + ' tab</span>'
-      : (isWaiting ? '<span class="ms-wait-text">—</span>' : '<b>' + fmt(left,0) + '</b> tab');
-
-    const paceText = reached
-      ? '<span class="ms-reached-text">Hoàn thành</span>'
-      : (isWaiting ? '<span class="ms-wait-text">—</span>' : (workDaysLeft > 0 ? '<b>' + fmt(perDay,1) + '</b>/ngày' : '—'));
+    let detail = '';
+    if(reached){
+      const over = Math.max(0, done - needTotal);
+      detail = '<span>Mục tiêu <b>' + fmt(needTotal,0) + ' tab</b></span>'
+        + '<span class="dotsep">•</span>'
+        + '<span class="ms-reached-text">' + (over > 0 ? 'Vượt <b>' + fmt(over,0) + ' tab</b>' : 'Vừa đạt mốc') + '</span>';
+    } else if(isWaiting){
+      detail = '<span>Mục tiêu <b>' + fmt(needTotal,0) + ' tab</b></span>'
+        + '<span class="dotsep">•</span>'
+        + '<span class="ms-wait-text">Chưa tính tới mốc này</span>';
+    } else {
+      detail = '<span>Mục tiêu <b>' + fmt(needTotal,0) + ' tab</b></span>'
+        + '<span class="dotsep">•</span>'
+        + '<span>Còn <b>' + fmt(left,0) + ' tab</b></span>'
+        + '<span class="dotsep">•</span>'
+        + '<span>Cần <b>' + (workDaysLeft > 0 ? fmt(perDay,1) + ' tab/ngày' : '—') + '</b></span>';
+    }
 
     return '<div class="' + cls + '">'
-      + '<div class="ms-sheet-cell ms-target"><b>' + m.pct + '%</b><span>' + fmt(needTotal,0) + ' tab</span></div>'
-      + '<div class="ms-sheet-cell"><span class="ms-cell-label">Còn lại</span>' + remainText + '</div>'
-      + '<div class="ms-sheet-cell"><span class="ms-cell-label">Cần/ngày</span>' + paceText + '</div>'
-      + '<div class="ms-sheet-cell ms-status tone-' + tone + '"><span class="ms-status-dot">' + statusIcon + '</span><b>' + status + '</b></div>'
+      + '<div class="ms-row-top">'
+        + '<div class="ms-target-main"><b>' + m.pct + '%</b><span>' + fmt(needTotal,0) + ' tab</span></div>'
+        + '<div class="ms-status tone-' + tone + '"><span class="ms-status-dot">' + statusIcon + '</span><b>' + status + '</b></div>'
+      + '</div>'
+      + '<div class="ms-row-detail">' + detail + '</div>'
       + '</div>';
   };
 
-  el.innerHTML += '<div class="milestone-sheet">'
-    + '<div class="ms-sheet-head">'
-      + '<span>Mốc</span><span>Còn lại</span><span>Cần/ngày</span><span>Trạng thái</span>'
-      + '</div>'
+  el.innerHTML += '<div class="milestone-sheet milestone-sheet-compact">'
     + milestoneDefs.map(milestoneRow).join('')
     + '</div>';
 
