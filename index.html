@@ -1250,6 +1250,140 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
 }
 </style>
 
+
+<style id="milestone-sheet-status-patch">
+/* Sheet 4 mốc trong Kết luận & gợi ý */
+.milestone-sheet{
+  margin-top:10px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  overflow:hidden;
+  background:var(--bg);
+}
+.ms-sheet-head,
+.ms-sheet-row{
+  display:grid;
+  grid-template-columns:72px minmax(72px,.9fr) minmax(78px,.95fr) minmax(106px,1.15fr);
+  align-items:center;
+}
+.ms-sheet-head{
+  padding:6px 9px;
+  background:var(--bg-soft);
+  color:var(--text-2);
+  font-size:9.5px;
+  font-weight:750;
+  text-transform:uppercase;
+  letter-spacing:.035em;
+  border-bottom:1px solid var(--border);
+}
+.ms-sheet-head span:not(:first-child){text-align:right}
+.ms-sheet-row{
+  position:relative;
+  min-height:48px;
+  padding:7px 9px;
+  border-bottom:1px solid var(--border);
+  font-size:11.5px;
+  transition:background .15s,border-color .15s,opacity .15s;
+}
+.ms-sheet-row:last-child{border-bottom:none}
+.ms-sheet-cell{
+  min-width:0;
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+  line-height:1.3;
+}
+.ms-target{
+  text-align:left;
+  display:flex;
+  flex-direction:column;
+  gap:1px;
+}
+.ms-target b{
+  font-size:13px;
+  color:var(--text);
+}
+.ms-target span{
+  color:var(--text-2);
+  font-size:9.8px;
+}
+.ms-cell-label{display:none}
+.ms-status{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:5px;
+  white-space:nowrap;
+}
+.ms-status-dot{
+  font-size:10px;
+  line-height:1;
+}
+.ms-reached-text{color:var(--blue);font-weight:700}
+.ms-wait-text{color:var(--text-2)}
+.ms-sheet-row.is-waiting{
+  opacity:.43;
+  background:var(--bg-soft);
+}
+.ms-sheet-row.is-waiting .ms-status{
+  color:var(--text-2);
+}
+.ms-sheet-row.is-reached{
+  background:color-mix(in srgb,var(--blue-soft) 58%,var(--bg));
+}
+.ms-sheet-row.is-reached .ms-status{
+  color:var(--blue);
+}
+.ms-sheet-row.is-active{
+  margin:-1px 0;
+  z-index:1;
+  border-radius:7px;
+  border:1.5px solid var(--ms-tone);
+  background:color-mix(in srgb,var(--ms-soft) 64%,var(--bg));
+}
+.ms-sheet-row.tone-red{
+  --ms-tone:var(--red);
+  --ms-soft:var(--red-soft);
+}
+.ms-sheet-row.tone-yellow{
+  --ms-tone:#D7A72C;
+  --ms-soft:rgba(215,167,44,.13);
+}
+.ms-sheet-row.tone-green{
+  --ms-tone:var(--green);
+  --ms-soft:var(--green-soft);
+}
+.ms-status.tone-red{color:var(--red)}
+.ms-status.tone-yellow{color:#D7A72C}
+.ms-status.tone-green{color:var(--green)}
+.ms-status.tone-blue{color:var(--blue)}
+.ms-status.tone-wait{color:var(--text-2)}
+
+@media(max-width:1180px){
+  .ms-sheet-head,
+  .ms-sheet-row{
+    grid-template-columns:70px 1fr 1fr 116px;
+  }
+}
+@media(max-width:620px){
+  .ms-sheet-head{display:none}
+  .ms-sheet-row{
+    grid-template-columns:68px 1fr 1fr;
+    gap:6px 8px;
+    padding:8px 9px;
+  }
+  .ms-status{
+    grid-column:2 / -1;
+    justify-content:flex-start;
+  }
+  .ms-cell-label{
+    display:block;
+    font-size:9px;
+    color:var(--text-2);
+    margin-bottom:1px;
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="quick-modal-backdrop" onclick="closeQuickActions()"></div>
@@ -3443,24 +3577,85 @@ function renderConclusion({ canReach, projected, target, needed, ratePerDay, rec
       `<ul class="list">${suggestions.map(s=>`<li>${s}</li>`).join('')}</ul>`);
   }
 
-  // --- 4 mốc cố định: 100% / 120% / 130% / 150% ---
+  // --- Sheet 4 mốc: 100% / 120% / 130% / 150% ---
   const cbase = state.baseTabs || 0;
-  const milestoneLines = (pct) => {
-    const needTotal = Math.round(cbase * pct / 100);
-    const left = needTotal - done;
-    const perDay = (workDaysLeft > 0 && left > 0) ? left/workDaysLeft : 0;
-    const body = left > 0
-      ? 'cần <b class="num">' + fmt(needTotal,0) + ' tab</b> · còn <b class="num">' + fmt(left,0) + ' tab</b>'
-        + (perDay > 0 ? ' (≈ <b>' + fmt(perDay,1) + ' tab/ngày</b>)' : '')
-      : 'cần <b class="num">' + fmt(needTotal,0) + ' tab</b> · <b>đã đạt</b>, vượt <b class="num">' + fmt(-left,0) + ' tab</b>';
-    return '<li><b>' + pct + '%:</b> ' + body + '</li>';
+  const currentPct = cbase > 0 ? done / cbase * 100 : 0;
+  const milestoneDefs = [
+    { pct:100, prev:0 },
+    { pct:120, prev:100 },
+    { pct:130, prev:120 },
+    { pct:150, prev:130 }
+  ];
+
+  // Mốc đang tới lượt = mốc đầu tiên chưa đạt.
+  const activeIdx = milestoneDefs.findIndex(m => currentPct < m.pct);
+
+  const milestoneRow = (m, idx) => {
+    const needTotal = Math.round(cbase * m.pct / 100);
+    const left = Math.max(0, needTotal - done);
+    const perDay = (workDaysLeft > 0 && left > 0) ? left / workDaysLeft : 0;
+    const reached = currentPct >= m.pct;
+    const isActive = !reached && idx === activeIdx;
+    const isWaiting = !reached && !isActive;
+
+    let cls = 'ms-sheet-row';
+    let status = '';
+    let statusIcon = '';
+    let tone = '';
+
+    if(reached){
+      cls += ' is-reached';
+      status = 'Đã đạt';
+      statusIcon = '✓';
+      tone = 'blue';
+    } else if(isWaiting){
+      cls += ' is-waiting';
+      status = 'Đợi tới lượt';
+      statusIcon = '…';
+      tone = 'wait';
+    } else {
+      // Tiến độ tính riêng trong từng chặng:
+      // 0→100, 100→120, 120→130, 130→150.
+      const span = Math.max(1, m.pct - m.prev);
+      const stagePct = Math.max(0, Math.min(100, (currentPct - m.prev) / span * 100));
+      if(stagePct < 45){
+        status = 'Còn rất xa';
+        statusIcon = '●';
+        tone = 'red';
+      } else if(stagePct < 80){
+        status = 'Trung bình';
+        statusIcon = '●';
+        tone = 'yellow';
+      } else {
+        status = 'Sắp xong';
+        statusIcon = '●';
+        tone = 'green';
+      }
+      cls += ' is-active tone-' + tone;
+    }
+
+    const remainText = reached
+      ? '<span class="ms-reached-text">+' + fmt(Math.max(0,done-needTotal),0) + ' tab</span>'
+      : (isWaiting ? '<span class="ms-wait-text">—</span>' : '<b>' + fmt(left,0) + '</b> tab');
+
+    const paceText = reached
+      ? '<span class="ms-reached-text">Hoàn thành</span>'
+      : (isWaiting ? '<span class="ms-wait-text">—</span>' : (workDaysLeft > 0 ? '<b>' + fmt(perDay,1) + '</b>/ngày' : '—'));
+
+    return '<div class="' + cls + '">'
+      + '<div class="ms-sheet-cell ms-target"><b>' + m.pct + '%</b><span>' + fmt(needTotal,0) + ' tab</span></div>'
+      + '<div class="ms-sheet-cell"><span class="ms-cell-label">Còn lại</span>' + remainText + '</div>'
+      + '<div class="ms-sheet-cell"><span class="ms-cell-label">Cần/ngày</span>' + paceText + '</div>'
+      + '<div class="ms-sheet-cell ms-status tone-' + tone + '"><span class="ms-status-dot">' + statusIcon + '</span><b>' + status + '</b></div>'
+      + '</div>';
   };
-  el.innerHTML += '<ul class="list conclusion-milestones" style="margin-top:10px">'
-    + milestoneLines(100)
-    + milestoneLines(120)
-    + milestoneLines(130)
-    + milestoneLines(150)
-    + '</ul>';
+
+  el.innerHTML += '<div class="milestone-sheet">'
+    + '<div class="ms-sheet-head">'
+      + '<span>Mốc</span><span>Còn lại</span><span>Cần/ngày</span><span>Trạng thái</span>'
+      + '</div>'
+    + milestoneDefs.map(milestoneRow).join('')
+    + '</div>';
 
 }
 
