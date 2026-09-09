@@ -3287,9 +3287,7 @@ function renderMonthly({ liveRaw, liveDone }){
   let currentMarker='';
   if(curIdx>=0 && liveDone!=null && liveDone < liveRaw-0.3){
     const cx=x(curIdx), yy=y(liveDone);
-    currentMarker=
-      `<line x1="${cx-bw/2}" y1="${yy}" x2="${cx+bw/2}" y2="${yy}" stroke="var(--blue)" stroke-width="2"/>`
-      + `<text x="${cx}" y="${Math.max(PT+10,yy-5)}" text-anchor="middle" fill="var(--blue)" style="font-size:8.7px;font-weight:800">ĐÃ ĐẠT ${fmt(liveDone,1)}%</text>`;
+    currentMarker='';
   }
 
   svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
