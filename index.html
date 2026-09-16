@@ -697,6 +697,31 @@
   @media(max-width:1180px){.ring-card .ring-layout{grid-template-columns:minmax(0,1fr) 150px}}
   @media(max-width:520px){.ring-card .ring-layout{grid-template-columns:1fr}.ring-settings{display:grid;grid-template-columns:repeat(3,1fr)}.ring-settings-title{grid-column:1/-1}.ring-setting{min-width:0}.ring-setting input{width:100%!important}}
 
+
+
+  /* Account / cloud sync */
+  .account-greeting{align-self:center;font-size:12.5px;font-weight:650;color:var(--text);padding:5px 2px}
+  .account-modal{position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,.48);display:none;align-items:center;justify-content:center;padding:18px}
+  .account-modal.open{display:flex}
+  .account-dialog{width:min(430px,100%);background:var(--bg);border:1px solid var(--border-2);border-radius:14px;padding:18px;box-shadow:0 22px 70px rgba(0,0,0,.34)}
+  .account-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+  .account-dialog-head h2{margin:0;font-size:16px}
+  .account-close{border:0;background:transparent;color:var(--text-2);font-size:22px;cursor:pointer;line-height:1;padding:2px 5px;border-radius:6px}
+  .account-close:hover{background:var(--bg-soft);color:var(--text)}
+  .account-user{display:flex;align-items:center;gap:11px;padding:11px;border:1px solid var(--border);border-radius:10px;background:var(--bg-soft);margin:10px 0 12px}
+  .account-avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;background:var(--bg-raised)}
+  .account-user-name{font-weight:700;font-size:13.5px}
+  .account-user-email{font-size:11.5px;color:var(--text-2);word-break:break-all}
+  .account-google-btn{width:100%;padding:9px 12px;font-weight:700}
+  .account-field{margin-bottom:10px}
+  .account-field label{display:block;margin-bottom:4px}
+  .account-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px}
+  .account-tabs .btn.active{background:var(--blue-soft);border-color:var(--blue);color:var(--blue);font-weight:700}
+  .account-submit{width:100%;padding:9px 12px;font-weight:700}
+  .account-form-extra{display:none}
+  .account-status{margin-top:10px;font-size:11.5px;color:var(--text-2);min-height:18px}
+  .account-sync-note{font-size:11.5px;color:var(--text-2);margin:0 0 12px;line-height:1.55}
+
 </style>
 
 <style id="fixed-ring-layout-patch">
@@ -1556,9 +1581,9 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
       </div>
     </div>
     <div class="toolbar-actions" style="display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end">
-      <button class="btn data-btn data-btn--export" onclick="exportDataFile()" title="Lưu toàn bộ dữ liệu KPI ra file để mang sang máy khác">📤 Xuất dữ liệu</button>
-      <button class="btn data-btn data-btn--import" onclick="chooseImportFile()" title="Nhập lại dữ liệu KPI từ file đã xuất">📥 Nhập dữ liệu</button>
-      <input type="file" id="import-data-file" accept="application/json,.json" style="display:none" onchange="importDataFile(event)">
+      <button class="btn data-btn data-btn--export" onclick="exportDataFile()" title="Xuất dữ liệu để chuyển từ phiên bản cũ sang tài khoản mới">📤 Xuất dữ liệu</button>
+      <button class="btn data-btn data-btn--import" id="account-button" onclick="openAccountModal()" title="Đăng nhập để đồng bộ dữ liệu giữa các thiết bị">👤 Đăng nhập</button>
+      <span id="account-greeting" class="account-greeting" style="display:none"></span>
       <div class="theme-inline" id="theme-inline" data-active="light" title="Chuyển giao diện Sáng / Tối">
         <span class="theme-icon theme-sun" aria-hidden="true">☀️</span>
         <label class="theme-toggle-control" aria-label="Bật hoặc tắt Dark mode">
@@ -1864,7 +1889,7 @@ let totalDaysInMonth = 30;
 let activeDay = null;
 let lastCalc = null; // cache for simulator
 
-function save(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
+function save(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}; try{ if(window.kpiCloudScheduleSave) window.kpiCloudScheduleSave(state); }catch(e){} }
 function load(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -3836,5 +3861,189 @@ document.addEventListener('keydown', e=>{
 init();
 </script>
 
+
+
+
+<div class="account-modal" id="account-modal" aria-hidden="true" onclick="if(event.target===this) closeAccountModal()">
+  <div class="account-dialog" role="dialog" aria-modal="true" aria-labelledby="account-title">
+    <div class="account-dialog-head">
+      <h2 id="account-title">☁️ Tài khoản & đồng bộ</h2>
+      <button class="account-close" onclick="closeAccountModal()" aria-label="Đóng">×</button>
+    </div>
+    <div id="account-logged-out">
+      <p class="account-sync-note">Đăng nhập bằng email để dữ liệu KPI tự động đồng bộ giữa các máy dùng cùng tài khoản.</p>
+      <div class="account-tabs">
+        <button type="button" class="btn active" id="account-tab-login" onclick="setAccountMode('login')">Đăng nhập</button>
+        <button type="button" class="btn" id="account-tab-register" onclick="setAccountMode('register')">Đăng ký</button>
+      </div>
+      <form id="account-email-form" onsubmit="kpiEmailSubmit(event)">
+        <div class="account-field account-form-extra" id="account-name-wrap">
+          <label for="account-name">Tên hiển thị</label>
+          <input class="field" id="account-name" autocomplete="name" maxlength="60" placeholder="Ví dụ: Hào">
+        </div>
+        <div class="account-field">
+          <label for="account-email">Email</label>
+          <input class="field" id="account-email" type="email" autocomplete="email" required placeholder="ten@email.com">
+        </div>
+        <div class="account-field">
+          <label for="account-password">Mật khẩu</label>
+          <input class="field" id="account-password" type="password" autocomplete="current-password" minlength="6" required placeholder="Tối thiểu 6 ký tự">
+        </div>
+        <button class="btn btn--primary account-submit" id="account-submit-btn" type="submit">Đăng nhập</button>
+      </form>
+    </div>
+    <div id="account-logged-in" style="display:none">
+      <div class="account-user">
+        <img id="account-avatar" class="account-avatar" alt="Ảnh tài khoản">
+        <div>
+          <div id="account-user-name" class="account-user-name"></div>
+          <div id="account-user-email" class="account-user-email"></div>
+        </div>
+      </div>
+      <p class="account-sync-note">Dữ liệu trên thiết bị này sẽ được lưu lên cloud và tự tải về khi bạn đăng nhập tài khoản này trên thiết bị khác.</p>
+      <button class="btn btn--primary" style="width:100%;margin-bottom:8px" onclick="kpiChooseLegacyData()">🔄 Đồng bộ dữ liệu cũ</button>
+      <input type="file" id="legacy-data-file" accept="application/json,.json" style="display:none">
+      <p class="account-sync-note" style="margin-top:0">Dùng file <b>📤 Xuất dữ liệu</b> từ phiên bản cũ. Dữ liệu trong file sẽ được đưa vào tài khoản này và đồng bộ lên cloud.</p>
+      <button class="btn" style="width:100%" onclick="kpiEmailLogout()">Đăng xuất</button>
+    </div>
+    <div id="account-status" class="account-status"></div>
+  </div>
+</div>
+
+<script>
+function openAccountModal(){
+  const el=document.getElementById('account-modal'); if(el){el.classList.add('open');el.setAttribute('aria-hidden','false');}
+}
+function closeAccountModal(){
+  const el=document.getElementById('account-modal'); if(el){el.classList.remove('open');el.setAttribute('aria-hidden','true');}
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAccountModal();});
+</script>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+
+  // DÁN CẤU HÌNH FIREBASE WEB APP CỦA BẠN VÀO ĐÂY.
+  const firebaseConfig = {
+    apiKey: 'PASTE_API_KEY_HERE',
+    authDomain: 'PASTE_PROJECT_ID.firebaseapp.com',
+    projectId: 'PASTE_PROJECT_ID',
+    storageBucket: 'PASTE_PROJECT_ID.appspot.com',
+    messagingSenderId: 'PASTE_MESSAGING_SENDER_ID',
+    appId: 'PASTE_APP_ID'
+  };
+
+  const configured = firebaseConfig.apiKey !== 'PASTE_API_KEY_HERE' && !firebaseConfig.projectId.startsWith('PASTE_');
+  const statusEl = document.getElementById('account-status');
+  const setStatus = msg => { if(statusEl) statusEl.textContent = msg || ''; };
+  let auth=null, db=null, currentUser=null, cloudTimer=null, applyingCloud=false, accountMode='login';
+
+  window.setAccountMode = mode => {
+    accountMode = mode === 'register' ? 'register' : 'login';
+    const reg=accountMode==='register';
+    document.getElementById('account-name-wrap')?.style.setProperty('display',reg?'block':'none');
+    document.getElementById('account-tab-login')?.classList.toggle('active',!reg);
+    document.getElementById('account-tab-register')?.classList.toggle('active',reg);
+    const b=document.getElementById('account-submit-btn'); if(b) b.textContent=reg?'Tạo tài khoản':'Đăng nhập';
+    const pw=document.getElementById('account-password'); if(pw) pw.autocomplete=reg?'new-password':'current-password';
+    setStatus('');
+  };
+
+  function updateAccountUI(user){
+    const out=document.getElementById('account-logged-out'), inn=document.getElementById('account-logged-in');
+    const btn=document.getElementById('account-button'), greet=document.getElementById('account-greeting');
+    if(user){
+      if(out) out.style.display='none'; if(inn) inn.style.display='block';
+      const name=user.displayName || user.email?.split('@')[0] || 'bạn';
+      const nameEl=document.getElementById('account-user-name'); if(nameEl) nameEl.textContent=name;
+      const emailEl=document.getElementById('account-user-email'); if(emailEl) emailEl.textContent=user.email || '';
+      const avatar=document.getElementById('account-avatar'); if(avatar) avatar.style.display='none';
+      if(btn){btn.textContent='👤 Tài khoản';btn.title='Mở tài khoản và trạng thái đồng bộ';}
+      if(greet){greet.textContent=`Xin Chào ${name}`;greet.style.display='inline-flex';}
+    }else{
+      if(out) out.style.display='block'; if(inn) inn.style.display='none';
+      if(btn){btn.textContent='👤 Đăng nhập';btn.title='Đăng nhập để đồng bộ dữ liệu giữa các thiết bị';}
+      if(greet){greet.textContent='';greet.style.display='none';}
+      window.setAccountMode('login');
+    }
+  }
+
+  async function pushCloud(data){
+    if(!currentUser || !db || applyingCloud) return;
+    try{ setStatus('Đang đồng bộ…'); await setDoc(doc(db,'users',currentUser.uid),{state:data,displayName:currentUser.displayName||'',email:currentUser.email||'',updatedAt:serverTimestamp()},{merge:true}); setStatus('✓ Đã đồng bộ'); }
+    catch(err){ console.error(err); setStatus('⚠ Không thể lưu cloud. Kiểm tra Firestore Rules / kết nối mạng.'); }
+  }
+  window.kpiCloudScheduleSave = data => { if(!currentUser || !db || applyingCloud) return; clearTimeout(cloudTimer); const snapshot=JSON.parse(JSON.stringify(data)); cloudTimer=setTimeout(()=>pushCloud(snapshot),650); };
+
+  async function loadCloudForUser(user){
+    if(!db) return;
+    try{
+      setStatus('Đang tải dữ liệu tài khoản…'); const ref=doc(db,'users',user.uid), snap=await getDoc(ref);
+      if(snap.exists() && snap.data()?.state){ applyingCloud=true; state=Object.assign({},state,snap.data().state); try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){} applyingCloud=false; setStatus('✓ Đã tải dữ liệu từ cloud'); init(); }
+      else{ await pushCloud(state); setStatus('✓ Đã tạo dữ liệu cloud từ máy này'); }
+    }catch(err){ applyingCloud=false; console.error(err); setStatus('⚠ Không thể tải cloud. App vẫn dùng dữ liệu trên máy này.'); }
+  }
+
+  window.kpiEmailSubmit = async event => {
+    event?.preventDefault();
+    if(!configured){ setStatus('⚙️ Chưa cấu hình Firebase. Hãy dán firebaseConfig vào cuối file index.html.'); return; }
+    const email=document.getElementById('account-email')?.value.trim();
+    const password=document.getElementById('account-password')?.value || '';
+    const name=document.getElementById('account-name')?.value.trim();
+    try{
+      if(accountMode==='register'){
+        if(!name){setStatus('⚠ Hãy nhập tên hiển thị.');return;}
+        setStatus('Đang tạo tài khoản…'); const cred=await createUserWithEmailAndPassword(auth,email,password); await updateProfile(cred.user,{displayName:name}); await cred.user.reload(); currentUser=auth.currentUser; updateAccountUI(currentUser); await setDoc(doc(db,'users',currentUser.uid),{displayName:name,email:email,createdAt:serverTimestamp()},{merge:true});
+      }else{ setStatus('Đang đăng nhập…'); await signInWithEmailAndPassword(auth,email,password); }
+      document.getElementById('account-password').value=''; closeAccountModal();
+    }catch(err){
+      console.error(err); const c=err?.code||'';
+      const msgs={'auth/email-already-in-use':'Email này đã có tài khoản.','auth/invalid-email':'Email không hợp lệ.','auth/weak-password':'Mật khẩu cần ít nhất 6 ký tự.','auth/invalid-credential':'Email hoặc mật khẩu không đúng.','auth/user-not-found':'Email hoặc mật khẩu không đúng.','auth/wrong-password':'Email hoặc mật khẩu không đúng.','auth/too-many-requests':'Thử đăng nhập quá nhiều lần. Vui lòng thử lại sau.'};
+      setStatus('⚠ '+(msgs[c] || err?.message || 'Không thể đăng nhập.'));
+    }
+  };
+  window.kpiEmailLogout = async () => { if(auth){ await signOut(auth); setStatus('Đã đăng xuất. Dữ liệu cục bộ trên máy vẫn được giữ.'); } };
+
+  window.kpiChooseLegacyData = () => {
+    if(!currentUser){ setStatus('⚠ Hãy đăng nhập trước khi đồng bộ dữ liệu cũ.'); return; }
+    const input=document.getElementById('legacy-data-file');
+    if(!input) return;
+    input.value='';
+    input.onchange=async event=>{
+      const file=event?.target?.files?.[0]; if(!file) return;
+      try{
+        setStatus('Đang đọc dữ liệu cũ…');
+        const raw=JSON.parse(await file.text());
+        const incoming=raw && raw.type==='kpi-tool-backup' && raw.data ? raw.data : raw;
+        if(typeof isValidImportedState==='function' && !isValidImportedState(incoming)) throw new Error('invalid');
+        applyingCloud=true;
+        state=Object.assign({},state,incoming);
+        state.dailyLog=Object.assign({},incoming.dailyLog||{});
+        if(incoming.monthlyHistory) state.monthlyHistory=Object.assign({},incoming.monthlyHistory);
+        if(Array.isArray(incoming.companyPlan)) state.companyPlan=incoming.companyPlan.slice();
+        if(Array.isArray(incoming.bonusTiers)) state.bonusTiers=incoming.bonusTiers.map(x=>Object.assign({},x));
+        if(incoming.kpiScore) state.kpiScore=Object.assign({},state.kpiScore||{},incoming.kpiScore);
+        try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}
+        applyingCloud=false;
+        setStatus('Đang đưa dữ liệu cũ lên cloud…');
+        await pushCloud(JSON.parse(JSON.stringify(state)));
+        init();
+        setStatus('✓ Đã đồng bộ dữ liệu cũ vào tài khoản');
+        if(typeof showToast==='function') showToast('🔄 Đã đưa dữ liệu cũ vào tài khoản và đồng bộ cloud.');
+      }catch(err){
+        applyingCloud=false; console.error(err);
+        setStatus('⚠ Không đọc được dữ liệu cũ. Hãy chọn đúng file JSON đã xuất từ Máy tính KPI.');
+      }
+    };
+    input.click();
+  };
+
+  if(configured){
+    try{ const app=initializeApp(firebaseConfig); auth=getAuth(app); db=getFirestore(app); onAuthStateChanged(auth,async user=>{currentUser=user||null;updateAccountUI(currentUser);if(user) await loadCloudForUser(user);else setStatus('');}); }
+    catch(err){console.error(err);setStatus('⚠ Lỗi khởi tạo Firebase: '+(err?.message||err));updateAccountUI(null);}
+  }else{ updateAccountUI(null); setStatus('⚙️ Cần cấu hình Firebase một lần trước khi dùng đăng nhập.'); }
+</script>
 
 </body></html>
