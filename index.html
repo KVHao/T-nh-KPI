@@ -3973,7 +3973,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAccountModal()
 
   async function pushCloud(data){
     if(!currentUser || !db || applyingCloud) return;
-    try{ setStatus('Đang đồng bộ…'); await setDoc(doc(db,'users',currentUser.uid),{state:data,displayName:currentUser.displayName||'',email:currentUser.email||'',updatedAt:serverTimestamp()},{merge:true}); setStatus('✓ Đã đồng bộ'); }
+    try{ setStatus('Đang đồng bộ…'); await setDoc(doc(db,'kpiData',currentUser.uid),{state:data,displayName:currentUser.displayName||'',email:currentUser.email||'',updatedAt:serverTimestamp()},{merge:true}); setStatus('✓ Đã đồng bộ'); }
     catch(err){ console.error(err); setStatus('⚠ Không thể lưu cloud. Kiểm tra Firestore Rules / kết nối mạng.'); }
   }
   window.kpiCloudScheduleSave = data => { if(!currentUser || !db || applyingCloud) return; clearTimeout(cloudTimer); const snapshot=JSON.parse(JSON.stringify(data)); cloudTimer=setTimeout(()=>pushCloud(snapshot),650); };
@@ -3996,7 +3996,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAccountModal()
     try{
       if(accountMode==='register'){
         if(!name){setStatus('⚠ Hãy nhập tên hiển thị.');return;}
-        setStatus('Đang tạo tài khoản…'); const cred=await createUserWithEmailAndPassword(auth,email,password); await updateProfile(cred.user,{displayName:name}); await cred.user.reload(); currentUser=auth.currentUser; updateAccountUI(currentUser); await setDoc(doc(db,'users',currentUser.uid),{displayName:name,email:email,createdAt:serverTimestamp()},{merge:true});
+        setStatus('Đang tạo tài khoản…'); const cred=await createUserWithEmailAndPassword(auth,email,password); await updateProfile(cred.user,{displayName:name}); await cred.user.reload(); currentUser=auth.currentUser; updateAccountUI(currentUser); await setDoc(doc(db,'kpiData',currentUser.uid),{displayName:name,email:email,createdAt:serverTimestamp()},{merge:true});
       }else{ setStatus('Đang đăng nhập…'); await signInWithEmailAndPassword(auth,email,password); }
       document.getElementById('account-password').value=''; closeAccountModal();
     }catch(err){
