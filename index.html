@@ -3981,7 +3981,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAccountModal()
   async function loadCloudForUser(user){
     if(!db) return;
     try{
-      setStatus('Đang tải dữ liệu tài khoản…'); const ref=doc(db,'users',user.uid), snap=await getDoc(ref);
+      setStatus('Đang tải dữ liệu tài khoản…'); const ref=doc(db,'kpiData',user.uid), snap=await getDoc(ref);
       if(snap.exists() && snap.data()?.state){ applyingCloud=true; state=Object.assign({},state,snap.data().state); try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){} applyingCloud=false; setStatus('✓ Đã tải dữ liệu từ cloud'); init(); }
       else{ await pushCloud(state); setStatus('✓ Đã tạo dữ liệu cloud từ máy này'); }
     }catch(err){ applyingCloud=false; console.error(err); setStatus('⚠ Không thể tải cloud. App vẫn dùng dữ liệu trên máy này.'); }
