@@ -260,6 +260,8 @@
   .quick-kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
   .quick-kpi-panel .field:focus{border-color:var(--red)}
   .quick-kpi-submit{width:100%;margin-top:8px;background:var(--red);border-color:var(--red);font-weight:700;padding:8px 10px}
+  .quick-kpi-delete{width:100%;margin-top:6px;background:transparent;border-color:color-mix(in srgb,var(--red) 55%,var(--border));color:var(--red);font-weight:700;padding:7px 10px}
+  .quick-kpi-delete:hover{background:var(--red-soft);border-color:var(--red)}
   .quick-kpi-result{margin:7px 0 0;font-size:11px;color:var(--text-2);min-height:0}
   .quick-kpi-float.action-hidden,.quick-plan-float.action-hidden{display:none}
 
@@ -1562,6 +1564,7 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
       </div>
     </div>
     <button class="btn btn--primary quick-kpi-submit" type="button" onclick="submitFloatingReport()">✔ GHI NHẬN KPI</button>
+    <button class="btn quick-kpi-delete" type="button" onclick="deleteFloatingReportDay()">🗑 XÓA KPI NGÀY NÀY</button>
     <p class="quick-kpi-result" id="floating-report-result"></p>
     <!-- Các trường ẩn giữ tương thích với logic ghi KPI hiện có -->
     <input type="hidden" id="report-day">
@@ -2024,6 +2027,38 @@ function submitFloatingReport(){
     closeQuickKpi();
   }, 10000);
 }
+function deleteFloatingReportDay(){
+  const dayEl = document.getElementById('floating-report-day');
+  const result = document.getElementById('floating-report-result');
+  const d = +(dayEl ? dayEl.value : 0);
+  if(!d) return;
+  const key = dayKey(d);
+  if(state.dailyLog[key] == null){
+    if(result) result.innerHTML = `ℹ️ Ngày ${String(d).padStart(2,'0')}/${String(state.month).padStart(2,'0')} chưa có KPI để xoá.`;
+    return;
+  }
+  const prefix = state.year+'-'+state.month+'-';
+  const entries = Object.keys(state.dailyLog)
+    .filter(k => k.startsWith(prefix))
+    .map(k => ({d:+k.split('-')[2], v:+state.dailyLog[k]}))
+    .sort((a,b)=>a.d-b.d);
+  const before = entries.filter(e=>e.d<d);
+  const prevCum = before.length ? before[before.length-1].v : 0;
+  const removedDaily = (+state.dailyLog[key]) - prevCum;
+  delete state.dailyLog[key];
+  entries.filter(e=>e.d>d).forEach(e=>{ state.dailyLog[dayKey(e.d)] = e.v - removedDaily; });
+  const remaining = Object.keys(state.dailyLog)
+    .filter(k=>k.startsWith(prefix))
+    .map(k=>({d:+k.split('-')[2],v:+state.dailyLog[k]}))
+    .sort((a,b)=>a.d-b.d);
+  state.done = remaining.length ? remaining[remaining.length-1].v : 0;
+  const doneEl = document.getElementById('done');
+  if(doneEl) doneEl.value = state.done;
+  save(); renderCal(); calc(false);
+  if(result) result.innerHTML = `🗑️ <b>Đã xoá KPI ngày ${String(d).padStart(2,'0')}/${String(state.month).padStart(2,'0')}.</b><br><span style="color:var(--text-2)">Đã gỡ ${fmt(removedDaily,0)} tab của ngày này và cập nhật lại luỹ kế.</span>`;
+  showToast(`🗑 Đã xoá KPI ngày ${String(d).padStart(2,'0')}/${String(state.month).padStart(2,'0')}`);
+}
+
 function submitReport(){
   const d = +document.getElementById('report-day').value;
   const raw = document.getElementById('report-tabs').value;
@@ -3080,7 +3115,55 @@ function renderChart({ today, target, done, ratePerDay, workDaysLeft, offSet, lo
 
     <line x1="${PL}" y1="${H-PB}" x2="${W-PR}" y2="${H-PB}" stroke="var(--border-2)" stroke-width="1"/>
     ${xTicks}
+    <g id="chart-hover" style="display:none;pointer-events:none">
+      <line id="chart-hover-line" x1="0" y1="${PT}" x2="0" y2="${H-PB}" stroke="var(--text-2)" stroke-width="1" opacity=".35"/>
+      <circle id="chart-hover-dot" cx="0" cy="0" r="4" fill="var(--blue)" stroke="var(--bg)" stroke-width="2"/>
+      <rect id="chart-hover-box" x="0" y="0" width="150" height="92" rx="8" fill="var(--bg)" stroke="var(--border-2)"/>
+      <text id="chart-hover-text" x="0" y="0" style="font-size:9.5px"></text>
+    </g>
+    <rect id="chart-hover-hit" x="${PL}" y="${PT}" width="${innerW}" height="${innerH}" fill="transparent" style="cursor:crosshair"/>
   `;
+
+  const hit = document.getElementById('chart-hover-hit');
+  const hover = document.getElementById('chart-hover');
+  const hLine = document.getElementById('chart-hover-line');
+  const hDot = document.getElementById('chart-hover-dot');
+  const hBox = document.getElementById('chart-hover-box');
+  const hText = document.getElementById('chart-hover-text');
+  if(hit && hover){
+    hit.addEventListener('mousemove', e=>{
+      const r = svg.getBoundingClientRect();
+      const sx = (e.clientX-r.left) / Math.max(1,r.width) * W;
+      const d = Math.max(1,Math.min(totalDaysInMonth,Math.round(1 + (sx-PL)/innerW*(totalDaysInMonth-1))));
+      const hx = x(d);
+      const actualCandidates = [...logDays].filter(p=>p.d<=d && p.d<=today).sort((a,b)=>a.d-b.d);
+      const actualVal = actualCandidates.length ? actualCandidates[actualCandidates.length-1].v : (d===1?0:null);
+      const prevCandidates = prevPts.filter(p=>p.d<=d);
+      const prevVal = prevCandidates.length ? prevCandidates[prevCandidates.length-1].v : null;
+      const targetVal = target * (d-1)/(totalDaysInMonth-1||1);
+      let forecastVal = null;
+      if(d>=today) forecastVal = done + ratePerDay * Math.max(0,d-today);
+      const dotVal = actualVal!=null ? actualVal : (forecastVal!=null ? forecastVal : targetVal);
+      const hy = y(dotVal);
+      const boxW=150, boxH=92;
+      let bx = hx + 8; if(bx+boxW > W-4) bx = hx-boxW-8;
+      let by = Math.max(PT+2,Math.min(H-PB-boxH-2,hy-boxH/2));
+      hLine.setAttribute('x1',hx); hLine.setAttribute('x2',hx);
+      hDot.setAttribute('cx',hx); hDot.setAttribute('cy',hy);
+      hBox.setAttribute('x',bx); hBox.setAttribute('y',by);
+      hText.setAttribute('x',bx+9); hText.setAttribute('y',by+16);
+      const rows = [
+        [`Ngày ${d}`,'var(--text)',true],
+        [`Mục tiêu 100%: ${fmt(targetVal,0)}`,'var(--orange)'],
+        prevVal!=null ? [`Tháng ${pm}: ${fmt(prevVal,0)}`,'#a889d9'] : null,
+        actualVal!=null ? [`Thực tế tháng này: ${fmt(actualVal,0)}`,'var(--blue)'] : null,
+        forecastVal!=null ? [`Dự báo: ${fmt(forecastVal,0)}`,'var(--green)'] : null
+      ].filter(Boolean);
+      hText.innerHTML = rows.map((row,i)=>`<tspan x="${bx+9}" dy="${i?16:0}" fill="${row[1]}" style="font-weight:${row[2]?'700':'500'}">${row[0]}</tspan>`).join('');
+      hover.style.display='';
+    });
+    hit.addEventListener('mouseleave',()=>{ hover.style.display='none'; });
+  }
 }
 
 // ---------- Daily bar chart ----------
