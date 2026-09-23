@@ -1556,7 +1556,7 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
     <div class="quick-kpi-grid">
       <div>
         <label>Ngày</label>
-        <select id="floating-report-day" class="field"></select>
+        <select id="floating-report-day" class="field" onchange="updateQuickKpiDeleteLabel()"></select>
       </div>
       <div>
         <label>Tab trong ngày</label>
@@ -1564,7 +1564,7 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
       </div>
     </div>
     <button class="btn btn--primary quick-kpi-submit" type="button" onclick="submitFloatingReport()">✔ GHI NHẬN KPI</button>
-    <button class="btn quick-kpi-delete" type="button" onclick="deleteFloatingReportDay()">🗑 XÓA KPI NGÀY NÀY</button>
+    <button class="btn quick-kpi-delete" id="quick-kpi-delete-btn" type="button" onclick="deleteFloatingReportDay()">🗑 XÓA KPI NGÀY NÀY</button>
     <p class="quick-kpi-result" id="floating-report-result"></p>
     <!-- Các trường ẩn giữ tương thích với logic ghi KPI hiện có -->
     <input type="hidden" id="report-day">
@@ -1931,6 +1931,14 @@ function populateReportDay(){
   }
   if(sel) sel.innerHTML = opts;
   if(floatSel) floatSel.innerHTML = opts;
+  updateQuickKpiDeleteLabel();
+}
+function updateQuickKpiDeleteLabel(){
+  const sel = document.getElementById('floating-report-day');
+  const btn = document.getElementById('quick-kpi-delete-btn');
+  if(!sel || !btn) return;
+  const d = +(sel.value || state.today || 1);
+  btn.textContent = `🗑 XÓA KPI NGÀY ${d}`;
 }
 
 let quickKpiCloseTimer = null;
@@ -3118,8 +3126,8 @@ function renderChart({ today, target, done, ratePerDay, workDaysLeft, offSet, lo
     <g id="chart-hover" style="display:none;pointer-events:none">
       <line id="chart-hover-line" x1="0" y1="${PT}" x2="0" y2="${H-PB}" stroke="var(--text-2)" stroke-width="1" opacity=".35"/>
       <circle id="chart-hover-dot" cx="0" cy="0" r="4" fill="var(--blue)" stroke="var(--bg)" stroke-width="2"/>
-      <rect id="chart-hover-box" x="0" y="0" width="150" height="92" rx="8" fill="var(--bg)" stroke="var(--border-2)"/>
-      <text id="chart-hover-text" x="0" y="0" style="font-size:9.5px"></text>
+      <rect id="chart-hover-box" x="0" y="0" width="184" height="112" rx="9" fill="var(--bg)" stroke="var(--border-2)" stroke-width="1.2"/>
+      <text id="chart-hover-text" x="0" y="0" style="font-size:12px;font-family:inherit"></text>
     </g>
     <rect id="chart-hover-hit" x="${PL}" y="${PT}" width="${innerW}" height="${innerH}" fill="transparent" style="cursor:crosshair"/>
   `;
@@ -3145,13 +3153,13 @@ function renderChart({ today, target, done, ratePerDay, workDaysLeft, offSet, lo
       if(d>=today) forecastVal = done + ratePerDay * Math.max(0,d-today);
       const dotVal = actualVal!=null ? actualVal : (forecastVal!=null ? forecastVal : targetVal);
       const hy = y(dotVal);
-      const boxW=150, boxH=92;
+      const boxW=184, boxH=112;
       let bx = hx + 8; if(bx+boxW > W-4) bx = hx-boxW-8;
       let by = Math.max(PT+2,Math.min(H-PB-boxH-2,hy-boxH/2));
       hLine.setAttribute('x1',hx); hLine.setAttribute('x2',hx);
       hDot.setAttribute('cx',hx); hDot.setAttribute('cy',hy);
       hBox.setAttribute('x',bx); hBox.setAttribute('y',by);
-      hText.setAttribute('x',bx+9); hText.setAttribute('y',by+16);
+      hText.setAttribute('x',bx+11); hText.setAttribute('y',by+20);
       const rows = [
         [`Ngày ${d}`,'var(--text)',true],
         [`Mục tiêu 100%: ${fmt(targetVal,0)}`,'var(--orange)'],
@@ -3159,7 +3167,7 @@ function renderChart({ today, target, done, ratePerDay, workDaysLeft, offSet, lo
         actualVal!=null ? [`Thực tế tháng này: ${fmt(actualVal,0)}`,'var(--blue)'] : null,
         forecastVal!=null ? [`Dự báo: ${fmt(forecastVal,0)}`,'var(--green)'] : null
       ].filter(Boolean);
-      hText.innerHTML = rows.map((row,i)=>`<tspan x="${bx+9}" dy="${i?16:0}" fill="${row[1]}" style="font-weight:${row[2]?'700':'500'}">${row[0]}</tspan>`).join('');
+      hText.innerHTML = rows.map((row,i)=>`<tspan x="${bx+11}" dy="${i?20:0}" fill="${row[1]}" style="font-size:${row[2]?'13px':'12px'};font-weight:${row[2]?'750':'600'}">${row[0]}</tspan>`).join('');
       hover.style.display='';
     });
     hit.addEventListener('mouseleave',()=>{ hover.style.display='none'; });
@@ -3208,7 +3216,27 @@ function renderDailyChart({ logDays, offSet, needed, ratePerDay, daily }){
   xTicks += `<text x="${x(totalDaysInMonth)}" y="${H-6}" text-anchor="end">${totalDaysInMonth}</text>`;
   const band = `<rect x="${PL}" y="${y(mx)}" width="${innerW}" height="${Math.max(2, y(mn)-y(mx))}" fill="var(--blue)" opacity=".07"/>`;
   const avgLine = `<line x1="${PL}" y1="${y(avg)}" x2="${W-PR}" y2="${y(avg)}" stroke="var(--blue)" stroke-width="1.5" stroke-dasharray="6 3"/><text x="${PL+4}" y="${y(avg)-5}" fill="var(--blue)" style="font-weight:600">TB ${fmt(avg,1)}/ngày</text>`;
-  svg.innerHTML = `${yTicks}${band}${rects}${avgLine}${needLine}<line class="axis" x1="${PL}" y1="${H-PB}" x2="${W-PR}" y2="${H-PB}"/>${xTicks}`;
+  svg.innerHTML = `${yTicks}${band}${rects}${avgLine}${needLine}<line class="axis" x1="${PL}" y1="${H-PB}" x2="${W-PR}" y2="${H-PB}"/>${xTicks}
+    <g id="daily-hover" style="display:none;pointer-events:none">
+      <line id="daily-hover-line" x1="0" y1="${PT}" x2="0" y2="${H-PB}" stroke="var(--text-2)" stroke-width="1" opacity=".3"/>
+      <rect id="daily-hover-box" x="0" y="0" width="132" height="52" rx="8" fill="var(--bg)" stroke="var(--border-2)"/>
+      <text id="daily-hover-text" x="0" y="0" style="font-size:12px;font-family:inherit"></text>
+    </g>
+    <rect id="daily-hover-hit" x="${PL}" y="${PT}" width="${innerW}" height="${innerH}" fill="transparent" style="cursor:crosshair"/>`;
+  const dHit=document.getElementById('daily-hover-hit'), dHover=document.getElementById('daily-hover'), dLine=document.getElementById('daily-hover-line'), dBox=document.getElementById('daily-hover-box'), dText=document.getElementById('daily-hover-text');
+  if(dHit && dHover){
+    dHit.addEventListener('mousemove',e=>{
+      const r=svg.getBoundingClientRect(); const sx=(e.clientX-r.left)/Math.max(1,r.width)*W;
+      let nearest=bars[0]; bars.forEach(b=>{ if(Math.abs(x(b.d)-sx)<Math.abs(x(nearest.d)-sx)) nearest=b; });
+      const hx=x(nearest.d), hy=y(nearest.v), boxW=132, boxH=52;
+      let bx=hx+8; if(bx+boxW>W-4) bx=hx-boxW-8; let by=Math.max(PT+2,Math.min(H-PB-boxH-2,hy-boxH-8));
+      dLine.setAttribute('x1',hx); dLine.setAttribute('x2',hx); dBox.setAttribute('x',bx); dBox.setAttribute('y',by);
+      dText.setAttribute('x',bx+10); dText.setAttribute('y',by+19);
+      dText.innerHTML=`<tspan x="${bx+10}" fill="var(--text)" style="font-weight:750">Ngày ${nearest.d}</tspan><tspan x="${bx+10}" dy="20" fill="var(--green)" style="font-weight:650">Hoàn thành: ${fmt(nearest.v,1)} task</tspan>`;
+      dHover.style.display='';
+    });
+    dHit.addEventListener('mouseleave',()=>{dHover.style.display='none';});
+  }
   if(statsEl) statsEl.innerHTML =
     `<span>🔺 Cao nhất: <b class="num" style="color:var(--green)">${fmt(mx,0)} tab</b> (ngày ${bestDay.d})</span>`+
     `<span>🔻 Thấp nhất: <b class="num" style="color:var(--red)">${fmt(mn,0)} tab</b> (ngày ${worstDay.d})</span>`+
