@@ -260,7 +260,7 @@
   .quick-kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
   .quick-kpi-panel .field:focus{border-color:var(--red)}
   .quick-kpi-submit{width:100%;margin-top:8px;background:var(--red);border-color:var(--red);font-weight:700;padding:8px 10px}
-  .quick-kpi-delete{width:100%;margin-top:6px;background:transparent;border-color:color-mix(in srgb,var(--red) 55%,var(--border));color:var(--red);font-weight:700;padding:7px 10px}
+  .quick-kpi-delete{display:none!important;width:100%;margin-top:6px;background:transparent;border-color:color-mix(in srgb,var(--red) 55%,var(--border));color:var(--red);font-weight:700;padding:7px 10px}
   .quick-kpi-delete:hover{background:var(--red-soft);border-color:var(--red)}
   .quick-kpi-result{margin:7px 0 0;font-size:11px;color:var(--text-2);min-height:0}
   .quick-kpi-float.action-hidden,.quick-plan-float.action-hidden{display:none}
@@ -1546,6 +1546,7 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
 .kpi-sim-layout{grid-template-columns:minmax(0,1fr) 238px;gap:14px;align-items:stretch}.kpi-sim-table-wrap{overflow:visible}.kpi-sim{display:block}.kpi-sim thead{display:none}.kpi-sim tbody{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:9px}.kpi-sim tr{display:flex;min-width:0;min-height:180px;flex-direction:column;align-items:stretch;text-align:center;padding:12px 9px;border:1px solid color-mix(in srgb,var(--blue) 34%,var(--border));border-radius:9px;background:color-mix(in srgb,var(--bg-soft) 75%,var(--bg))}.kpi-sim td{display:block!important;padding:2px 0!important;border:0!important;text-align:center!important}.kpi-sim td:first-child{font-size:13px;margin-bottom:6px}.kpi-sim td:nth-child(2){min-height:27px}.kpi-sim td:nth-child(3){margin-top:7px}.kpi-sim td:nth-child(4){margin-top:auto;padding-top:10px!important}.kpi-sim td:nth-child(5){font-size:10px;color:var(--text-2);min-height:15px;margin-top:2px}.sim-input{width:100%;height:36px;text-align:center;font-size:14px}.sim-kpi{font-size:16px;color:#45e0ad;font-weight:800}.sim-side{border-left:1px solid var(--border);padding-left:14px}.sim-summary{display:none}.sim-bottom-summary{grid-column:1/-1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--border);border-radius:9px;background:var(--bg-soft);margin-top:14px;overflow:hidden}.sim-bottom-item{padding:11px 8px;text-align:center;border-right:1px solid var(--border)}.sim-bottom-item:last-child{border-right:0}.sim-bottom-item span{display:block;color:var(--text-2);font-size:10px;margin-bottom:2px}.sim-bottom-item b{font-size:15px}.sim-bottom-item .up{color:#45e0ad}
 @media(max-width:1180px){.dashboard-bottom{grid-template-columns:1fr}.kpi-sim-layout{grid-template-columns:1fr}.kpi-sim tbody{grid-template-columns:repeat(4,1fr)}.sim-side{border-left:0;border-top:1px solid var(--border);padding:10px 0 0}.sim-bottom-summary{grid-template-columns:repeat(4,1fr)}}@media(max-width:700px){.kpi-sim tbody{grid-template-columns:repeat(2,1fr)}.sim-bottom-summary{grid-template-columns:repeat(2,1fr)}}
 @media(min-width:1181px){.dashboard-bottom{position:relative;z-index:2}.kpi-sim-card{grid-column:1}.dashboard-bottom > .card:not(.kpi-sim-card){grid-column:2}}
+@media(min-width:1181px){.col-center .card:has(#chart-daily){display:flex;flex-direction:column}.col-center .card:has(#chart-daily) #chart-daily{flex:1;min-height:200px}}
 </style>
 
 <style id="dashboard-alignment-fix">
@@ -4054,39 +4055,38 @@ try{
 // Left: calendar + progress + weekly. Center: KPI + two performance charts.
 // Right: conclusion + rings + bonus + monthly history.
 function rebalanceDashboard(){
-  const dash = document.querySelector('.dash');
-  const left = document.querySelector('.col-left');
-  const center = document.querySelector('.col-center');
-  const right = document.querySelector('.col-right');
-  if(!dash || !left || !center || !right) return;
-  const findCard = (root, needle) => Array.from(root.children).find(el => {
-    if(!el.classList || !el.classList.contains('card')) return false;
-    const h = el.querySelector('h2');
-    return h && h.textContent.includes(needle);
+  const dash=document.querySelector('.dash');
+  const left=document.querySelector('.col-left');
+  const center=document.querySelector('.col-center');
+  const right=document.querySelector('.col-right');
+  if(!dash||!left||!center||!right) return;
+  const findCard=(root,needle)=>Array.from(root.children).find(el=>{
+    if(!el.classList||!el.classList.contains('card')) return false;
+    const h=el.querySelector('h2'); return h&&h.textContent.includes(needle);
   });
-  const weekly = findCard(right, 'Tóm tắt theo tuần');
-  if(weekly) left.appendChild(weekly);
-  const sim = findCard(center, 'Giả lập KPI 7 ngày');
-  const monthly = findCard(center, 'Kết quả theo tháng') || findCard(right, 'Kết quả theo tháng');
-  let bottom=document.getElementById('dashboard-bottom');
-  if(!bottom){bottom=document.createElement('div');bottom.id='dashboard-bottom';bottom.className='dashboard-bottom';dash.insertAdjacentElement('afterend',bottom);}
-  if(sim) bottom.appendChild(sim);
-  if(monthly) bottom.appendChild(monthly);
 
-  // Desktop: pull the simulator upward to remove the blank band left by the tallest dashboard column.
-  // It stays outside the original columns, so the existing dashboard layout is not disturbed.
-  const compactBottom = ()=>{
-    if(window.innerWidth <= 1180){ bottom.style.marginTop='16px'; return; }
-    const dashH=dash.getBoundingClientRect().height;
-    const contentH=Math.max(left.getBoundingClientRect().height, center.getBoundingClientRect().height);
-    const pull=Math.max(0, dashH-contentH);
-    bottom.style.marginTop=(16-pull)+'px';
-  };
-  requestAnimationFrame(()=>requestAnimationFrame(compactBottom));
-  if(!window.__kpiCompactBottomBound){
-    window.addEventListener('resize', compactBottom, {passive:true});
-    window.__kpiCompactBottomBound=true;
+  // Weekly belongs to the left column.
+  const weekly=findCard(right,'Tóm tắt theo tuần');
+  if(weekly) left.appendChild(weekly);
+
+  // Make the right rail independent from left+center height.
+  let lc=dash.querySelector('.dash-leftcenter');
+  if(!lc){
+    lc=document.createElement('div'); lc.className='dash-leftcenter';
+    dash.insertBefore(lc,right); lc.appendChild(left); lc.appendChild(center);
   }
+
+  // Simulator belongs to the left+center workspace and spans both columns.
+  // Monthly comparison stays in the independent right rail, directly after its cards.
+  const sim=findCard(center,'Giả lập KPI 7 ngày') || findCard(lc,'Giả lập KPI 7 ngày');
+  const monthly=findCard(center,'Kết quả theo tháng')||findCard(right,'Kết quả theo tháng');
+  if(sim){ sim.classList.add('sim-workspace-wide'); lc.appendChild(sim); }
+  if(monthly) right.appendChild(monthly);
+  const stale=document.getElementById('dashboard-bottom'); if(stale && !stale.children.length) stale.remove();
+
+  // Explicitly remove every previous sizing/translation workaround.
+  const daily=findCard(center,'Biên độ công việc');
+  if(daily){daily.style.height='';daily.style.minHeight='';daily.style.width='';}
 }
 
 rebalanceDashboard();
@@ -4098,6 +4098,8 @@ document.addEventListener('keydown', e=>{
 });
 
 init();
+setTimeout(()=>{ try{ rebalanceDashboard(); }catch(e){} },0);
+setTimeout(()=>{ try{ rebalanceDashboard(); }catch(e){} },120);
 </script>
 
 
@@ -4286,4 +4288,18 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAccountModal()
   }else{ updateAccountUI(null); setStatus('⚙️ Cần cấu hình Firebase một lần trước khi dùng đăng nhập.'); }
 </script>
 
+
+<style id="dashboard-structure-v5">
+/* v5: right rail is independent from the left+center workspace. No height hacks. */
+@media (min-width:1181px){
+  .dash{grid-template-columns:minmax(0,1fr) 356px !important;gap:16px !important;align-items:start !important;}
+  .dash-leftcenter{display:grid;grid-template-columns:356px minmax(0,1fr);gap:16px;align-items:start;min-width:0;}
+  .dash-leftcenter > .col-left,.dash-leftcenter > .col-center{min-width:0;}
+  .dash > .col-right{grid-column:2;grid-row:1;min-width:0;}
+  .dash-leftcenter > .sim-workspace-wide{grid-column:1 / -1;margin-top:0;margin-bottom:0;}
+  .col-center .card{height:auto !important;min-height:0 !important;}
+  .col-right > .card{margin-bottom:14px !important;}
+}
+@media (max-width:1180px){.dash-leftcenter{display:contents;}}
+</style>
 </body></html>
