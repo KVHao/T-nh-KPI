@@ -1527,6 +1527,14 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
 }
 </style>
 
+
+<style id="dashboard-alignment-fix">
+/* Keep the three main dashboard columns aligned when Smart Insights is empty. */
+.insight-grid:empty{display:none !important;margin:0 !important;padding:0 !important;}
+.dash > .col-left > :first-child,
+.dash > .col-center > :first-child,
+.dash > .col-right > :first-child{margin-top:0 !important;}
+</style>
 </head>
 <body>
 <div id="quick-modal-backdrop" onclick="closeQuickActions()"></div>
