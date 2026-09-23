@@ -1545,6 +1545,7 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
 .kpi-sim-card{padding:16px;background:linear-gradient(180deg,color-mix(in srgb,var(--blue-soft) 34%,var(--bg)) 0%,var(--bg) 42%)}.kpi-sim-head h2{font-size:17px;color:#45e0ad;margin:0 0 3px}
 .kpi-sim-layout{grid-template-columns:minmax(0,1fr) 238px;gap:14px;align-items:stretch}.kpi-sim-table-wrap{overflow:visible}.kpi-sim{display:block}.kpi-sim thead{display:none}.kpi-sim tbody{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:9px}.kpi-sim tr{display:flex;min-width:0;min-height:180px;flex-direction:column;align-items:stretch;text-align:center;padding:12px 9px;border:1px solid color-mix(in srgb,var(--blue) 34%,var(--border));border-radius:9px;background:color-mix(in srgb,var(--bg-soft) 75%,var(--bg))}.kpi-sim td{display:block!important;padding:2px 0!important;border:0!important;text-align:center!important}.kpi-sim td:first-child{font-size:13px;margin-bottom:6px}.kpi-sim td:nth-child(2){min-height:27px}.kpi-sim td:nth-child(3){margin-top:7px}.kpi-sim td:nth-child(4){margin-top:auto;padding-top:10px!important}.kpi-sim td:nth-child(5){font-size:10px;color:var(--text-2);min-height:15px;margin-top:2px}.sim-input{width:100%;height:36px;text-align:center;font-size:14px}.sim-kpi{font-size:16px;color:#45e0ad;font-weight:800}.sim-side{border-left:1px solid var(--border);padding-left:14px}.sim-summary{display:none}.sim-bottom-summary{grid-column:1/-1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--border);border-radius:9px;background:var(--bg-soft);margin-top:14px;overflow:hidden}.sim-bottom-item{padding:11px 8px;text-align:center;border-right:1px solid var(--border)}.sim-bottom-item:last-child{border-right:0}.sim-bottom-item span{display:block;color:var(--text-2);font-size:10px;margin-bottom:2px}.sim-bottom-item b{font-size:15px}.sim-bottom-item .up{color:#45e0ad}
 @media(max-width:1180px){.dashboard-bottom{grid-template-columns:1fr}.kpi-sim-layout{grid-template-columns:1fr}.kpi-sim tbody{grid-template-columns:repeat(4,1fr)}.sim-side{border-left:0;border-top:1px solid var(--border);padding:10px 0 0}.sim-bottom-summary{grid-template-columns:repeat(4,1fr)}}@media(max-width:700px){.kpi-sim tbody{grid-template-columns:repeat(2,1fr)}.sim-bottom-summary{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1181px){.dashboard-bottom{position:relative;z-index:2}.kpi-sim-card{grid-column:1}.dashboard-bottom > .card:not(.kpi-sim-card){grid-column:2}}
 </style>
 
 <style id="dashboard-alignment-fix">
@@ -1591,7 +1592,6 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
       </div>
     </div>
     <button class="btn btn--primary quick-kpi-submit" type="button" onclick="submitFloatingReport()">✔ GHI NHẬN KPI</button>
-    <button class="btn quick-kpi-delete" id="quick-kpi-delete-btn" type="button" onclick="deleteFloatingReportDay()">🗑 XÓA KPI NGÀY NÀY</button>
     <p class="quick-kpi-result" id="floating-report-result"></p>
     <!-- Các trường ẩn giữ tương thích với logic ghi KPI hiện có -->
     <input type="hidden" id="report-day">
@@ -4011,7 +4011,7 @@ function renderKpiSimulation(){
   ensureKpiSimulation(); const days=simulationDays(); const last=lastRecordedDay(); if(!days.length){ body.innerHTML=''; return; }
   let running=cumulativeBeforeDay(days[0]); let simAdded=0; let editable=0; let rows='';
   days.forEach(d=>{
-    const key=dayKey(d), real=actualDailyForDay(d), hasReal=state.dailyLog[key]!=null, passed=d<=last&&!hasReal;
+    const key=dayKey(d), real=actualDailyForDay(d), hasReal=state.dailyLog[key]!=null, passed=false;
     let val=0,status='',note='';
     if(hasReal){ val=real||0; running=+state.dailyLog[key]; status='<span class="sim-badge real">✓ Đã ghi nhận</span>'; note='Lấy từ dữ liệu thật'; }
     else if(passed){ status='<span class="sim-badge past">• Đã qua</span>'; note='Đã nằm trong lũy kế'; }
@@ -4054,10 +4054,11 @@ try{
 // Left: calendar + progress + weekly. Center: KPI + two performance charts.
 // Right: conclusion + rings + bonus + monthly history.
 function rebalanceDashboard(){
+  const dash = document.querySelector('.dash');
   const left = document.querySelector('.col-left');
   const center = document.querySelector('.col-center');
   const right = document.querySelector('.col-right');
-  if(!left || !center || !right) return;
+  if(!dash || !left || !center || !right) return;
   const findCard = (root, needle) => Array.from(root.children).find(el => {
     if(!el.classList || !el.classList.contains('card')) return false;
     const h = el.querySelector('h2');
@@ -4068,9 +4069,24 @@ function rebalanceDashboard(){
   const sim = findCard(center, 'Giả lập KPI 7 ngày');
   const monthly = findCard(center, 'Kết quả theo tháng') || findCard(right, 'Kết quả theo tháng');
   let bottom=document.getElementById('dashboard-bottom');
-  if(!bottom){bottom=document.createElement('div');bottom.id='dashboard-bottom';bottom.className='dashboard-bottom';document.querySelector('.dash')?.insertAdjacentElement('afterend',bottom);}
+  if(!bottom){bottom=document.createElement('div');bottom.id='dashboard-bottom';bottom.className='dashboard-bottom';dash.insertAdjacentElement('afterend',bottom);}
   if(sim) bottom.appendChild(sim);
   if(monthly) bottom.appendChild(monthly);
+
+  // Desktop: pull the simulator upward to remove the blank band left by the tallest dashboard column.
+  // It stays outside the original columns, so the existing dashboard layout is not disturbed.
+  const compactBottom = ()=>{
+    if(window.innerWidth <= 1180){ bottom.style.marginTop='16px'; return; }
+    const dashH=dash.getBoundingClientRect().height;
+    const contentH=Math.max(left.getBoundingClientRect().height, center.getBoundingClientRect().height);
+    const pull=Math.max(0, dashH-contentH);
+    bottom.style.marginTop=(16-pull)+'px';
+  };
+  requestAnimationFrame(()=>requestAnimationFrame(compactBottom));
+  if(!window.__kpiCompactBottomBound){
+    window.addEventListener('resize', compactBottom, {passive:true});
+    window.__kpiCompactBottomBound=true;
+  }
 }
 
 rebalanceDashboard();
