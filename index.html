@@ -1539,6 +1539,12 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
 .sim-side{border-left:1px solid var(--border);padding-left:12px}.sim-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 8px}.sim-presets button,.sim-reset{min-height:32px}.sim-reset{width:100%;border-color:color-mix(in srgb,var(--red) 55%,var(--border));color:var(--red);background:transparent}.sim-summary{margin-top:9px;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg-soft)}.sim-summary-row{display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:11.5px}.sim-summary-row b{font-variant-numeric:tabular-nums;text-align:right}.sim-summary-row.strong{border-top:1px solid var(--border);margin-top:4px;padding-top:7px}.sim-summary-row .up{color:var(--green)}
 @media(max-width:1180px){.kpi-sim-layout{grid-template-columns:1fr}.sim-side{border-left:0;border-top:1px solid var(--border);padding:10px 0 0}}
 @media(max-width:520px){.kpi-sim th:nth-child(5),.kpi-sim td:nth-child(5){display:none}.sim-presets{grid-template-columns:1fr 1fr 1fr}}
+
+/* Final simulator placement/layout */
+.dashboard-bottom{display:grid;grid-template-columns:minmax(0,1fr) 356px;gap:16px;align-items:start;margin-top:16px}.dashboard-bottom .card{margin-bottom:0}
+.kpi-sim-card{padding:16px;background:linear-gradient(180deg,color-mix(in srgb,var(--blue-soft) 34%,var(--bg)) 0%,var(--bg) 42%)}.kpi-sim-head h2{font-size:17px;color:#45e0ad;margin:0 0 3px}
+.kpi-sim-layout{grid-template-columns:minmax(0,1fr) 238px;gap:14px;align-items:stretch}.kpi-sim-table-wrap{overflow:visible}.kpi-sim{display:block}.kpi-sim thead{display:none}.kpi-sim tbody{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:9px}.kpi-sim tr{display:flex;min-width:0;min-height:180px;flex-direction:column;align-items:stretch;text-align:center;padding:12px 9px;border:1px solid color-mix(in srgb,var(--blue) 34%,var(--border));border-radius:9px;background:color-mix(in srgb,var(--bg-soft) 75%,var(--bg))}.kpi-sim td{display:block!important;padding:2px 0!important;border:0!important;text-align:center!important}.kpi-sim td:first-child{font-size:13px;margin-bottom:6px}.kpi-sim td:nth-child(2){min-height:27px}.kpi-sim td:nth-child(3){margin-top:7px}.kpi-sim td:nth-child(4){margin-top:auto;padding-top:10px!important}.kpi-sim td:nth-child(5){font-size:10px;color:var(--text-2);min-height:15px;margin-top:2px}.sim-input{width:100%;height:36px;text-align:center;font-size:14px}.sim-kpi{font-size:16px;color:#45e0ad;font-weight:800}.sim-side{border-left:1px solid var(--border);padding-left:14px}.sim-summary{display:none}.sim-bottom-summary{grid-column:1/-1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--border);border-radius:9px;background:var(--bg-soft);margin-top:14px;overflow:hidden}.sim-bottom-item{padding:11px 8px;text-align:center;border-right:1px solid var(--border)}.sim-bottom-item:last-child{border-right:0}.sim-bottom-item span{display:block;color:var(--text-2);font-size:10px;margin-bottom:2px}.sim-bottom-item b{font-size:15px}.sim-bottom-item .up{color:#45e0ad}
+@media(max-width:1180px){.dashboard-bottom{grid-template-columns:1fr}.kpi-sim-layout{grid-template-columns:1fr}.kpi-sim tbody{grid-template-columns:repeat(4,1fr)}.sim-side{border-left:0;border-top:1px solid var(--border);padding:10px 0 0}.sim-bottom-summary{grid-template-columns:repeat(4,1fr)}}@media(max-width:700px){.kpi-sim tbody{grid-template-columns:repeat(2,1fr)}.sim-bottom-summary{grid-template-columns:repeat(2,1fr)}}
 </style>
 
 <style id="dashboard-alignment-fix">
@@ -1788,7 +1794,7 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
 
       <div class="card kpi-sim-card" id="kpi-sim-card">
         <div class="kpi-sim-head">
-          <div><h2>🧪 Giả lập KPI 7 ngày</h2><p class="sub" style="margin:0">Ngày đã ghi nhận sẽ tự lấy dữ liệu thật và khóa chỉnh sửa. Các ngày còn lại chỉ là mô phỏng.</p></div>
+          <div><h2>🧪 Giả lập KPI 7 ngày</h2><p class="sub" style="margin:0">Nhập số tab dự kiến cho các ngày tới. Ngày đã ghi nhận tự cập nhật và khóa chỉnh sửa. (Bỏ qua Chủ Nhật)</p></div>
           <div class="kpi-sim-note">ℹ️ Không ảnh hưởng dữ liệu KPI thật</div>
         </div>
         <div class="kpi-sim-layout">
@@ -1800,6 +1806,7 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
             <div class="sim-summary" id="kpi-sim-summary"></div>
           </div>
         </div>
+        <div class="sim-bottom-summary" id="kpi-sim-bottom-summary"></div>
       </div>
 
       <div class="card">
@@ -3975,7 +3982,7 @@ function simDateLabel(d){
 }
 function simulationDays(){
   const start = Math.max(1, Math.min(totalDaysInMonth, state.today || 1));
-  const a=[]; for(let d=start; d<=totalDaysInMonth && a.length<7; d++) a.push(d); return a;
+  const a=[]; for(let d=start; d<=totalDaysInMonth && a.length<7; d++){ if(new Date(state.year,state.month-1,d).getDay()===0) continue; a.push(d); } return a;
 }
 function lastRecordedDay(){
   const p=state.year+'-'+state.month+'-';
@@ -4011,19 +4018,12 @@ function renderKpiSimulation(){
     else { val=Math.max(0,+state.simKpi7[key]||0); running+=val; simAdded+=val; editable++; status='<span class="sim-badge demo">🧪 Giả lập</span>'; }
     const pct=state.baseTabs>0?running/state.baseTabs*100:0;
     const input=hasReal||passed ? `<input class="sim-input" value="${fmt(val,0)}" disabled>` : `<input class="sim-input" type="number" min="0" max="999" step="1" value="${val||''}" placeholder="0" onchange="setKpiSimulationDay(${d},this.value)">`;
-    rows+=`<tr><td><b>${simDateLabel(d)}</b></td><td>${status}</td><td class="r">${input}</td><td class="r"><span class="sim-kpi">${fmt(pct,1)}%</span></td><td>${note||'—'}</td></tr>`;
+    const dow=DAYS_LABEL[new Date(state.year,state.month-1,d).getDay()]; rows+=`<tr><td><b>${String(d).padStart(2,'0')}/${String(state.month).padStart(2,'0')}</b><div style="font-size:11px;color:var(--text-2);font-weight:500">${dow}</div></td><td>${status}</td><td class="r">${input}</td><td class="r"><div style="font-size:10.5px;color:var(--text-2);margin-bottom:2px">KPI sau ngày</div><span class="sim-kpi">${fmt(pct,1)}%</span></td><td>${hasReal?'Dữ liệu thật':''}</td></tr>`;
   });
   body.innerHTML=rows;
   const pct=state.baseTabs>0?running/state.baseTabs*100:0, nowPct=state.baseTabs>0?state.done/state.baseTabs*100:0;
   const tier=bonusFor(pct), next150=Math.max(0,Math.round(state.baseTabs*1.5-running));
-  sum.innerHTML=`<h3 style="margin:0 0 5px">Tổng quan sau giả lập</h3>
-    <div class="sim-summary-row"><span>Tab hiện tại</span><b>${fmt(state.done,0)}</b></div>
-    <div class="sim-summary-row"><span>Tab giả lập thêm</span><b>${fmt(simAdded,0)}</b></div>
-    <div class="sim-summary-row strong"><span>Tổng tab dự kiến</span><b>${fmt(running,0)}</b></div>
-    <div class="sim-summary-row"><span>KPI tab dự kiến</span><b class="up">${fmt(pct,1)}%</b></div>
-    <div class="sim-summary-row"><span>Tăng so với hiện tại</span><b class="up">+${fmt(Math.max(0,pct-nowPct),1)}%</b></div>
-    <div class="sim-summary-row"><span>Còn thiếu tới 150%</span><b>${fmt(next150,0)} tab</b></div>
-    <div class="sim-summary-row"><span>Mức thưởng dự kiến</span><b>${tier?fmtMoney(tier.amount):'Chưa tới mốc'}</b></div>`;
+  sum.innerHTML=''; const bottom=document.getElementById('kpi-sim-bottom-summary'); if(bottom) bottom.innerHTML=`<div class="sim-bottom-item"><span>📊 Tab hiện tại</span><b>${fmt(state.done,0)}</b></div><div class="sim-bottom-item"><span>➕ Tab giả lập thêm</span><b>${fmt(simAdded,0)}</b></div><div class="sim-bottom-item"><span>＝ Tổng tab dự kiến</span><b>${fmt(running,0)}</b></div><div class="sim-bottom-item"><span>📈 KPI dự kiến</span><b class="up">${fmt(pct,1)}%</b></div><div class="sim-bottom-item"><span>↑ Tăng so với hiện tại</span><b class="up">+${fmt(Math.max(0,pct-nowPct),1)}%</b></div><div class="sim-bottom-item"><span>🎯 Còn thiếu tới 150%</span><b>${fmt(next150,0)} tab</b></div><div class="sim-bottom-item"><span>🏆 Mức thưởng dự kiến</span><b>${tier?fmtMoney(tier.amount):'Chưa tới mốc'}</b></div>`;
 }
 
 // ---------- Export ----------
@@ -4065,8 +4065,12 @@ function rebalanceDashboard(){
   });
   const weekly = findCard(right, 'Tóm tắt theo tuần');
   if(weekly) left.appendChild(weekly);
-  const monthly = findCard(center, 'Kết quả theo tháng');
-  if(monthly) right.appendChild(monthly);
+  const sim = findCard(center, 'Giả lập KPI 7 ngày');
+  const monthly = findCard(center, 'Kết quả theo tháng') || findCard(right, 'Kết quả theo tháng');
+  let bottom=document.getElementById('dashboard-bottom');
+  if(!bottom){bottom=document.createElement('div');bottom.id='dashboard-bottom';bottom.className='dashboard-bottom';document.querySelector('.dash')?.insertAdjacentElement('afterend',bottom);}
+  if(sim) bottom.appendChild(sim);
+  if(monthly) bottom.appendChild(monthly);
 }
 
 rebalanceDashboard();
