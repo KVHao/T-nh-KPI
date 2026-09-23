@@ -2240,6 +2240,23 @@ function init(){
   state.nextTargetPct = 150;
 
   load();
+
+  // One-time cleanup: remove old simulator demo values for days 24 and 25.
+  // This only touches simulation data; real KPI records in dailyLog are preserved.
+  try{
+    const cleanupKey = 'kpi_sim_cleanup_24_25_v1';
+    if(!localStorage.getItem(cleanupKey)){
+      if(state.simKpi7 && typeof state.simKpi7 === 'object'){
+        const suffixes = ['-24','-25'];
+        Object.keys(state.simKpi7).forEach(k => {
+          if(suffixes.some(suf => k.endsWith(suf))) delete state.simKpi7[k];
+        });
+      }
+      localStorage.setItem(cleanupKey,'1');
+      try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+    }
+  }catch(e){}
+
   applyThemeToggleUi();
   state.dailyLog = state.dailyLog || {};
   Object.keys(SEED_LOG).forEach(k => { if(state.dailyLog[k] == null) state.dailyLog[k] = SEED_LOG[k]; });
