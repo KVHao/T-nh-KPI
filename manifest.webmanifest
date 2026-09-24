@@ -1,6 +1,6 @@
 {
-  "name": "T-NH KPI",
-  "short_name": "T-NH KPI",
+  "name": "Tính KPI",
+  "short_name": "Tính KPI",
   "description": "Máy tính và theo dõi KPI",
   "start_url": "./",
   "scope": "./",
