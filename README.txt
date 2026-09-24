@@ -1,11 +1,11 @@
-TÍNH KPI — PWA + SUPABASE v12
+Tính KPI — Supabase v13 Icon Fix
 
-- Deploy toàn bộ thư mục này lên GitHub/Vercel.
-- Đăng ký/đăng nhập bằng Email + Password qua Supabase Auth.
-- KPI được đồng bộ vào bảng public.kpi_data theo user_id.
-- RLS phải được bật với policy chỉ cho authenticated user truy cập user_id của chính mình.
-- App vẫn giữ localStorage làm bản cục bộ và đồng bộ cloud sau khi đăng nhập.
-- PWA: manifest.webmanifest + service-worker.js + icons/.
+- Sửa icon PWA trên Android: nền đen toàn khung, logo Paper World căn giữa và thu vào safe-zone để không bị crop.
+- Cập nhật icon 192x192, 512x512 và favicon.
+- Tăng phiên bản cache Service Worker để thiết bị nhận asset mới.
+- Giữ nguyên Supabase Auth, cloud sync và toàn bộ dashboard từ v12.
 
-LƯU Ý BẢO MẬT:
-Frontend chỉ chứa SUPABASE_URL và sb_publishable_...; không được đưa sb_secret_... vào mã nguồn.
+Sau khi deploy lên Vercel: gỡ app Tính KPI cũ khỏi điện thoại, mở lại website bằng Chrome rồi Cài ứng dụng lại để Android lấy icon mới.
+
+
+Version v15: Restored original desktop KPI table layout; mobile-only width safeguards remain scoped to <=620px.
