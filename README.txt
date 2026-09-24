@@ -1,12 +1,11 @@
-Tính KPI PWA v8
+TÍNH KPI — PWA + SUPABASE v12
 
-Cách đưa lên Vercel/GitHub:
-1. Giải nén ZIP.
-2. Đưa TOÀN BỘ file/thư mục trong gói lên thư mục gốc của repository đang deploy trên Vercel.
-3. Giữ nguyên cấu trúc: index.html, manifest.webmanifest, service-worker.js, icons/.
-4. Chờ Vercel deploy xong rồi mở website bằng Chrome hoặc Edge.
-5. Bấm nút "Tải app" cạnh "Xuất dữ liệu" để cài.
+- Deploy toàn bộ thư mục này lên GitHub/Vercel.
+- Đăng ký/đăng nhập bằng Email + Password qua Supabase Auth.
+- KPI được đồng bộ vào bảng public.kpi_data theo user_id.
+- RLS phải được bật với policy chỉ cho authenticated user truy cập user_id của chính mình.
+- App vẫn giữ localStorage làm bản cục bộ và đồng bộ cloud sau khi đăng nhập.
+- PWA: manifest.webmanifest + service-worker.js + icons/.
 
-Lưu ý:
-- PWA cần chạy qua HTTPS; Vercel có HTTPS sẵn.
-- Nếu vừa deploy mà nút chưa cài được, refresh trang một lần để service worker/manifest được nhận.
+LƯU Ý BẢO MẬT:
+Frontend chỉ chứa SUPABASE_URL và sb_publishable_...; không được đưa sb_secret_... vào mã nguồn.

@@ -1660,7 +1660,7 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
 <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;align-items:center">
       <label class="switch"><input type="checkbox" id="auto-weekend" onchange="onAutoWeekendChange()"> Tự động đánh dấu Chủ Nhật là ngày nghỉ</label>
       <label class="switch"><input type="checkbox" id="auto-today" onchange="onAutoTodayChange()"> Tự động nhảy ngày theo hôm nay</label>
-      <label class="switch"><input type="checkbox" id="auto-save" checked="" disabled=""> Tự động lưu (localStorage)</label>
+      <label class="switch"><input type="checkbox" id="auto-save" checked="" disabled=""> Tự động lưu + đồng bộ</label>
     </div>
   </div>
 
@@ -4134,7 +4134,7 @@ setTimeout(()=>{ try{ rebalanceDashboard(); }catch(e){} },120);
 <div class="account-modal" id="account-modal" aria-hidden="true" onclick="if(event.target===this) closeAccountModal()">
   <div class="account-dialog" role="dialog" aria-modal="true" aria-labelledby="account-title">
     <div class="account-dialog-head">
-      <h2 id="account-title">☁️ Tài khoản & đồng bộ</h2>
+      <h2 id="account-title">☁️ Tài khoản & đồng bộ Supabase</h2>
       <button class="account-close" onclick="closeAccountModal()" aria-label="Đóng">×</button>
     </div>
     <div id="account-logged-out">
@@ -4188,25 +4188,17 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAccountModal()
 </script>
 
 <script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-  // DÁN CẤU HÌNH FIREBASE WEB APP CỦA BẠN VÀO ĐÂY.
-  const firebaseConfig = {
-    apiKey: "AIzaSyBMdAckzYSjBp6Owd8wNe9I4gt3IIFv2ys",
-    authDomain: "kpi-sync-a9c05.firebaseapp.com",
-    projectId: "kpi-sync-a9c05",
-    storageBucket: "kpi-sync-a9c05.firebasestorage.app",
-    messagingSenderId: "1058176767096",
-    appId: "1:1058176767096:web:aaf48a644e625b60dfc98d",
-    measurementId: "G-YSGF17BWQ9"
-  };
+  const SUPABASE_URL = 'https://cxdihuqsslgdzzxaolep.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_UkRMLHaswfBmmOLLzWwPkg_Wkf9kIyw';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+  });
 
-  const configured = firebaseConfig.apiKey !== 'PASTE_API_KEY_HERE' && !firebaseConfig.projectId.startsWith('PASTE_');
   const statusEl = document.getElementById('account-status');
   const setStatus = msg => { if(statusEl) statusEl.textContent = msg || ''; };
-  let auth=null, db=null, currentUser=null, cloudTimer=null, applyingCloud=false, accountMode='login';
+  let currentUser=null, cloudTimer=null, applyingCloud=false, accountMode='login';
 
   window.setAccountMode = mode => {
     accountMode = mode === 'register' ? 'register' : 'login';
@@ -4219,16 +4211,19 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAccountModal()
     setStatus('');
   };
 
+  function userDisplayName(user){
+    return user?.user_metadata?.display_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'bạn';
+  }
   function updateAccountUI(user){
     const out=document.getElementById('account-logged-out'), inn=document.getElementById('account-logged-in');
     const btn=document.getElementById('account-button'), greet=document.getElementById('account-greeting');
     if(user){
       if(out) out.style.display='none'; if(inn) inn.style.display='block';
-      const name=user.displayName || user.email?.split('@')[0] || 'bạn';
+      const name=userDisplayName(user);
       const nameEl=document.getElementById('account-user-name'); if(nameEl) nameEl.textContent=name;
       const emailEl=document.getElementById('account-user-email'); if(emailEl) emailEl.textContent=user.email || '';
       const avatar=document.getElementById('account-avatar'); if(avatar) avatar.style.display='none';
-      if(btn){btn.textContent='👤 Tài khoản';btn.title='Mở tài khoản và trạng thái đồng bộ';}
+      if(btn){btn.textContent='👤 Tài khoản';btn.title='Mở tài khoản và trạng thái đồng bộ Supabase';}
       if(greet){greet.textContent=`Xin Chào ${name}`;greet.style.display='inline-flex';}
     }else{
       if(out) out.style.display='block'; if(inn) inn.style.display='none';
@@ -4239,45 +4234,83 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAccountModal()
   }
 
   async function pushCloud(data){
-    if(!currentUser || !db || applyingCloud) return;
-    try{ setStatus('Đang đồng bộ…'); await setDoc(doc(db,'kpiData',currentUser.uid),{state:data,displayName:currentUser.displayName||'',email:currentUser.email||'',updatedAt:serverTimestamp()},{merge:true}); setStatus('✓ Đã đồng bộ'); }
-    catch(err){ console.error(err); setStatus('⚠ Không thể lưu cloud. Kiểm tra Firestore Rules / kết nối mạng.'); }
+    if(!currentUser || applyingCloud) return;
+    try{
+      setStatus('Đang đồng bộ…');
+      const {error}=await supabase.from('kpi_data').upsert({user_id:currentUser.id,data:data,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+      if(error) throw error;
+      setStatus('✓ Đã đồng bộ Supabase');
+    }catch(err){ console.error(err); setStatus('⚠ Không thể lưu cloud: '+(err?.message||'kiểm tra kết nối/RLS.')); }
   }
-  window.kpiCloudScheduleSave = data => { if(!currentUser || !db || applyingCloud) return; clearTimeout(cloudTimer); const snapshot=JSON.parse(JSON.stringify(data)); cloudTimer=setTimeout(()=>pushCloud(snapshot),650); };
+  window.kpiCloudScheduleSave = data => {
+    if(!currentUser || applyingCloud) return;
+    clearTimeout(cloudTimer);
+    const snapshot=JSON.parse(JSON.stringify(data));
+    cloudTimer=setTimeout(()=>pushCloud(snapshot),650);
+  };
 
   async function loadCloudForUser(user){
-    if(!db) return;
     try{
-      setStatus('Đang tải dữ liệu tài khoản…'); const ref=doc(db,'kpiData',user.uid), snap=await getDoc(ref);
-      if(snap.exists() && snap.data()?.state){ applyingCloud=true; state=Object.assign({},state,snap.data().state); try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){} applyingCloud=false; setStatus('✓ Đã tải dữ liệu từ cloud'); init(); }
-      else{ await pushCloud(state); setStatus('✓ Đã tạo dữ liệu cloud từ máy này'); }
-    }catch(err){ applyingCloud=false; console.error(err); setStatus('⚠ Không thể tải cloud. App vẫn dùng dữ liệu trên máy này.'); }
+      setStatus('Đang tải dữ liệu tài khoản…');
+      const {data:row,error}=await supabase.from('kpi_data').select('data').eq('user_id',user.id).maybeSingle();
+      if(error) throw error;
+      if(row?.data && typeof row.data==='object'){
+        applyingCloud=true;
+        state=Object.assign({},state,row.data);
+        try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}
+        applyingCloud=false;
+        setStatus('✓ Đã tải dữ liệu từ Supabase');
+        init();
+      }else{
+        await pushCloud(JSON.parse(JSON.stringify(state)));
+        setStatus('✓ Đã tạo dữ liệu cloud từ máy này');
+      }
+    }catch(err){ applyingCloud=false; console.error(err); setStatus('⚠ Không thể tải cloud. App vẫn giữ dữ liệu trên máy này.'); }
   }
 
   window.kpiEmailSubmit = async event => {
     event?.preventDefault();
-    if(!configured){ setStatus('⚙️ Chưa cấu hình Firebase. Hãy dán firebaseConfig vào cuối file index.html.'); return; }
     const email=document.getElementById('account-email')?.value.trim();
     const password=document.getElementById('account-password')?.value || '';
     const name=document.getElementById('account-name')?.value.trim();
     try{
       if(accountMode==='register'){
         if(!name){setStatus('⚠ Hãy nhập tên hiển thị.');return;}
-        setStatus('Đang tạo tài khoản…'); const cred=await createUserWithEmailAndPassword(auth,email,password); await updateProfile(cred.user,{displayName:name}); await cred.user.reload(); currentUser=auth.currentUser; updateAccountUI(currentUser); await setDoc(doc(db,'kpiData',currentUser.uid),{displayName:name,email:email,createdAt:serverTimestamp()},{merge:true});
-      }else{ setStatus('Đang đăng nhập…'); await signInWithEmailAndPassword(auth,email,password); }
-      document.getElementById('account-password').value=''; closeAccountModal();
+        setStatus('Đang tạo tài khoản…');
+        const {data,error}=await supabase.auth.signUp({email,password,options:{data:{display_name:name}}});
+        if(error) throw error;
+        if(!data?.user) throw new Error('Không tạo được tài khoản.');
+        currentUser=data.user; updateAccountUI(currentUser);
+        setStatus('✓ Đã tạo tài khoản');
+      }else{
+        setStatus('Đang đăng nhập…');
+        const {data,error}=await supabase.auth.signInWithPassword({email,password});
+        if(error) throw error;
+        currentUser=data.user; updateAccountUI(currentUser);
+      }
+      const pw=document.getElementById('account-password'); if(pw) pw.value='';
+      closeAccountModal();
     }catch(err){
-      console.error(err); const c=err?.code||'';
-      const msgs={'auth/email-already-in-use':'Email này đã có tài khoản.','auth/invalid-email':'Email không hợp lệ.','auth/weak-password':'Mật khẩu cần ít nhất 6 ký tự.','auth/invalid-credential':'Email hoặc mật khẩu không đúng.','auth/user-not-found':'Email hoặc mật khẩu không đúng.','auth/wrong-password':'Email hoặc mật khẩu không đúng.','auth/too-many-requests':'Thử đăng nhập quá nhiều lần. Vui lòng thử lại sau.'};
-      setStatus('⚠ '+(msgs[c] || err?.message || 'Không thể đăng nhập.'));
+      console.error(err);
+      const m=(err?.message||'Không thể đăng nhập.').toLowerCase();
+      let msg=err?.message||'Không thể đăng nhập.';
+      if(m.includes('already registered')||m.includes('already been registered')) msg='Email này đã có tài khoản.';
+      else if(m.includes('invalid login credentials')) msg='Email hoặc mật khẩu không đúng.';
+      else if(m.includes('password') && m.includes('6')) msg='Mật khẩu cần ít nhất 6 ký tự.';
+      else if(m.includes('invalid') && m.includes('email')) msg='Email không hợp lệ.';
+      setStatus('⚠ '+msg);
     }
   };
-  window.kpiEmailLogout = async () => { if(auth){ await signOut(auth); setStatus('Đã đăng xuất. Dữ liệu cục bộ trên máy vẫn được giữ.'); } };
+
+  window.kpiEmailLogout = async () => {
+    const {error}=await supabase.auth.signOut();
+    if(error){setStatus('⚠ '+error.message);return;}
+    currentUser=null; updateAccountUI(null); setStatus('Đã đăng xuất. Dữ liệu cục bộ trên máy vẫn được giữ.');
+  };
 
   window.kpiChooseLegacyData = () => {
     if(!currentUser){ setStatus('⚠ Hãy đăng nhập trước khi đồng bộ dữ liệu cũ.'); return; }
-    const input=document.getElementById('legacy-data-file');
-    if(!input) return;
+    const input=document.getElementById('legacy-data-file'); if(!input) return;
     input.value='';
     input.onchange=async event=>{
       const file=event?.target?.files?.[0]; if(!file) return;
@@ -4285,7 +4318,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAccountModal()
         setStatus('Đang đọc dữ liệu cũ…');
         const raw=JSON.parse(await file.text());
         const incoming=raw && raw.type==='kpi-tool-backup' && raw.data ? raw.data : raw;
-        if(typeof isValidImportedState==='function' && !isValidImportedState(incoming)) throw new Error('invalid');
+        if(typeof isValidImportedState==='function' && !isValidImportedState(incoming)) throw new Error('Dữ liệu không hợp lệ');
         applyingCloud=true;
         state=Object.assign({},state,incoming);
         state.dailyLog=Object.assign({},incoming.dailyLog||{});
@@ -4295,23 +4328,28 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAccountModal()
         if(incoming.kpiScore) state.kpiScore=Object.assign({},state.kpiScore||{},incoming.kpiScore);
         try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}
         applyingCloud=false;
-        setStatus('Đang đưa dữ liệu cũ lên cloud…');
         await pushCloud(JSON.parse(JSON.stringify(state)));
-        init();
-        setStatus('✓ Đã đồng bộ dữ liệu cũ vào tài khoản');
-        if(typeof showToast==='function') showToast('🔄 Đã đưa dữ liệu cũ vào tài khoản và đồng bộ cloud.');
-      }catch(err){
-        applyingCloud=false; console.error(err);
-        setStatus('⚠ Không đọc được dữ liệu cũ. Hãy chọn đúng file JSON đã xuất từ Máy tính KPI.');
-      }
+        init(); setStatus('✓ Đã đồng bộ dữ liệu cũ vào tài khoản');
+        if(typeof showToast==='function') showToast('🔄 Đã đưa dữ liệu cũ vào tài khoản Supabase.');
+      }catch(err){ applyingCloud=false; console.error(err); setStatus('⚠ Không đọc được dữ liệu cũ. Hãy chọn đúng file JSON đã xuất từ Tính KPI.'); }
     };
     input.click();
   };
 
-  if(configured){
-    try{ const app=initializeApp(firebaseConfig); auth=getAuth(app); db=getFirestore(app); onAuthStateChanged(auth,async user=>{currentUser=user||null;updateAccountUI(currentUser);if(user) await loadCloudForUser(user);else setStatus('');}); }
-    catch(err){console.error(err);setStatus('⚠ Lỗi khởi tạo Firebase: '+(err?.message||err));updateAccountUI(null);}
-  }else{ updateAccountUI(null); setStatus('⚙️ Cần cấu hình Firebase một lần trước khi dùng đăng nhập.'); }
+  async function bootSupabaseAuth(){
+    try{
+      const {data:{session}}=await supabase.auth.getSession();
+      currentUser=session?.user||null; updateAccountUI(currentUser);
+      if(currentUser) await loadCloudForUser(currentUser); else setStatus('');
+      supabase.auth.onAuthStateChange((event,session)=>{
+        const next=session?.user||null;
+        const changed=next?.id !== currentUser?.id;
+        currentUser=next; updateAccountUI(currentUser);
+        if(currentUser && changed && event==='SIGNED_IN') setTimeout(()=>loadCloudForUser(currentUser),0);
+      });
+    }catch(err){ console.error(err); updateAccountUI(null); setStatus('⚠ Không thể khởi tạo Supabase: '+(err?.message||err)); }
+  }
+  bootSupabaseAuth();
 </script>
 
 
