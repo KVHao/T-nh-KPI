@@ -299,6 +299,9 @@
   }
   .data-btn--export{border-color:rgba(70,161,113,.65);background:var(--green-soft);color:var(--green)}
   .data-btn--export:hover{border-color:var(--green);background:var(--green-soft)}
+  .data-btn--install{border-color:rgba(142,92,246,.55);background:var(--purple-soft);color:var(--purple)}
+  .data-btn--install:hover{border-color:var(--purple);background:var(--purple-soft)}
+  .data-btn--install.is-installed{opacity:.72;cursor:default}
   .data-btn--import{border-color:rgba(39,131,222,.65);background:var(--blue-soft);color:var(--blue)}
   .data-btn--import:hover{border-color:var(--blue);background:var(--blue-soft)}
   .tag{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;padding:3px 9px;border-radius:99px;font-weight:500}
@@ -1556,6 +1559,11 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
 .dash > .col-center > :first-child,
 .dash > .col-right > :first-child{margin-top:0 !important;}
 </style>
+
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#111827">
+<meta name="application-name" content="T-NH KPI">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
 </head>
 <body>
 <div id="quick-modal-backdrop" onclick="closeQuickActions()"></div>
@@ -1613,6 +1621,7 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
     </div>
     <div class="toolbar-actions" style="display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end">
       <button class="btn data-btn data-btn--export" onclick="exportDataFile()" title="Xuất dữ liệu để chuyển từ phiên bản cũ sang tài khoản mới">📤 Xuất dữ liệu</button>
+      <button class="btn data-btn data-btn--install" id="install-app-btn" type="button" onclick="installKpiApp()" title="Cài T-NH KPI lên thiết bị">⬇️ Tải app</button>
       <button class="btn data-btn data-btn--import" id="account-button" onclick="openAccountModal()" title="Đăng nhập để đồng bộ dữ liệu giữa các thiết bị">👤 Đăng nhập</button>
       <span id="account-greeting" class="account-greeting" style="display:none"></span>
       <div class="theme-inline" id="theme-inline" data-active="light" title="Chuyển giao diện Sáng / Tối">
@@ -4319,4 +4328,35 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAccountModal()
 }
 @media (max-width:1180px){.dash-leftcenter{display:contents;}}
 </style>
+
+<script id="pwa-install-ui">
+let deferredInstallPrompt = null;
+const installBtn = () => document.getElementById('install-app-btn');
+function setInstallButtonState(){
+  const btn=installBtn(); if(!btn) return;
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if(standalone){ btn.textContent='✓ Đã cài app'; btn.classList.add('is-installed'); btn.disabled=true; }
+  else { btn.textContent='⬇️ Tải app'; btn.classList.remove('is-installed'); btn.disabled=false; }
+}
+window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredInstallPrompt=e; setInstallButtonState(); });
+window.addEventListener('appinstalled', ()=>{ deferredInstallPrompt=null; setInstallButtonState(); });
+async function installKpiApp(){
+  if(window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true){ return; }
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    try{ await deferredInstallPrompt.userChoice; }catch(e){}
+    deferredInstallPrompt=null; setInstallButtonState(); return;
+  }
+  alert('Để cài app: trên Chrome/Edge hãy mở menu trình duyệt → Cài đặt ứng dụng / Install app. Sau khi bộ PWA được đưa lên Vercel, nút này sẽ mở hộp cài đặt khi trình duyệt hỗ trợ.');
+}
+document.addEventListener('DOMContentLoaded', setInstallButtonState);
+</script>
+
+<script id="pwa-service-worker-register">
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(err => console.error('Service worker:', err));
+  });
+}
+</script>
 </body></html>
