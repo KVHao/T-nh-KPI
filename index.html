@@ -4376,6 +4376,27 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAccountModal()
 @media (max-width:1180px){.dash-leftcenter{display:contents;}}
 </style>
 
+
+<style id="v17-mobile-fullwidth-fix">
+/* v17: phone/tablet portrait must use one full-width dashboard column. */
+@media (max-width:900px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden;}
+  .app{width:100%;max-width:100%;box-sizing:border-box;margin:0 auto;}
+  .toolbar,.card.tight,.overview-topbar,#metrics,.dash{width:100%;max-width:100%;box-sizing:border-box;}
+  .dash{grid-template-columns:minmax(0,1fr) !important;}
+  .dash-leftcenter{display:contents !important;}
+  .dash .col-left,.dash .col-center,.dash .col-right{width:100%;max-width:100%;min-width:0;grid-column:1 !important;}
+  .dash .col-right{display:block !important;}
+  .dash .col-right > .card{margin-bottom:14px !important;}
+  .cal{min-width:0;}
+}
+@media (max-width:600px){
+  .app{padding-left:12px;padding-right:12px;}
+  #kpi-score{max-width:100%;overflow:hidden;}
+  #kpi-score > div{width:100%;max-width:100%;overflow-x:auto!important;-webkit-overflow-scrolling:touch;}
+}
+</style>
+
 <script id="pwa-install-ui">
 let deferredInstallPrompt = null;
 const installBtn = () => document.getElementById('install-app-btn');

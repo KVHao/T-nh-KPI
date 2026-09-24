@@ -9,3 +9,6 @@ Sau khi deploy lên Vercel: gỡ app Tính KPI cũ khỏi điện thoại, mở 
 
 
 v16: Thu nhỏ logo PWA thêm 20%; sửa riêng bảng KPI trên màn hình <=600px, không thay đổi layout desktop.
+
+
+v17: Fixed mobile full-width responsive layout while preserving v16 icon and Supabase sync.
