@@ -8,4 +8,4 @@ Tính KPI — Supabase v13 Icon Fix
 Sau khi deploy lên Vercel: gỡ app Tính KPI cũ khỏi điện thoại, mở lại website bằng Chrome rồi Cài ứng dụng lại để Android lấy icon mới.
 
 
-Version v15: Restored original desktop KPI table layout; mobile-only width safeguards remain scoped to <=620px.
+v16: Thu nhỏ logo PWA thêm 20%; sửa riêng bảng KPI trên màn hình <=600px, không thay đổi layout desktop.

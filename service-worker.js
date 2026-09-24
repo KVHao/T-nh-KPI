@@ -1,4 +1,4 @@
-const CACHE = 'tnh-kpi-pwa-v14-iconfix';
+const CACHE = 'tnh-kpi-pwa-v16-mobile-iconfix';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)));
