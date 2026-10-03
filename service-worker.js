@@ -1,4 +1,4 @@
-const CACHE = 'tnh-kpi-pwa-v26-note-tags-class-name';
+const CACHE = 'tnh-kpi-pwa-v28-simulator-summary-tile';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)));

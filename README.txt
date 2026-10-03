@@ -17,6 +17,8 @@ v23: Thêm Lịch quay/lớp học vào vùng trống bên phải, gồm thứ, 
 v24: Thêm trạng thái Đã học/Chưa học cho từng lớp và tổng kết tháng gồm tổng số lớp, số đã học, số chưa học và tỷ lệ hoàn thành.
 v25: Tự động tính lớp đã học khi ngày và giờ lịch đã qua; bỏ trạng thái/nút Chưa học thủ công và bỏ ô Chưa học khỏi tổng kết tháng.
 v26: Lịch học có thêm tên lớp và link không bắt buộc. Ghi chú nhanh hỗ trợ nhiều thẻ, mỗi note có tiêu đề và nội dung; bấm thẻ mở popup để xem, sửa hoặc xóa. Note cũ được tự động chuyển đổi.
+v27: Ô giờ lịch học dùng định dạng 24 giờ cố định HH:mm, tự chèn dấu hai chấm và kiểm tra khoảng 00:00–23:59.
+v28: Thêm ô Tổng kết 7 ngày vào vị trí trống thứ tám của lưới giả lập, hiển thị tổng tab thêm, trung bình mỗi ngày và KPI cuối kỳ.
 
 
 v17: Fixed mobile full-width responsive layout while preserving v16 icon and Supabase sync.
