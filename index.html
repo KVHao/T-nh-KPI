@@ -4441,7 +4441,7 @@ function rebalanceDashboard(){
 
   // Simulator stays compact in the center column so it does not wait for the taller left column.
   // Monthly comparison stays in the independent right rail, directly after its cards.
-  const sim=findCard(center,'Giả lập KPI 7 ngày') || findCard(lc,'Giả lập KPI 7 ngày');
+  const sim=document.getElementById('kpi-sim-card');
   const monthly=findCard(center,'Kết quả theo tháng')||findCard(right,'Kết quả theo tháng');
   if(sim){ sim.classList.remove('sim-workspace-wide'); sim.classList.add('sim-center-compact'); center.appendChild(sim); }
   if(monthly) right.appendChild(monthly);

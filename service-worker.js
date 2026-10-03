@@ -1,4 +1,4 @@
-const CACHE = 'tnh-kpi-pwa-v29-weekly-simulator';
+const CACHE = 'tnh-kpi-pwa-v30-simulator-layout-fix';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)));
