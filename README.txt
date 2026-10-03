@@ -27,6 +27,7 @@ v33: Nới rộng cột giữa trên desktop, thu nhẹ hai cột bên cạnh v�
 v34: Bỏ ô phần trăm Hoàn thành bị dư trong lịch học và bố cục lại tổng kết thành hai ô cân đều: lịch tháng này và số lớp đã học đến hiện tại.
 v35: Thẻ lịch tương lai hiển thị màu vàng, lịch đã qua ngày-giờ hiển thị màu xanh; thêm popup chỉnh sửa tên lớp, thứ, ngày, giờ 24h và link tùy chọn.
 v36: Popup KPI tự đổi nút từ Chốt KPI ngày dd/mm sang Cập nhật KPI ngày dd/mm khi ngày đã có dữ liệu; hỗ trợ chốt sớm ngày hiện tại và cập nhật thay thế không cộng trùng.
+v37: Tô màu trạng thái ô ngày simulator: ngoài tháng làm mờ, hôm nay xanh dương, ngày đã qua có KPI thật màu đỏ và ngày tương lai màu xanh lá.
 
 
 v17: Fixed mobile full-width responsive layout while preserving v16 icon and Supabase sync.
