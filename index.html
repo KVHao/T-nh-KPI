@@ -4909,6 +4909,23 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAccountModal()
 .sim-total-line span{color:var(--text-2);}.sim-total-line strong{font-variant-numeric:tabular-nums;color:var(--text);}
 </style>
 
+<style id="v32-single-row-simulator-summary">
+@media(min-width:701px){
+  .sim-center-compact .sim-bottom-summary{
+    grid-template-columns:repeat(7,minmax(0,1fr));
+  }
+  .sim-center-compact .sim-bottom-item{
+    min-width:0;
+    padding:8px 3px;
+    border-top:0!important;
+    border-right:1px solid var(--border)!important;
+  }
+  .sim-center-compact .sim-bottom-item:last-child{border-right:0!important;}
+  .sim-center-compact .sim-bottom-item span{font-size:8px;line-height:1.25;}
+  .sim-center-compact .sim-bottom-item b{font-size:11px;line-height:1.25;word-break:break-word;}
+}
+</style>
+
 
 <style id="v17-mobile-fullwidth-fix">
 /* v17: phone/tablet portrait must use one full-width dashboard column. */

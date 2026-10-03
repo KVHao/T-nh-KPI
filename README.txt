@@ -22,6 +22,7 @@ v28: Thêm ô Tổng kết 7 ngày vào vị trí trống thứ tám của lư�
 v29: Simulator chuyển sang một tuần cố định Thứ Hai–Thứ Bảy, giữ nguyên trong suốt tuần và chỉ chuyển tuần mới vào Thứ Hai; Chủ Nhật vẫn hiển thị tuần vừa kết thúc.
 v30: Sửa lỗi bố cục simulator bị ép hẹp sau khi đổi tiêu đề; bộ sắp xếp giờ nhận diện bằng ID cố định thay vì phụ thuộc nội dung tiêu đề.
 v31: Simulator luôn hiển thị đủ sáu ngày Thứ Hai–Thứ Bảy, kể cả các ngày đầu tuần thuộc tháng trước; ngày ngoài tháng chỉ hiển thị tham chiếu và không cộng vào KPI tháng hiện tại.
+v32: Khôi phục thanh tổng kết simulator thành một hàng ngang đủ bảy ô như bố cục cũ trên desktop/tablet; mobile vẫn tự xuống hàng để dễ đọc.
 
 
 v17: Fixed mobile full-width responsive layout while preserving v16 icon and Supabase sync.
