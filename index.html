@@ -1828,13 +1828,13 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
 
       <div class="card kpi-sim-card" id="kpi-sim-card">
         <div class="kpi-sim-head">
-          <div><h2>🧪 Giả lập KPI 7 ngày</h2><p class="sub" style="margin:0">Nhập số tab dự kiến cho các ngày tới. Ngày đã ghi nhận tự cập nhật và khóa chỉnh sửa. (Bỏ qua ngày Nghỉ trong lịch)</p></div>
+          <div><h2>🧪 Giả lập KPI tuần này</h2><p class="sub" style="margin:0">Giữ nguyên tuần Thứ Hai–Thứ Bảy; sang tuần mới mới tự chuyển. Ngày Nghỉ trong lịch được bỏ qua.</p></div>
           <div class="kpi-sim-note">ℹ️ Không ảnh hưởng dữ liệu KPI thật</div>
         </div>
         <div class="kpi-sim-layout">
           <div class="kpi-sim-table-wrap"><table class="kpi-sim"><thead><tr><th>Ngày</th><th>Trạng thái</th><th class="r">Số tab</th><th class="r">KPI sau ngày</th><th>Ghi chú</th></tr></thead><tbody id="kpi-sim-body"></tbody></table></div>
           <div class="sim-side">
-            <h3 style="margin:0 0 4px">Nhập nhanh cho 7 ngày</h3>
+            <h3 style="margin:0 0 4px">Nhập nhanh cho tuần</h3>
             <div class="sim-presets"><button class="btn" type="button" onclick="fillKpiSimulation(10)">10/ngày</button><button class="btn" type="button" onclick="fillKpiSimulation(15)">15/ngày</button><button class="btn" type="button" onclick="fillKpiSimulation(20)">20/ngày</button></div>
             <button class="btn sim-reset" type="button" onclick="clearKpiSimulation()">✕ Xóa giả lập</button>
             <div class="sim-summary" id="kpi-sim-summary"></div>
@@ -4325,8 +4325,16 @@ function simDateLabel(d){
   return `${String(d).padStart(2,'0')}/${String(state.month).padStart(2,'0')} (${DAYS_LABEL[dow]})`;
 }
 function simulationDays(){
-  const start = Math.max(1, Math.min(totalDaysInMonth, state.today || 1));
-  const a=[]; for(let d=start; d<=totalDaysInMonth && a.length<7; d++){ if(isWorkingDay(d)) a.push(d); } return a;
+  const anchor=Math.max(1,Math.min(totalDaysInMonth,state.today||1));
+  const dow=new Date(state.year,state.month-1,anchor).getDay();
+  // CN vẫn hiển thị tuần vừa kết thúc; chỉ sang T2 mới chuyển sang tuần kế tiếp.
+  const monday=anchor-(dow===0?6:dow-1);
+  const saturday=monday+5;
+  const days=[];
+  for(let d=Math.max(1,monday);d<=Math.min(totalDaysInMonth,saturday);d++){
+    if(isWorkingDay(d)) days.push(d);
+  }
+  return days;
 }
 function lastRecordedDay(){
   return getClosedKpiSnapshot().lastRecordedDay;
@@ -4351,11 +4359,13 @@ function clearKpiSimulation(){
 function renderKpiSimulation(){
   const body=document.getElementById('kpi-sim-body'), sum=document.getElementById('kpi-sim-summary'); if(!body||!sum) return;
   ensureKpiSimulation(); const days=simulationDays(); const closed=getClosedKpiSnapshot(); const last=closed.lastRecordedDay; if(!days.length){ body.innerHTML=''; return; }
-  let running=closed.done; let simAdded=0; let editable=0; let rows='';
+  const beforeWeek=closed.logDays.filter(item=>item.d<days[0]);
+  let running=beforeWeek.length?beforeWeek[beforeWeek.length-1].v:0;
+  let simAdded=0; let editable=0; let rows='';
   days.forEach(d=>{
-    const key=dayKey(d), real=actualDailyForDay(d), hasReal=d<=last && state.dailyLog[key]!=null, passed=d<state.today;
+    const key=dayKey(d), closedPoint=closed.logDays.find(item=>item.d===d), hasReal=!!closedPoint, passed=d<state.today;
     let val=0,status='',note='';
-    if(hasReal){ val=real||0; running=+state.dailyLog[key]; status='<span class="sim-badge real">✓ Đã ghi nhận</span>'; note='Lấy từ dữ liệu thật'; }
+    if(hasReal){ val=Math.max(0,closedPoint.v-running); running=closedPoint.v; status='<span class="sim-badge real">✓ Đã ghi nhận</span>'; note='Lấy từ dữ liệu thật'; }
     else if(passed){ status='<span class="sim-badge past">• Đã qua</span>'; note='Đã nằm trong lũy kế'; }
     else { val=Math.max(0,+state.simKpi7[key]||0); running+=val; simAdded+=val; editable++; status='<span class="sim-badge demo">🧪 Giả lập</span>'; }
     const pct=state.baseTabs>0?running/state.baseTabs*100:0;
@@ -4366,7 +4376,7 @@ function renderKpiSimulation(){
   const simAverage=editable>0?simAdded/editable:0;
   rows+=`<tr class="sim-total-card"><td>
     <div class="sim-total-icon">📊</div>
-    <b>Tổng kết 7 ngày</b>
+    <b>Tổng kết tuần</b>
     <div class="sim-total-main">+${fmt(simAdded,0)} tab</div>
     <div class="sim-total-line"><span>TB/ngày</span><strong>${fmt(simAverage,1)}</strong></div>
     <div class="sim-total-line"><span>KPI cuối</span><strong>${fmt(pct,1)}%</strong></div>
