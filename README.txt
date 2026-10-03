@@ -15,6 +15,7 @@ v21: Thu Giả lập KPI 7 ngày về cột giữa và đặt sát dưới biể
 v22: Thêm Ghi chú nhanh vào vùng trống lớn dưới bảng tuần; note tự lưu cục bộ và đồng bộ Supabase cùng dữ liệu tài khoản, có đếm ký tự và nút xóa.
 v23: Thêm Lịch quay/lớp học vào vùng trống bên phải, gồm thứ, ngày, giờ và link vào lớp; hỗ trợ mở link, xóa lịch, tự lưu và đồng bộ cùng dữ liệu tài khoản.
 v24: Thêm trạng thái Đã học/Chưa học cho từng lớp và tổng kết tháng gồm tổng số lớp, số đã học, số chưa học và tỷ lệ hoàn thành.
+v25: Tự động tính lớp đã học khi ngày và giờ lịch đã qua; bỏ trạng thái/nút Chưa học thủ công và bỏ ô Chưa học khỏi tổng kết tháng.
 
 
 v17: Fixed mobile full-width responsive layout while preserving v16 icon and Supabase sync.
