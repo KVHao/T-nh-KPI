@@ -16,6 +16,7 @@ v22: Thêm Ghi chú nhanh vào vùng trống lớn dưới bảng tuần; note t
 v23: Thêm Lịch quay/lớp học vào vùng trống bên phải, gồm thứ, ngày, giờ và link vào lớp; hỗ trợ mở link, xóa lịch, tự lưu và đồng bộ cùng dữ liệu tài khoản.
 v24: Thêm trạng thái Đã học/Chưa học cho từng lớp và tổng kết tháng gồm tổng số lớp, số đã học, số chưa học và tỷ lệ hoàn thành.
 v25: Tự động tính lớp đã học khi ngày và giờ lịch đã qua; bỏ trạng thái/nút Chưa học thủ công và bỏ ô Chưa học khỏi tổng kết tháng.
+v26: Lịch học có thêm tên lớp và link không bắt buộc. Ghi chú nhanh hỗ trợ nhiều thẻ, mỗi note có tiêu đề và nội dung; bấm thẻ mở popup để xem, sửa hoặc xóa. Note cũ được tự động chuyển đổi.
 
 
 v17: Fixed mobile full-width responsive layout while preserving v16 icon and Supabase sync.

@@ -1770,15 +1770,17 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
         <div class="quick-notes-head">
           <div>
             <h2>📝 Ghi chú nhanh</h2>
-            <p class="sub">Lưu việc cần nhớ, ý tưởng hoặc nội dung cần theo dõi.</p>
+            <p class="sub">Tạo nhiều ghi chú và bấm vào thẻ để xem chi tiết.</p>
           </div>
-          <button class="btn btn--ghost quick-notes-clear" type="button" onclick="clearQuickNotes()">Xóa note</button>
+          <span class="quick-notes-total" id="quick-notes-total">0 note</span>
         </div>
-        <textarea id="quick-notes" class="quick-notes-input" maxlength="5000" placeholder="Ví dụ:&#10;• Việc cần ưu tiên tuần này&#10;• Ý tưởng cần trao đổi&#10;• Nội dung cần theo dõi…" oninput="updateQuickNotes(this.value)"></textarea>
-        <div class="quick-notes-foot">
-          <span id="quick-notes-status">Tự động lưu</span>
-          <span><b id="quick-notes-count">0</b>/5000</span>
+        <div class="quick-note-create">
+          <input id="quick-note-title" class="field" maxlength="100" placeholder="Tiêu đề ghi chú">
+          <textarea id="quick-note-content" class="quick-notes-input" maxlength="5000" placeholder="Nội dung ghi chú…"></textarea>
+          <button class="btn btn--primary" type="button" onclick="addQuickNote()">+ Lưu ghi chú</button>
         </div>
+        <p class="hint" id="quick-note-result"></p>
+        <div class="quick-note-tags" id="quick-note-tags"></div>
       </div>
 
     </div>
@@ -1897,13 +1899,14 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
           <span class="class-schedule-count" id="class-schedule-count">0 lịch</span>
         </div>
         <div class="class-schedule-form">
+          <input id="class-name" class="field class-name-input" maxlength="100" placeholder="Tên lớp học">
           <select id="class-weekday" class="field" aria-label="Thứ">
             <option value="T2">T2</option><option value="T3">T3</option><option value="T4">T4</option>
             <option value="T5">T5</option><option value="T6">T6</option><option value="T7">T7</option><option value="CN">CN</option>
           </select>
           <input id="class-date" class="field" type="date" aria-label="Ngày" onchange="syncClassWeekdayFromDate()">
           <input id="class-time" class="field" type="time" aria-label="Giờ">
-          <input id="class-link" class="field class-link-input" type="url" placeholder="Link vào lớp" aria-label="Đường link vào lớp" onkeydown="if(event.key==='Enter')addClassSchedule()">
+          <input id="class-link" class="field class-link-input" type="url" placeholder="Link vào lớp (không bắt buộc)" aria-label="Đường link vào lớp" onkeydown="if(event.key==='Enter')addClassSchedule()">
           <button class="btn btn--primary" type="button" onclick="addClassSchedule()">+ Thêm</button>
         </div>
         <p class="hint" id="class-schedule-result"></p>
@@ -1915,6 +1918,23 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
   </div>
 
   <p class="sub" style="text-align:center;margin-top:16px">Dữ liệu được lưu tự động trên trình duyệt. ⚠️ Bản mở rộng và thu nhỏ là 2 phiên riêng — nhập xong bấm <b>💾 Lưu</b> ở bản này, rồi bấm <b>🔄 Đồng bộ</b> ở bản kia là khớp dữ liệu.</p>
+</div>
+
+<div class="modal" id="quick-note-modal">
+  <div class="box quick-note-modal-box">
+    <h3>📝 Chi tiết ghi chú</h3>
+    <input type="hidden" id="quick-note-edit-id">
+    <label>Tiêu đề</label>
+    <input id="quick-note-edit-title" class="field" maxlength="100">
+    <label>Nội dung</label>
+    <textarea id="quick-note-edit-content" class="field quick-note-edit-content" maxlength="5000" oninput="document.getElementById('quick-note-edit-count').textContent=this.value.length+'/5000'"></textarea>
+    <div class="quick-note-modal-meta"><span id="quick-note-edit-date"></span><span id="quick-note-edit-count">0/5000</span></div>
+    <div class="actions">
+      <button class="btn btn--ghost quick-note-delete" type="button" onclick="deleteQuickNoteDetail()">Xóa</button>
+      <button class="btn" type="button" onclick="closeQuickNoteModal()">Đóng</button>
+      <button class="btn btn--primary" type="button" onclick="saveQuickNoteDetail()">Lưu thay đổi</button>
+    </div>
+  </div>
 </div>
 
 <!-- Daily KPI input modal -->
@@ -2074,29 +2094,66 @@ function getClosedKpiSnapshot(){
   };
 }
 
-let quickNotesStatusTimer=null;
+function escapeHtml(value){
+  return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
 function renderQuickNotes(){
-  const input=document.getElementById('quick-notes');
-  const count=document.getElementById('quick-notes-count');
-  if(input && input.value!==(state.quickNotes||'')) input.value=state.quickNotes||'';
-  if(count) count.textContent=String((state.quickNotes||'').length);
+  if(!Array.isArray(state.quickNoteItems)) state.quickNoteItems=[];
+  if((state.quickNotes||'').trim() && !state.quickNotesMigrated && state.quickNoteItems.length===0){
+    state.quickNoteItems.push({id:'old-'+Date.now().toString(36),title:'Ghi chú cũ',content:String(state.quickNotes).slice(0,5000),createdAt:new Date().toISOString()});
+    state.quickNotesMigrated=true;
+    save();
+  }
+  const total=document.getElementById('quick-notes-total');
+  const tags=document.getElementById('quick-note-tags');
+  if(total) total.textContent=`${state.quickNoteItems.length} note`;
+  if(!tags) return;
+  if(!state.quickNoteItems.length){ tags.innerHTML='<div class="quick-note-empty">Chưa có ghi chú nào.</div>'; return; }
+  tags.innerHTML=[...state.quickNoteItems].reverse().map(note=>{
+    const title=escapeHtml(note.title||'Không có tiêu đề');
+    const preview=escapeHtml(String(note.content||'').replace(/\s+/g,' ').slice(0,72));
+    const safeId=String(note.id||'').replace(/[^a-z0-9_-]/gi,'');
+    return `<button class="quick-note-tag" type="button" onclick="openQuickNote('${safeId}')"><b>${title}</b><span>${preview||'Không có nội dung'}</span></button>`;
+  }).join('');
 }
-function updateQuickNotes(value){
-  state.quickNotes=String(value||'').slice(0,5000);
-  const count=document.getElementById('quick-notes-count');
-  const status=document.getElementById('quick-notes-status');
-  if(count) count.textContent=String(state.quickNotes.length);
-  if(status) status.textContent='Đang lưu…';
-  save();
-  clearTimeout(quickNotesStatusTimer);
-  quickNotesStatusTimer=setTimeout(()=>{ if(status) status.textContent='✓ Đã lưu'; },500);
+function addQuickNote(){
+  const title=document.getElementById('quick-note-title')?.value.trim()||'';
+  const content=document.getElementById('quick-note-content')?.value.trim()||'';
+  const result=document.getElementById('quick-note-result');
+  if(!title){ if(result) result.textContent='⚠️ Hãy nhập tiêu đề ghi chú.'; return; }
+  state.quickNoteItems=Array.isArray(state.quickNoteItems)?state.quickNoteItems:[];
+  state.quickNoteItems.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),title:title.slice(0,100),content:content.slice(0,5000),createdAt:new Date().toISOString()});
+  save(); renderQuickNotes();
+  document.getElementById('quick-note-title').value='';
+  document.getElementById('quick-note-content').value='';
+  if(result) result.textContent='✓ Đã lưu ghi chú.';
 }
-function clearQuickNotes(){
-  if(!(state.quickNotes||'').trim()) return;
-  if(!confirm('Xóa toàn bộ ghi chú nhanh?')) return;
-  state.quickNotes=''; save(); renderQuickNotes();
-  const status=document.getElementById('quick-notes-status');
-  if(status) status.textContent='✓ Đã xóa';
+function openQuickNote(id){
+  const note=(state.quickNoteItems||[]).find(item=>item.id===id); if(!note) return;
+  document.getElementById('quick-note-edit-id').value=note.id;
+  document.getElementById('quick-note-edit-title').value=note.title||'';
+  const content=document.getElementById('quick-note-edit-content'); content.value=note.content||'';
+  document.getElementById('quick-note-edit-count').textContent=`${content.value.length}/5000`;
+  const created=note.createdAt?new Date(note.createdAt):null;
+  document.getElementById('quick-note-edit-date').textContent=created&&Number.isFinite(created.getTime())?`Tạo ${created.toLocaleString('vi-VN')}`:'';
+  document.getElementById('quick-note-modal').classList.add('open');
+}
+function closeQuickNoteModal(){ document.getElementById('quick-note-modal')?.classList.remove('open'); }
+function saveQuickNoteDetail(){
+  const id=document.getElementById('quick-note-edit-id')?.value;
+  const note=(state.quickNoteItems||[]).find(item=>item.id===id); if(!note) return;
+  const title=document.getElementById('quick-note-edit-title')?.value.trim()||'';
+  if(!title){ showToast('⚠️ Ghi chú cần có tiêu đề.'); return; }
+  note.title=title.slice(0,100);
+  note.content=(document.getElementById('quick-note-edit-content')?.value||'').slice(0,5000);
+  note.updatedAt=new Date().toISOString();
+  save(); renderQuickNotes(); closeQuickNoteModal(); showToast('✓ Đã cập nhật ghi chú.');
+}
+function deleteQuickNoteDetail(){
+  const id=document.getElementById('quick-note-edit-id')?.value;
+  if(!id||!confirm('Xóa ghi chú này?')) return;
+  state.quickNoteItems=(state.quickNoteItems||[]).filter(item=>item.id!==id);
+  save(); renderQuickNotes(); closeQuickNoteModal();
 }
 
 function syncClassWeekdayFromDate(){
@@ -2112,15 +2169,19 @@ function normalizeClassLink(raw){
   try{ const url=new URL(value); return /^https?:$/.test(url.protocol) ? url.href : null; }catch(e){ return null; }
 }
 function addClassSchedule(){
+  const name=document.getElementById('class-name')?.value.trim()||'';
   const weekday=document.getElementById('class-weekday')?.value||'';
   const date=document.getElementById('class-date')?.value||'';
   const time=document.getElementById('class-time')?.value||'';
-  const link=normalizeClassLink(document.getElementById('class-link')?.value||'');
+  const rawLink=document.getElementById('class-link')?.value||'';
+  const link=rawLink.trim()?normalizeClassLink(rawLink):'';
   const result=document.getElementById('class-schedule-result');
-  if(!weekday||!date||!time||!link){ if(result) result.textContent='⚠️ Hãy nhập đủ thứ, ngày, giờ và link hợp lệ.'; return; }
+  if(!name||!weekday||!date||!time){ if(result) result.textContent='⚠️ Hãy nhập tên lớp, thứ, ngày và giờ.'; return; }
+  if(rawLink.trim()&&!link){ if(result) result.textContent='⚠️ Link vào lớp chưa hợp lệ.'; return; }
   state.classSchedule=Array.isArray(state.classSchedule)?state.classSchedule:[];
-  state.classSchedule.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),weekday,date,time,link});
+  state.classSchedule.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:name.slice(0,100),weekday,date,time,link});
   save(); renderClassSchedule();
+  const nameInput=document.getElementById('class-name'); if(nameInput) nameInput.value='';
   const linkInput=document.getElementById('class-link'); if(linkInput) linkInput.value='';
   if(result) result.textContent='✓ Đã lưu lịch lớp học.';
 }
@@ -2155,14 +2216,15 @@ function renderClassSchedule(){
     const safeDate=/^\d{4}-\d{2}-\d{2}$/.test(item.date||'')?item.date:'';
     const safeTime=/^\d{2}:\d{2}$/.test(item.time||'')?item.time:'--:--';
     const safeWeekday=['T2','T3','T4','T5','T6','T7','CN'].includes(item.weekday)?item.weekday:'—';
-    const safeLink=normalizeClassLink(item.link)||'#';
+    const safeLink=item.link?normalizeClassLink(item.link):'';
+    const safeName=escapeHtml(item.name||'Lớp học');
     const safeId=String(item.id||'').replace(/[^a-z0-9_-]/gi,'');
     const parts=safeDate.split('-');
     const label=parts.length===3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : 'Chưa có ngày';
     const completed=hasPassed(item);
     return `<div class="class-schedule-item${completed?' is-completed':''}">
-      <div class="class-schedule-when"><b>${safeWeekday}</b><span>${label}</span><strong>${safeTime}</strong></div>
-      <a class="btn class-join-btn" href="${safeLink}" target="_blank" rel="noopener noreferrer">Vào lớp ↗</a>
+      <div class="class-schedule-info"><div class="class-title">${safeName}</div><div class="class-schedule-when"><b>${safeWeekday}</b><span>${label}</span><strong>${safeTime}</strong></div></div>
+      ${safeLink?`<a class="btn class-join-btn" href="${safeLink}" target="_blank" rel="noopener noreferrer">Vào lớp ↗</a>`:'<span class="class-no-link">Không có link</span>'}
       <button class="btn btn--ghost class-remove-btn" type="button" title="Xóa lịch" onclick="removeClassSchedule('${safeId}')">×</button>
     </div>`;
   }).join('');
@@ -4767,6 +4829,33 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAccountModal()
 .class-join-btn{padding:5px 7px;font-size:10px;color:var(--green);border-color:color-mix(in srgb,var(--green) 40%,var(--border));white-space:nowrap;text-decoration:none;}
 .class-remove-btn{width:28px;height:28px;padding:0;color:var(--red);font-size:15px;}
 @media(max-width:390px){.class-schedule-form{grid-template-columns:54px 1fr}.class-schedule-form #class-time{grid-column:1/-1}.class-link-input{grid-column:1/-1}.class-schedule-form .btn{grid-column:1/-1}}
+</style>
+
+<style id="v26-note-tags-class-name">
+.quick-notes-card{min-height:330px;}
+.quick-notes-total{flex:0 0 auto;padding:4px 7px;border-radius:99px;background:var(--orange-soft);color:var(--orange);font-size:9.5px;font-weight:700;}
+.quick-note-create{display:grid;gap:7px;}
+.quick-note-create .field{width:100%;box-sizing:border-box;}
+.quick-note-create .quick-notes-input{min-height:92px;height:92px;resize:vertical;flex:none;}
+.quick-note-create .btn{justify-self:end;padding:7px 10px;}
+#quick-note-result{min-height:14px;margin:5px 0;font-size:10px;}
+.quick-note-tags{display:flex;flex-wrap:wrap;align-content:flex-start;gap:7px;margin-top:2px;}
+.quick-note-tag{display:flex;flex-direction:column;align-items:flex-start;gap:2px;max-width:100%;min-width:115px;padding:8px 10px;border:1px solid color-mix(in srgb,var(--orange) 38%,var(--border));border-radius:8px;background:color-mix(in srgb,var(--orange-soft) 35%,var(--bg));color:var(--text);font:inherit;text-align:left;cursor:pointer;}
+.quick-note-tag:hover{border-color:var(--orange);transform:translateY(-1px);}
+.quick-note-tag b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11.5px;}
+.quick-note-tag span{display:block;max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-2);font-size:9.5px;}
+.quick-note-empty{width:100%;padding:17px 10px;border:1px dashed var(--border-2);border-radius:8px;color:var(--text-2);font-size:11px;text-align:center;}
+.quick-note-modal-box{width:min(560px,calc(100vw - 24px));max-width:560px;}
+.quick-note-modal-box label{display:block;margin:9px 0 4px;color:var(--text-2);font-size:10.5px;}
+.quick-note-modal-box .field{width:100%;box-sizing:border-box;}
+.quick-note-edit-content{min-height:260px;resize:vertical;font:inherit;line-height:1.55;}
+.quick-note-modal-meta{display:flex;justify-content:space-between;gap:10px;margin-top:6px;color:var(--text-2);font-size:9.5px;}
+.quick-note-delete{margin-right:auto;color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,var(--border));}
+.class-name-input{grid-column:1/-1;}
+.class-schedule-info{min-width:0;}
+.class-title{margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11.5px;font-weight:750;color:var(--text);}
+.class-no-link{padding:5px 4px;color:var(--text-2);font-size:9px;white-space:nowrap;}
+@media(max-width:520px){.quick-note-modal-box{width:calc(100vw - 20px)}.quick-note-edit-content{min-height:210px}.quick-note-tag{width:100%}.quick-note-tag span{max-width:100%}}
 </style>
 
 
