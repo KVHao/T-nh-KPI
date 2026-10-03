@@ -1996,6 +1996,48 @@ function getKpiReviewDay(){
   return null;
 }
 
+function isWorkingDay(d){
+  return d>=1 && d<=totalDaysInMonth && !(state.offDays||[]).includes(d);
+}
+function countWorkingDays(fromDay,toDay){
+  let count=0;
+  for(let d=Math.max(1,fromDay); d<=Math.min(totalDaysInMonth,toDay); d++) if(isWorkingDay(d)) count++;
+  return count;
+}
+function closedKpiLog(){
+  const reviewDay=getKpiReviewDay();
+  if(reviewDay==null) return [];
+  const prefix=state.year+'-'+state.month+'-';
+  const raw=Object.keys(state.dailyLog||{})
+    .filter(k=>k.startsWith(prefix))
+    .map(k=>({d:+k.split('-')[2],v:+state.dailyLog[k]}))
+    .filter(p=>Number.isFinite(p.d) && Number.isFinite(p.v) && p.d<=reviewDay)
+    .sort((a,b)=>a.d-b.d);
+  let previousRaw=0, closedTotal=0;
+  const result=[];
+  raw.forEach(p=>{
+    const delta=Math.max(0,p.v-previousRaw);
+    previousRaw=p.v;
+    if(!isWorkingDay(p.d)) return;
+    closedTotal+=delta;
+    result.push({d:p.d,v:closedTotal});
+  });
+  return result;
+}
+function getClosedKpiSnapshot(){
+  const reviewDay=getKpiReviewDay();
+  const logDays=closedKpiLog();
+  const last=logDays.length ? logDays[logDays.length-1] : null;
+  return {
+    reviewDay,
+    logDays,
+    done:last ? last.v : 0,
+    lastRecordedDay:last ? last.d : 0,
+    workedDays:reviewDay==null ? 0 : countWorkingDays(1,reviewDay),
+    workDaysLeft:reviewDay==null ? countWorkingDays(1,totalDaysInMonth) : countWorkingDays(reviewDay+1,totalDaysInMonth)
+  };
+}
+
 function populateReportDay(){
   const sel = document.getElementById('report-day');
   const floatSel = document.getElementById('floating-report-day');
@@ -2003,6 +2045,7 @@ function populateReportDay(){
   const selectedDay = reviewDay || Math.max(1, Math.min(state.today-1, totalDaysInMonth));
   let opts = '';
   for(let d=1; d<=totalDaysInMonth; d++){
+    if(reviewDay!=null && (d>reviewDay || !isWorkingDay(d))) continue;
     opts += `<option value="${d}"${d===selectedDay?' selected':''}>${String(d).padStart(2,'0')}/${String(state.month).padStart(2,'0')}</option>`;
   }
   if(sel) sel.innerHTML = opts;
@@ -2151,6 +2194,10 @@ function submitReport(){
   if(raw === '' || !isFinite(v) || v < 0){
     out.innerHTML = '⚠️ Nhập số tab làm được trong ngày (VD: 9).'; return;
   }
+  const reviewDay=getKpiReviewDay();
+  if(reviewDay==null || d>reviewDay || !isWorkingDay(d)){
+    out.innerHTML = '⚠️ Chỉ ghi KPI cho ngày làm việc đã kết thúc trước hôm nay.'; return;
+  }
   const prefix = state.year+'-'+state.month+'-';
   const entries = Object.keys(state.dailyLog)
     .filter(k => k.startsWith(prefix))
@@ -2182,13 +2229,14 @@ function submitReport(){
   }
   save(); renderCal();
   const target = state.target;
-  const remainTabs = Math.max(0, target - state.done);
+  const reportDone = getClosedKpiSnapshot().done;
+  const remainTabs = Math.max(0, target - reportDone);
   const offSet2 = new Set(state.offDays);
-  let workedDays2 = 0;
-  for(let dd=1; dd<=state.today; dd++) if(!offSet2.has(dd)) workedDays2++;
+  const reviewDay2 = getKpiReviewDay();
+  let workedDays2 = reviewDay2==null ? 0 : countWorkingDays(1,reviewDay2);
   let daysLeft = 0, offLeft = 0;
-  for(let dd=state.today+1; dd<=totalDaysInMonth; dd++){ if(offSet2.has(dd)) offLeft++; else daysLeft++; }
-  const rate = workedDays2 > 0 ? state.done / workedDays2 : 0;
+  for(let dd=(reviewDay2==null?1:reviewDay2+1); dd<=totalDaysInMonth; dd++){ if(offSet2.has(dd)) offLeft++; else daysLeft++; }
+  const rate = workedDays2 > 0 ? reportDone / workedDays2 : 0;
   const needPerDay = daysLeft > 0 ? remainTabs / daysLeft : 0;
   const pickQuote = arr => arr[Math.floor(Math.random()*arr.length)];
   const QUOTES_DONE = [
@@ -2456,7 +2504,6 @@ function renderCal(){
 }
 
 function toggleOff(d){
-  if(d === state.today) return;
   const set = new Set(state.manualOff);
   const weekendSet = new Set(state.autoWeekend ? getWeekendOffs() : []);
   const offSet = new Set(state.offDays);
@@ -2475,7 +2522,8 @@ function toggleOff(d){
 }
 
 function openDayModal(d){
-  if(d > state.today) return;
+  const reviewDay=getKpiReviewDay();
+  if(reviewDay==null || d > reviewDay || !isWorkingDay(d)) return;
   activeDay = d;
   document.getElementById('day-modal-title').textContent = `Nhập KPI luỹ kế đến ngày ${d}/${state.month}`;
   const cur = state.dailyLog[dayKey(d)];
@@ -2491,10 +2539,10 @@ function saveDayModal(){
   const val = parseFloat(document.getElementById('day-modal-input').value);
   if(activeDay!=null && !isNaN(val)){
     state.dailyLog[dayKey(activeDay)] = val;
-    if(activeDay === state.today){
-      state.done = val;
-      document.getElementById('done').value = val;
-    }
+    const prefix=state.year+'-'+state.month+'-';
+    const latest=Object.keys(state.dailyLog).filter(k=>k.startsWith(prefix)).map(k=>({d:+k.split('-')[2],v:+state.dailyLog[k]})).sort((a,b)=>a.d-b.d).pop();
+    state.done = latest ? latest.v : 0;
+    document.getElementById('done').value = state.done;
     save(); renderCal();
   }
   document.getElementById('day-modal').classList.remove('open'); activeDay = null;
@@ -2843,13 +2891,17 @@ function renderCompanyPlan(){
 
 function calc(persist){
   if(persist){ state.done = +document.getElementById('done').value || 0; readTargetInputs(); save(); }
-  const today = state.today, done = state.done, target = state.target;
+  const today = state.today, target = state.target;
   const offSet = new Set(state.offDays);
 
-  let workedDays = 0;
-  for(let d=1; d<=today; d++) if(!offSet.has(d)) workedDays++;
-  let workDaysLeft = 0;
-  for(let d=today+1; d<=totalDaysInMonth; d++) if(!offSet.has(d)) workDaysLeft++;
+  // Toàn bộ dashboard dùng cùng một mốc: ngày làm việc gần nhất trước hôm nay.
+  // Hôm nay (kể cả khi đã có dữ liệu nhập nhầm) chưa bao giờ là dữ liệu đã chốt.
+  const closed = getClosedKpiSnapshot();
+  const reviewDay = closed.reviewDay;
+  const dataDay = reviewDay || 0;
+  const done = closed.done;
+  const workedDays = closed.workedDays;
+  const workDaysLeft = closed.workDaysLeft;
 
   const remaining = target - done;
   const ratePerDay = workedDays > 0 ? done / workedDays : 0;
@@ -2857,23 +2909,13 @@ function calc(persist){
   const needed = workDaysLeft > 0 ? remaining / workDaysLeft : Infinity;
   const canReach = projected >= target && workedDays > 0;
 
-  const logDays = Object.keys(state.dailyLog)
-    .filter(k => k.startsWith(state.year+'-'+state.month+'-'))
-    .map(k => ({ d: +k.split('-')[2], v: +state.dailyLog[k] }))
-    .sort((a,b)=>a.d-b.d);
+  const logDays = closed.logDays;
 
-  let recent7Rate = null;
-  if(logDays.length >= 2){
-    const last = logDays[logDays.length-1];
-    const window = logDays.filter(x => x.d >= Math.max(1, last.d-6) && x.d <= last.d);
-    if(window.length >= 2){
-      const first = window[0];
-      const delta = last.v - first.v;
-      let workedInWindow = 0;
-      for(let d=first.d+1; d<=last.d; d++) if(!offSet.has(d)) workedInWindow++;
-      if(workedInWindow > 0) recent7Rate = delta / workedInWindow;
-    }
-  }
+  const closedDaily = computeDailyDeltas(logDays, offSet);
+  const recentDaily = closedDaily.slice(-7);
+  const recent7Rate = recentDaily.length
+    ? recentDaily.reduce((sum,item)=>sum+item.v,0)/recentDaily.length
+    : null;
 
   // Metrics
   const neededColor = (needed > ratePerDay*1.5) ? 'var(--red)' : (needed > ratePerDay ? 'var(--orange)' : 'var(--green)');
@@ -3013,7 +3055,7 @@ function calc(persist){
       <div class="progress-box">
         <div class="progress-top">
           <div>
-            <div class="progress-title">Tiến độ hiện tại</div>
+            <div class="progress-title">Tiến độ đã chốt</div>
             <div class="progress-big num" style="color:var(--blue)">${fmt(pctOfTargetRaw,1)}%</div>
             <div class="progress-detail"><b class="num" style="color:var(--text)">${fmt(done,0)}</b> / ${fmt(target,0)} tab</div>
           </div>
@@ -3069,21 +3111,20 @@ function calc(persist){
     </div>
   `;
 
-  const daily = computeDailyDeltas(logDays, offSet);
+  const daily = closedDaily;
 
-  renderChart({ today, target, done, ratePerDay, workDaysLeft, offSet, logDays });
+  renderChart({ today:dataDay, target, done, ratePerDay, workDaysLeft, offSet, logDays });
   renderDailyChart({ logDays, offSet, needed, ratePerDay, daily });
   renderRings({ done, target, workedDays, workDaysLeft });
   renderBonus({ done, projected });
   renderKpiScore({ done, target });
-  renderMilestones({ done, target, ratePerDay, workedDays, workDaysLeft, today, offSet, logDays });
+  renderMilestones({ done, target, ratePerDay, workedDays, workDaysLeft, today:dataDay, offSet, logDays });
   renderStreak({ daily, needed, ratePerDay });
   renderWeekly({ logDays, offSet });
   renderKpiSimulation();
   renderMonthly({ liveRaw: target>0 ? projected/target*100 : 0, liveDone: target>0 ? done/target*100 : 0 });
   // Kết luận/gợi ý luôn chốt theo ngày làm việc gần nhất trước hôm nay.
   // Không dùng ngày hiện tại vì KPI của ngày đó chỉ được ghi nhận sau khi ngày kết thúc.
-  const reviewDay = getKpiReviewDay();
   let reviewArgs = null;
   if(reviewDay != null){
     const reviewLog = logDays.filter(p => p.d <= reviewDay);
@@ -3173,15 +3214,16 @@ function renderChart({ today, target, done, ratePerDay, workDaysLeft, offSet, lo
   const x = d => PL + (Math.max(1,d)-1)/(totalDaysInMonth-1||1) * innerW;
   const y = v => PT + innerH - Math.max(0, Math.min(1, v/maxY)) * innerH;
 
+  const anchorDay = Math.max(1,today);
   const points = [{d:1, v:0}];
   [...logDays].sort((a,b)=>a.d-b.d).forEach(p => {
     if(p.d <= today) points.push({d:p.d, v:p.v});
   });
-  if(!points.some(p=>p.d===today)) points.push({d:today, v:done});
+  if(!points.some(p=>p.d===anchorDay)) points.push({d:anchorDay, v:done});
   points.sort((a,b)=>a.d-b.d);
 
   const actualPath = points.map((p,i)=> (i===0?'M':'L')+x(p.d)+','+y(p.v)).join(' ');
-  const projPath = `M ${x(today)},${y(done)} L ${x(totalDaysInMonth)},${y(projEnd)}`;
+  const projPath = `M ${x(anchorDay)},${y(done)} L ${x(totalDaysInMonth)},${y(projEnd)}`;
   const targetPath = `M ${x(1)},${y(0)} L ${x(totalDaysInMonth)},${y(target)}`;
 
   let prevPath = '';
@@ -3197,7 +3239,7 @@ function renderChart({ today, target, done, ratePerDay, workDaysLeft, offSet, lo
     const fcColor = projEnd >= target ? 'var(--green)' : 'var(--orange)';
     summary.innerHTML = `
       <div style="padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-soft)">
-        <div style="font-size:10px;color:var(--text-2);text-transform:uppercase;font-weight:600;letter-spacing:.03em">Hiện tại</div>
+        <div style="font-size:10px;color:var(--text-2);text-transform:uppercase;font-weight:600;letter-spacing:.03em">Đã chốt đến ngày ${today||'—'}</div>
         <div style="font-size:18px;font-weight:700;color:var(--blue);line-height:1.2"><span class="num">${fmt(done,0)}</span> tab</div>
         <div style="font-size:10.5px;color:var(--text-2)">${fmt(nowPct,1)}% của mốc 100%</div>
       </div>
@@ -3223,7 +3265,7 @@ function renderChart({ today, target, done, ratePerDay, workDaysLeft, offSet, lo
   const tickDays = [...new Set([1, 8, 15, 22, totalDaysInMonth].filter(d=>d<=totalDaysInMonth))];
   const xTicks = tickDays.map(d=>`<text x="${x(d)}" y="${H-7}" text-anchor="middle" style="font-size:10px">${d}</text>`).join('');
 
-  const curX = x(today), curY = y(done);
+  const curX = x(anchorDay), curY = y(done);
   const endX = x(totalDaysInMonth);
   let projLabelY = y(projEnd), targetLabelY = y(target);
   if(Math.abs(projLabelY-targetLabelY) < 18){
@@ -3245,7 +3287,7 @@ function renderChart({ today, target, done, ratePerDay, workDaysLeft, offSet, lo
 
     <line x1="${curX}" y1="${PT}" x2="${curX}" y2="${H-PB}" stroke="var(--blue)" stroke-width="1" stroke-dasharray="2 4" opacity=".28"/>
     <circle cx="${curX}" cy="${curY}" r="5" fill="var(--blue)" stroke="var(--bg)" stroke-width="2"/>
-    <text x="${curX}" y="${Math.max(PT+11,curY-10)}" text-anchor="middle" fill="var(--blue)" style="font-size:10px;font-weight:700">Hôm nay · ${fmt(done,0)} tab</text>
+    <text x="${curX}" y="${Math.max(PT+11,curY-10)}" text-anchor="middle" fill="var(--blue)" style="font-size:10px;font-weight:700">Đã chốt ${today||'—'}/${state.month} · ${fmt(done,0)} tab</text>
 
     <circle cx="${endX}" cy="${y(projEnd)}" r="4" fill="${projEnd>=target?'var(--green)':'var(--orange)'}"/>
     <text x="${W-PR+8}" y="${projLabelY+3}" fill="${projEnd>=target?'var(--green)':'var(--orange)'}" style="font-size:10px;font-weight:700">Dự báo ${fmt(projEnd,0)}</text>
@@ -3283,7 +3325,7 @@ function renderChart({ today, target, done, ratePerDay, workDaysLeft, offSet, lo
       const prevVal = prevCandidates.length ? prevCandidates[prevCandidates.length-1].v : null;
       const targetVal = target * (d-1)/(totalDaysInMonth-1||1);
       let forecastVal = null;
-      if(d>=today) forecastVal = done + ratePerDay * Math.max(0,d-today);
+      if(d>=anchorDay) forecastVal = done + ratePerDay * countWorkingDays(today+1,d);
       const dotVal = actualVal!=null ? actualVal : (forecastVal!=null ? forecastVal : targetVal);
       const hy = y(dotVal);
       const boxW=184, boxH=112;
@@ -3697,7 +3739,7 @@ function renderWeekly({ logDays, offSet }){
   // Build a map day->cum, then compute weekly buckets.
   const cum = {}; logDays.forEach(p=>cum[p.d]=p.v);
   const sortedD = logDays.map(p=>p.d).sort((a,b)=>a-b);
-  const lastLogDay = sortedD[sortedD.length-1];
+  const lastLogDay = getKpiReviewDay() || 0;
 
   const weeks = []; // {label, from, to, deltaTabs, workDays, avg}
   let wStart = 1;
@@ -4083,12 +4125,10 @@ function simDateLabel(d){
 }
 function simulationDays(){
   const start = Math.max(1, Math.min(totalDaysInMonth, state.today || 1));
-  const a=[]; for(let d=start; d<=totalDaysInMonth && a.length<7; d++){ if(new Date(state.year,state.month-1,d).getDay()===0) continue; a.push(d); } return a;
+  const a=[]; for(let d=start; d<=totalDaysInMonth && a.length<7; d++){ if(isWorkingDay(d)) a.push(d); } return a;
 }
 function lastRecordedDay(){
-  const p=state.year+'-'+state.month+'-';
-  const ds=Object.keys(state.dailyLog).filter(k=>k.startsWith(p)).map(k=>+k.split('-')[2]).filter(Number.isFinite);
-  return ds.length?Math.max(...ds):0;
+  return getClosedKpiSnapshot().lastRecordedDay;
 }
 function cumulativeBeforeDay(d){
   for(let x=d-1;x>=1;x--){ const k=dayKey(x); if(state.dailyLog[k]!=null) return +state.dailyLog[k]; }
@@ -4109,10 +4149,10 @@ function clearKpiSimulation(){
 }
 function renderKpiSimulation(){
   const body=document.getElementById('kpi-sim-body'), sum=document.getElementById('kpi-sim-summary'); if(!body||!sum) return;
-  ensureKpiSimulation(); const days=simulationDays(); const last=lastRecordedDay(); if(!days.length){ body.innerHTML=''; return; }
-  let running=cumulativeBeforeDay(days[0]); let simAdded=0; let editable=0; let rows='';
+  ensureKpiSimulation(); const days=simulationDays(); const closed=getClosedKpiSnapshot(); const last=closed.lastRecordedDay; if(!days.length){ body.innerHTML=''; return; }
+  let running=closed.done; let simAdded=0; let editable=0; let rows='';
   days.forEach(d=>{
-    const key=dayKey(d), real=actualDailyForDay(d), hasReal=state.dailyLog[key]!=null, passed=false;
+    const key=dayKey(d), real=actualDailyForDay(d), hasReal=d<=last && state.dailyLog[key]!=null, passed=d<state.today;
     let val=0,status='',note='';
     if(hasReal){ val=real||0; running=+state.dailyLog[key]; status='<span class="sim-badge real">✓ Đã ghi nhận</span>'; note='Lấy từ dữ liệu thật'; }
     else if(passed){ status='<span class="sim-badge past">• Đã qua</span>'; note='Đã nằm trong lũy kế'; }
@@ -4122,18 +4162,20 @@ function renderKpiSimulation(){
     const dow=DAYS_LABEL[new Date(state.year,state.month-1,d).getDay()]; rows+=`<tr><td><b>${String(d).padStart(2,'0')}/${String(state.month).padStart(2,'0')}</b><div style="font-size:11px;color:var(--text-2);font-weight:500">${dow}</div></td><td>${status}</td><td class="r">${input}</td><td class="r"><div style="font-size:10.5px;color:var(--text-2);margin-bottom:2px">KPI sau ngày</div><span class="sim-kpi">${fmt(pct,1)}%</span></td><td>${hasReal?'Dữ liệu thật':''}</td></tr>`;
   });
   body.innerHTML=rows;
-  const pct=state.baseTabs>0?running/state.baseTabs*100:0, nowPct=state.baseTabs>0?state.done/state.baseTabs*100:0;
+  const pct=state.baseTabs>0?running/state.baseTabs*100:0, nowPct=state.baseTabs>0?closed.done/state.baseTabs*100:0;
   const tier=bonusFor(pct), next150=Math.max(0,Math.round(state.baseTabs*1.5-running));
-  sum.innerHTML=''; const bottom=document.getElementById('kpi-sim-bottom-summary'); if(bottom) bottom.innerHTML=`<div class="sim-bottom-item"><span>📊 Tab hiện tại</span><b>${fmt(state.done,0)}</b></div><div class="sim-bottom-item"><span>➕ Tab giả lập thêm</span><b>${fmt(simAdded,0)}</b></div><div class="sim-bottom-item"><span>＝ Tổng tab dự kiến</span><b>${fmt(running,0)}</b></div><div class="sim-bottom-item"><span>📈 KPI dự kiến</span><b class="up">${fmt(pct,1)}%</b></div><div class="sim-bottom-item"><span>↑ Tăng so với hiện tại</span><b class="up">+${fmt(Math.max(0,pct-nowPct),1)}%</b></div><div class="sim-bottom-item"><span>🎯 Còn thiếu tới 150%</span><b>${fmt(next150,0)} tab</b></div><div class="sim-bottom-item"><span>🏆 Mức thưởng dự kiến</span><b>${tier?fmtMoney(tier.amount):'Chưa tới mốc'}</b></div>`;
+  sum.innerHTML=''; const bottom=document.getElementById('kpi-sim-bottom-summary'); if(bottom) bottom.innerHTML=`<div class="sim-bottom-item"><span>📊 Tab đã chốt</span><b>${fmt(closed.done,0)}</b></div><div class="sim-bottom-item"><span>➕ Tab giả lập thêm</span><b>${fmt(simAdded,0)}</b></div><div class="sim-bottom-item"><span>＝ Tổng tab dự kiến</span><b>${fmt(running,0)}</b></div><div class="sim-bottom-item"><span>📈 KPI dự kiến</span><b class="up">${fmt(pct,1)}%</b></div><div class="sim-bottom-item"><span>↑ Tăng so với đã chốt</span><b class="up">+${fmt(Math.max(0,pct-nowPct),1)}%</b></div><div class="sim-bottom-item"><span>🎯 Còn thiếu tới 150%</span><b>${fmt(next150,0)} tab</b></div><div class="sim-bottom-item"><span>🏆 Mức thưởng dự kiến</span><b>${tier?fmtMoney(tier.amount):'Chưa tới mốc'}</b></div>`;
 }
 
 // ---------- Export ----------
 function exportReport(ev){
   const el = document.getElementById('conclusion');
   const summary = el.innerText.replace(/\s+\n/g,'\n');
+  const closed=getClosedKpiSnapshot();
   const txt = `📊 BÁO CÁO KPI THÁNG ${state.month}/${state.year}\n`+
               `Ngày hiện tại: ${state.today}/${state.month}\n`+
-              `Tab đã hoàn thành: ${fmt(state.done,0)} / ${state.target} tab — chỉ tiêu ${state.targetPct}% (đạt ${fmt(state.done/state.target*100,1)}%)\n\n`+
+              `KPI đã chốt đến: ${getKpiReviewDay()||'—'}/${state.month}\n`+
+              `Tab đã chốt: ${fmt(closed.done,0)} / ${state.target} tab — chỉ tiêu ${state.targetPct}% (đạt ${fmt(state.target>0?closed.done/state.target*100:0,1)}%)\n\n`+
               summary;
   navigator.clipboard?.writeText(txt).then(()=>{
     const btn = ev.target;

@@ -1,4 +1,4 @@
-Tính KPI — Supabase v13 Icon Fix
+Tính KPI — Supabase/PWA v19
 
 - Sửa icon PWA trên Android: nền đen toàn khung, logo Paper World căn giữa và thu vào safe-zone để không bị crop.
 - Cập nhật icon 192x192, 512x512 và favicon.
@@ -9,6 +9,7 @@ Sau khi deploy lên Vercel: gỡ app Tính KPI cũ khỏi điện thoại, mở 
 
 
 v16: Thu nhỏ logo PWA thêm 20%; sửa riêng bảng KPI trên màn hình <=600px, không thay đổi layout desktop.
+v19: Đồng bộ toàn bộ phép tính theo ngày làm việc đã chốt gần nhất trước hôm nay; mọi ngày Nghỉ trong lịch được loại khỏi KPI thực tế, tốc độ, dự báo, mốc thưởng, biểu đồ, tổng kết tuần và giả lập 7 ngày. Cache PWA đã tăng lên v19.
 
 
 v17: Fixed mobile full-width responsive layout while preserving v16 icon and Supabase sync.
