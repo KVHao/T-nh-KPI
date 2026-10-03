@@ -4326,13 +4326,15 @@ function simDateLabel(d){
 }
 function simulationDays(){
   const anchor=Math.max(1,Math.min(totalDaysInMonth,state.today||1));
-  const dow=new Date(state.year,state.month-1,anchor).getDay();
+  const anchorDate=new Date(state.year,state.month-1,anchor);
+  const dow=anchorDate.getDay();
   // CN vẫn hiển thị tuần vừa kết thúc; chỉ sang T2 mới chuyển sang tuần kế tiếp.
-  const monday=anchor-(dow===0?6:dow-1);
-  const saturday=monday+5;
+  const mondayDate=new Date(state.year,state.month-1,anchor-(dow===0?6:dow-1));
   const days=[];
-  for(let d=Math.max(1,monday);d<=Math.min(totalDaysInMonth,saturday);d++){
-    if(isWorkingDay(d)) days.push(d);
+  for(let offset=0;offset<6;offset++){
+    const date=new Date(mondayDate); date.setDate(mondayDate.getDate()+offset);
+    const y=date.getFullYear(),m=date.getMonth()+1,d=date.getDate();
+    days.push({year:y,month:m,day:d,key:`${y}-${m}-${d}`,date,dow:date.getDay(),inCurrentMonth:y===state.year&&m===state.month});
   }
   return days;
 }
@@ -4343,13 +4345,13 @@ function cumulativeBeforeDay(d){
   for(let x=d-1;x>=1;x--){ const k=dayKey(x); if(state.dailyLog[k]!=null) return +state.dailyLog[k]; }
   return 0;
 }
-function setKpiSimulationDay(d,v){
+function setKpiSimulationDay(key,v){
   ensureKpiSimulation();
-  const n=Math.max(0,Math.min(999,Number(v)||0)); state.simKpi7[dayKey(d)]=n; save(); renderKpiSimulation();
+  const n=Math.max(0,Math.min(999,Number(v)||0)); state.simKpi7[key]=n; save(); renderKpiSimulation();
 }
 function fillKpiSimulation(v){
   ensureKpiSimulation(); const last=lastRecordedDay();
-  simulationDays().forEach(d=>{ if(d>last && state.dailyLog[dayKey(d)]==null) state.simKpi7[dayKey(d)]=v; });
+  simulationDays().forEach(item=>{ if(item.inCurrentMonth && isWorkingDay(item.day) && item.day>last && state.dailyLog[item.key]==null) state.simKpi7[item.key]=v; });
   save(); renderKpiSimulation();
 }
 function clearKpiSimulation(){
@@ -4359,18 +4361,25 @@ function clearKpiSimulation(){
 function renderKpiSimulation(){
   const body=document.getElementById('kpi-sim-body'), sum=document.getElementById('kpi-sim-summary'); if(!body||!sum) return;
   ensureKpiSimulation(); const days=simulationDays(); const closed=getClosedKpiSnapshot(); const last=closed.lastRecordedDay; if(!days.length){ body.innerHTML=''; return; }
-  const beforeWeek=closed.logDays.filter(item=>item.d<days[0]);
+  const firstCurrent=days.find(item=>item.inCurrentMonth);
+  const beforeWeek=firstCurrent?closed.logDays.filter(item=>item.d<firstCurrent.day):closed.logDays;
   let running=beforeWeek.length?beforeWeek[beforeWeek.length-1].v:0;
   let simAdded=0; let editable=0; let rows='';
-  days.forEach(d=>{
-    const key=dayKey(d), closedPoint=closed.logDays.find(item=>item.d===d), hasReal=!!closedPoint, passed=d<state.today;
+  const anchorDate=new Date(state.year,state.month-1,state.today); anchorDate.setHours(0,0,0,0);
+  days.forEach(item=>{
+    const d=item.day,key=item.key;
+    const closedPoint=item.inCurrentMonth?closed.logDays.find(point=>point.d===d):null;
+    const hasReal=!!closedPoint, passed=item.date<anchorDate;
+    const isOff=item.inCurrentMonth&&!isWorkingDay(d);
     let val=0,status='',note='';
     if(hasReal){ val=Math.max(0,closedPoint.v-running); running=closedPoint.v; status='<span class="sim-badge real">✓ Đã ghi nhận</span>'; note='Lấy từ dữ liệu thật'; }
-    else if(passed){ status='<span class="sim-badge past">• Đã qua</span>'; note='Đã nằm trong lũy kế'; }
+    else if(isOff){ status='<span class="sim-badge past">🌙 Nghỉ</span>'; note='Ngày nghỉ trong lịch'; }
+    else if(passed||!item.inCurrentMonth){ status='<span class="sim-badge past">• Đã qua</span>'; note=item.inCurrentMonth?'Đã nằm trong lũy kế':'Ngoài tháng hiện tại'; }
     else { val=Math.max(0,+state.simKpi7[key]||0); running+=val; simAdded+=val; editable++; status='<span class="sim-badge demo">🧪 Giả lập</span>'; }
     const pct=state.baseTabs>0?running/state.baseTabs*100:0;
-    const input=hasReal||passed ? `<input class="sim-input" value="${fmt(val,0)}" disabled>` : `<input class="sim-input" type="number" min="0" max="999" step="1" value="${val||''}" placeholder="0" onchange="setKpiSimulationDay(${d},this.value)">`;
-    const dow=DAYS_LABEL[new Date(state.year,state.month-1,d).getDay()]; rows+=`<tr><td><b>${String(d).padStart(2,'0')}/${String(state.month).padStart(2,'0')}</b><div style="font-size:11px;color:var(--text-2);font-weight:500">${dow}</div></td><td>${status}</td><td class="r">${input}</td><td class="r"><div style="font-size:10.5px;color:var(--text-2);margin-bottom:2px">KPI sau ngày</div><span class="sim-kpi">${fmt(pct,1)}%</span></td><td>${hasReal?'Dữ liệu thật':''}</td></tr>`;
+    const locked=hasReal||passed||isOff||!item.inCurrentMonth;
+    const input=locked ? `<input class="sim-input" value="${fmt(val,0)}" disabled>` : `<input class="sim-input" type="number" min="0" max="999" step="1" value="${val||''}" placeholder="0" onchange="setKpiSimulationDay('${key}',this.value)">`;
+    const dow=DAYS_LABEL[item.dow]; rows+=`<tr><td><b>${String(d).padStart(2,'0')}/${String(item.month).padStart(2,'0')}</b><div style="font-size:11px;color:var(--text-2);font-weight:500">${dow}</div></td><td>${status}</td><td class="r">${input}</td><td class="r"><div style="font-size:10.5px;color:var(--text-2);margin-bottom:2px">KPI sau ngày</div><span class="sim-kpi">${item.inCurrentMonth?fmt(pct,1)+'%':'—'}</span></td><td>${note}</td></tr>`;
   });
   const pct=state.baseTabs>0?running/state.baseTabs*100:0, nowPct=state.baseTabs>0?closed.done/state.baseTabs*100:0;
   const simAverage=editable>0?simAdded/editable:0;
@@ -4887,6 +4896,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAccountModal()
 
 <style id="v28-simulator-summary-tile">
 .kpi-sim tr.sim-total-card{
+  grid-column:span 2;
   justify-content:center;
   border-color:color-mix(in srgb,var(--green) 55%,var(--border));
   background:linear-gradient(160deg,color-mix(in srgb,var(--green-soft) 75%,var(--bg)),var(--bg));
