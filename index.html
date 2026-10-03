@@ -2215,11 +2215,9 @@ function renderClassSchedule(){
     return Number.isFinite(classTime.getTime()) && classTime<=now;
   };
   const learned=monthItems.filter(hasPassed).length;
-  const learnedPct=monthItems.length?learned/monthItems.length*100:0;
   if(summary) summary.innerHTML=`
     <div><span>Tháng này</span><b>${monthItems.length} lớp</b></div>
-    <div class="learned"><span>Đã học đến hiện tại</span><b>${learned} lớp</b></div>
-    <div><span>Hoàn thành</span><b>${fmt(learnedPct,0)}%</b></div>`;
+    <div class="learned"><span>Đã học đến hiện tại</span><b>${learned} lớp</b></div>`;
   if(!items.length){ list.innerHTML='<div class="class-schedule-empty">Chưa có lịch quay hoặc lớp học.</div>'; return; }
   list.innerHTML=items.map(item=>{
     const safeDate=/^\d{4}-\d{2}-\d{2}$/.test(item.date||'')?item.date:'';
@@ -4848,8 +4846,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape') closeAccountModal()
 .class-link-input{grid-column:1 / 3;}
 .class-schedule-form .btn{grid-column:3;min-height:34px;padding:6px 8px;font-size:11px;}
 #class-schedule-result{min-height:15px;margin:6px 0 4px;font-size:10px;}
-.class-month-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:5px 0 9px;}
-.class-month-summary>div{padding:7px 8px;border:1px solid var(--border);border-radius:7px;background:var(--bg-soft);}
+.class-month-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:5px 0 9px;}
+.class-month-summary>div{padding:9px 10px;border:1px solid var(--border);border-radius:7px;background:var(--bg-soft);}
 .class-month-summary span{display:block;color:var(--text-2);font-size:9px;margin-bottom:1px;}
 .class-month-summary b{font-size:12px;font-variant-numeric:tabular-nums;}
 .class-month-summary .learned{border-color:color-mix(in srgb,var(--green) 40%,var(--border));background:var(--green-soft);}
