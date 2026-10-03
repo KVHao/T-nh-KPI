@@ -1986,12 +1986,24 @@ function refreshOffDays(){
   state.offDays = [...set].sort((a,b)=>a-b);
 }
 
+// Ngày KPI cần chốt = ngày làm việc gần nhất TRƯỚC hôm nay.
+// Mọi ngày được đánh dấu Nghỉ sẽ được bỏ qua, kể cả nhiều ngày nghỉ liên tiếp.
+function getKpiReviewDay(){
+  const offSet = new Set(state.offDays || []);
+  for(let d=Math.min(state.today-1,totalDaysInMonth); d>=1; d--){
+    if(!offSet.has(d)) return d;
+  }
+  return null;
+}
+
 function populateReportDay(){
   const sel = document.getElementById('report-day');
   const floatSel = document.getElementById('floating-report-day');
+  const reviewDay = getKpiReviewDay();
+  const selectedDay = reviewDay || Math.max(1, Math.min(state.today-1, totalDaysInMonth));
   let opts = '';
   for(let d=1; d<=totalDaysInMonth; d++){
-    opts += `<option value="${d}"${d===state.today?' selected':''}>${String(d).padStart(2,'0')}/${String(state.month).padStart(2,'0')}</option>`;
+    opts += `<option value="${d}"${d===selectedDay?' selected':''}>${String(d).padStart(2,'0')}/${String(state.month).padStart(2,'0')}</option>`;
   }
   if(sel) sel.innerHTML = opts;
   if(floatSel) floatSel.innerHTML = opts;
@@ -3069,7 +3081,46 @@ function calc(persist){
   renderWeekly({ logDays, offSet });
   renderKpiSimulation();
   renderMonthly({ liveRaw: target>0 ? projected/target*100 : 0, liveDone: target>0 ? done/target*100 : 0 });
-  renderConclusion({ canReach, projected, target, needed, ratePerDay, recent7Rate, workDaysLeft, workedDays, done, remaining });
+  // Kết luận/gợi ý luôn chốt theo ngày làm việc gần nhất trước hôm nay.
+  // Không dùng ngày hiện tại vì KPI của ngày đó chỉ được ghi nhận sau khi ngày kết thúc.
+  const reviewDay = getKpiReviewDay();
+  let reviewArgs = null;
+  if(reviewDay != null){
+    const reviewLog = logDays.filter(p => p.d <= reviewDay);
+    const exactReview = reviewLog.find(p => p.d === reviewDay);
+    const reviewDone = exactReview ? exactReview.v : null;
+    let reviewWorkedDays = 0;
+    for(let d=1; d<=reviewDay; d++) if(!offSet.has(d)) reviewWorkedDays++;
+    let reviewWorkDaysLeft = 0;
+    for(let d=reviewDay+1; d<=totalDaysInMonth; d++) if(!offSet.has(d)) reviewWorkDaysLeft++;
+    if(reviewDone != null){
+      const reviewRate = reviewWorkedDays > 0 ? reviewDone/reviewWorkedDays : 0;
+      const reviewRemaining = target-reviewDone;
+      const reviewProjected = reviewDone + reviewRate*reviewWorkDaysLeft;
+      const reviewNeeded = reviewWorkDaysLeft>0 ? reviewRemaining/reviewWorkDaysLeft : Infinity;
+      let reviewRecent7 = null;
+      if(reviewLog.length >= 2){
+        const last = reviewLog[reviewLog.length-1];
+        const win = reviewLog.filter(x => x.d >= Math.max(1,last.d-6) && x.d <= last.d);
+        if(win.length >= 2){
+          const first=win[0]; let wd=0;
+          for(let d=first.d+1; d<=last.d; d++) if(!offSet.has(d)) wd++;
+          if(wd>0) reviewRecent7=(last.v-first.v)/wd;
+        }
+      }
+      reviewArgs={
+        canReach: reviewProjected>=target && reviewWorkedDays>0, projected:reviewProjected, target,
+        needed:reviewNeeded, ratePerDay:reviewRate, recent7Rate:reviewRecent7,
+        workDaysLeft:reviewWorkDaysLeft, workedDays:reviewWorkedDays, done:reviewDone,
+        remaining:reviewRemaining, reviewDay, hasReviewData:true
+      };
+    } else {
+      reviewArgs={ target, reviewDay, hasReviewData:false };
+    }
+  } else {
+    reviewArgs={ target, reviewDay:null, hasReviewData:false };
+  }
+  renderConclusion(reviewArgs);
 
   // cache for simulator
   lastCalc = { done, target, ratePerDay, workDaysLeft, needed, recent7Rate };
@@ -3864,12 +3915,26 @@ function renderSim(){
 }
 
 // ---------- Conclusion ----------
-function renderConclusion({ canReach, projected, target, needed, ratePerDay, recent7Rate, workDaysLeft, workedDays, done, remaining }){
+function renderConclusion({ canReach, projected, target, needed, ratePerDay, recent7Rate, workDaysLeft, workedDays, done, remaining, reviewDay, hasReviewData=true }){
   const el = document.getElementById('conclusion');
   const box = (cls, tagHtml, body)=> `<div class="conclusion ${cls}"><div>${tagHtml}</div>${body}</div>`;
+  const reviewLabel = reviewDay != null ? `${String(reviewDay).padStart(2,'0')}/${String(state.month).padStart(2,'0')}` : '';
+
+  if(!hasReviewData){
+    if(reviewDay == null){
+      el.innerHTML = box('warn', `<span class="tag tag--orange">⏳ Chưa có ngày cần chốt</span>`,
+        `<p>Hệ thống chỉ kết luận sau khi một ngày làm việc đã kết thúc.</p>`);
+    } else {
+      el.innerHTML = box('warn', `<span class="tag tag--orange">📝 Chờ KPI ngày ${reviewLabel}</span>`,
+        `<p>Ngày cần chốt là <b>${reviewLabel}</b>. Hãy ghi nhận KPI của ngày này; hệ thống sẽ hiện kết luận và gợi ý ngay sau khi lưu.</p>`);
+    }
+    return;
+  }
+
+  const reviewHead = `<div class="sub" style="margin:0 0 8px;font-size:11.5px">📅 Kết luận cho ngày làm việc <b>${reviewLabel}</b></div>`;
 
   if(workedDays === 0){
-    el.innerHTML = box('warn', `<span class="tag tag--orange">⏳ Chưa có dữ liệu</span>`,
+    el.innerHTML = reviewHead + box('warn', `<span class="tag tag--orange">⏳ Chưa có dữ liệu</span>`,
       `<p>Chưa có ngày làm việc nào được ghi nhận. Chọn <b>ngày hôm nay</b> đúng và nhập <b>tab đã hoàn thành</b> để bắt đầu.</p>`);
     return;
   }
@@ -3886,7 +3951,7 @@ function renderConclusion({ canReach, projected, target, needed, ratePerDay, rec
     if(recent7Rate!=null && recent7Rate < ratePerDay*0.8){
       suggestions.push(`⚠️ Tốc độ <b>7 ngày gần nhất</b> (${fmt(recent7Rate,1)}/ngày) đang chậm hơn TB. Cần chú ý.`);
     }
-    el.innerHTML = box('good', `<span class="tag tag--green">🎯 Có thể đạt mục tiêu</span>`,
+    el.innerHTML = reviewHead + box('good', `<span class="tag tag--green">🎯 Có thể đạt mục tiêu</span>`,
       `<p>Với <b>${fmt(ratePerDay,1)} tab/ngày</b> qua ${workedDays} ngày, dự báo cuối tháng <b class="num">${fmt(projected,0)} tab</b> — vượt <b>${fmt(projected-target,0)} tab</b>.</p>`+
       `<ul class="list">${suggestions.map(s=>`<li>${s}</li>`).join('')}</ul>`);
   } else {
@@ -3906,7 +3971,7 @@ function renderConclusion({ canReach, projected, target, needed, ratePerDay, rec
       suggestions.push(`⏰ Chỉ còn <b>${workDaysLeft} ngày</b>. Ưu tiên việc tác động lớn.`);
     }
     suggestions.push(`💡 Xem xét tăng ngày làm (bỏ nghỉ) hoặc điều chỉnh mục tiêu.`);
-    el.innerHTML = box(severity, `<span class="tag ${tag}">${label}</span>`,
+    el.innerHTML = reviewHead + box(severity, `<span class="tag ${tag}">${label}</span>`,
       `<p>Với tốc độ hiện tại, dự báo cuối tháng <b class="num">${fmt(projected,0)} tab</b> — <b>thiếu ${fmt(gap,0)} tab</b> so với ${target}.</p>`+
       `<ul class="list">${suggestions.map(s=>`<li>${s}</li>`).join('')}</ul>`);
   }
