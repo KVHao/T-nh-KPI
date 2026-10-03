@@ -1602,14 +1602,14 @@ body.quick-modal-open #quick-modal-backdrop{display:block}
     <div class="quick-kpi-grid">
       <div>
         <label>Ngày</label>
-        <select id="floating-report-day" class="field" onchange="updateQuickKpiDeleteLabel()"></select>
+        <select id="floating-report-day" class="field" onchange="updateQuickKpiActionLabels()"></select>
       </div>
       <div>
         <label>Tab trong ngày</label>
         <input type="number" id="floating-report-tabs" class="field num" step="1" min="0" placeholder="VD: 9" onkeydown="if(event.key==='Enter')submitFloatingReport()">
       </div>
     </div>
-    <button class="btn btn--primary quick-kpi-submit" type="button" onclick="submitFloatingReport()">✔ GHI NHẬN KPI</button>
+    <button class="btn btn--primary quick-kpi-submit" id="quick-kpi-submit-btn" type="button" onclick="submitFloatingReport()">✔ CHỐT KPI</button>
     <p class="quick-kpi-result" id="floating-report-result"></p>
     <!-- Các trường ẩn giữ tương thích với logic ghi KPI hiện có -->
     <input type="hidden" id="report-day">
@@ -2067,6 +2067,8 @@ function refreshOffDays(){
 // Mọi ngày được đánh dấu Nghỉ sẽ được bỏ qua, kể cả nhiều ngày nghỉ liên tiếp.
 function getKpiReviewDay(){
   const offSet = new Set(state.offDays || []);
+  const todayKey=dayKey(state.today);
+  if(!offSet.has(state.today) && Array.isArray(state.closedKpiDays) && state.closedKpiDays.includes(todayKey)) return state.today;
   for(let d=Math.min(state.today-1,totalDaysInMonth); d>=1; d--){
     if(!offSet.has(d)) return d;
   }
@@ -2296,15 +2298,25 @@ function populateReportDay(){
   const sel = document.getElementById('report-day');
   const floatSel = document.getElementById('floating-report-day');
   const reviewDay = getKpiReviewDay();
-  const selectedDay = reviewDay || Math.max(1, Math.min(state.today-1, totalDaysInMonth));
+  const selectedDay = isWorkingDay(state.today) ? state.today : (reviewDay || Math.max(1, Math.min(state.today-1, totalDaysInMonth)));
   let opts = '';
   for(let d=1; d<=totalDaysInMonth; d++){
-    if(reviewDay!=null && (d>reviewDay || !isWorkingDay(d))) continue;
+    if(d>state.today || !isWorkingDay(d)) continue;
     opts += `<option value="${d}"${d===selectedDay?' selected':''}>${String(d).padStart(2,'0')}/${String(state.month).padStart(2,'0')}</option>`;
   }
   if(sel) sel.innerHTML = opts;
   if(floatSel) floatSel.innerHTML = opts;
+  updateQuickKpiActionLabels();
+}
+function updateQuickKpiActionLabels(){
   updateQuickKpiDeleteLabel();
+  const sel=document.getElementById('floating-report-day');
+  const btn=document.getElementById('quick-kpi-submit-btn');
+  if(!sel||!btn) return;
+  const d=+(sel.value||state.today||1);
+  const hasData=state.dailyLog&&state.dailyLog[dayKey(d)]!=null;
+  const label=`${String(d).padStart(2,'0')}/${String(state.month).padStart(2,'0')}`;
+  btn.textContent=hasData?`↻ CẬP NHẬT KPI NGÀY ${label}`:`✔ CHỐT KPI NGÀY ${label}`;
 }
 function updateQuickKpiDeleteLabel(){
   const sel = document.getElementById('floating-report-day');
@@ -2400,6 +2412,7 @@ function submitFloatingReport(){
   }
 
   if(tabsEl) tabsEl.value = '';
+  updateQuickKpiActionLabels();
   showToast(`✅ Đã ghi nhận ${fmt(v,0)} tab ngày ${String(+dayEl.value).padStart(2,'0')}/${String(state.month).padStart(2,'0')}`);
 
   // Cho người dùng khoảng 10 giây đọc phần tổng kết rồi tự đóng.
@@ -2427,6 +2440,7 @@ function deleteFloatingReportDay(){
   const prevCum = before.length ? before[before.length-1].v : 0;
   const removedDaily = (+state.dailyLog[key]) - prevCum;
   delete state.dailyLog[key];
+  state.closedKpiDays=(state.closedKpiDays||[]).filter(k=>k!==key);
   entries.filter(e=>e.d>d).forEach(e=>{ state.dailyLog[dayKey(e.d)] = e.v - removedDaily; });
   const remaining = Object.keys(state.dailyLog)
     .filter(k=>k.startsWith(prefix))
@@ -2449,8 +2463,8 @@ function submitReport(){
     out.innerHTML = '⚠️ Nhập số tab làm được trong ngày (VD: 9).'; return;
   }
   const reviewDay=getKpiReviewDay();
-  if(reviewDay==null || d>reviewDay || !isWorkingDay(d)){
-    out.innerHTML = '⚠️ Chỉ ghi KPI cho ngày làm việc đã kết thúc trước hôm nay.'; return;
+  if(d>state.today || !isWorkingDay(d)){
+    out.innerHTML = '⚠️ Chỉ ghi KPI cho ngày làm việc hiện tại hoặc ngày đã qua.'; return;
   }
   const prefix = state.year+'-'+state.month+'-';
   const entries = Object.keys(state.dailyLog)
@@ -2462,6 +2476,11 @@ function submitReport(){
   const oldCum = state.dailyLog[dayKey(d)];
   const newCum = prevCum + v;
   state.dailyLog[dayKey(d)] = newCum;
+  if(d===state.today){
+    state.closedKpiDays=Array.isArray(state.closedKpiDays)?state.closedKpiDays:[];
+    const closedKey=dayKey(d);
+    if(!state.closedKpiDays.includes(closedKey)) state.closedKpiDays.push(closedKey);
+  }
   let adjustNote = '';
   if(oldCum != null && newCum !== +oldCum){
     const delta = newCum - (+oldCum);
@@ -2786,7 +2805,12 @@ function openDayModal(d){
   setTimeout(()=>document.getElementById('day-modal-input').focus(), 30);
 }
 function closeDayModal(clear){
-  if(clear && activeDay!=null){ delete state.dailyLog[dayKey(activeDay)]; save(); renderCal(); }
+  if(clear && activeDay!=null){
+    const key=dayKey(activeDay);
+    delete state.dailyLog[key];
+    state.closedKpiDays=(state.closedKpiDays||[]).filter(k=>k!==key);
+    save(); renderCal();
+  }
   document.getElementById('day-modal').classList.remove('open'); activeDay = null;
 }
 function saveDayModal(){
