@@ -1,4 +1,4 @@
-const CACHE = 'tnh-kpi-pwa-v32-summary-row';
+const CACHE = 'tnh-kpi-pwa-v33-wider-summary';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)));
