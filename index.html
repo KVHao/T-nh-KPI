@@ -3672,7 +3672,7 @@ function renderDailyChart({ logDays, offSet, needed, ratePerDay, daily }){
   svg.innerHTML = `${yTicks}${band}${rects}${avgLine}${needLine}<line class="axis" x1="${PL}" y1="${H-PB}" x2="${W-PR}" y2="${H-PB}"/>${xTicks}
     <g id="daily-hover" style="display:none;pointer-events:none">
       <line id="daily-hover-line" x1="0" y1="${PT}" x2="0" y2="${H-PB}" stroke="var(--text-2)" stroke-width="1" opacity=".3"/>
-      <rect id="daily-hover-box" x="0" y="0" width="132" height="52" rx="8" fill="var(--bg)" stroke="var(--border-2)"/>
+      <rect id="daily-hover-box" x="0" y="0" width="144" height="58" rx="8" fill="var(--bg)" stroke="var(--border-2)"/>
       <text id="daily-hover-text" x="0" y="0" style="font-size:12px;font-family:inherit"></text>
     </g>
     <rect id="daily-hover-hit" x="${PL}" y="${PT}" width="${innerW}" height="${innerH}" fill="transparent" style="cursor:crosshair"/>`;
@@ -3681,11 +3681,16 @@ function renderDailyChart({ logDays, offSet, needed, ratePerDay, daily }){
     dHit.addEventListener('mousemove',e=>{
       const r=svg.getBoundingClientRect(); const sx=(e.clientX-r.left)/Math.max(1,r.width)*W;
       let nearest=bars[0]; bars.forEach(b=>{ if(Math.abs(x(b.d)-sx)<Math.abs(x(nearest.d)-sx)) nearest=b; });
-      const hx=x(nearest.d), hy=y(nearest.v), boxW=132, boxH=52;
-      let bx=hx+8; if(bx+boxW>W-4) bx=hx-boxW-8; let by=Math.max(PT+2,Math.min(H-PB-boxH-2,hy-boxH-8));
+      const hx=x(nearest.d), hy=y(nearest.v), boxW=144, boxH=58, safeGap=10;
+      let bx=hx+12;
+      if(bx+boxW>W-PR-safeGap) bx=hx-boxW-12;
+      bx=Math.max(PL+safeGap,Math.min(W-PR-boxW-safeGap,bx));
+      const above=hy-boxH-12, below=hy+12;
+      let by=above>=PT+safeGap?above:below;
+      by=Math.max(PT+safeGap,Math.min(H-PB-boxH-safeGap,by));
       dLine.setAttribute('x1',hx); dLine.setAttribute('x2',hx); dBox.setAttribute('x',bx); dBox.setAttribute('y',by);
-      dText.setAttribute('x',bx+10); dText.setAttribute('y',by+19);
-      dText.innerHTML=`<tspan x="${bx+10}" fill="var(--text)" style="font-weight:750">Ngày ${nearest.d}</tspan><tspan x="${bx+10}" dy="20" fill="var(--green)" style="font-weight:650">Hoàn thành: ${fmt(nearest.v,1)} task</tspan>`;
+      dText.setAttribute('x',bx+12); dText.setAttribute('y',by+21);
+      dText.innerHTML=`<tspan x="${bx+12}" fill="var(--text)" style="font-weight:750">Ngày ${nearest.d}</tspan><tspan x="${bx+12}" dy="21" fill="var(--green)" style="font-weight:650">Hoàn thành: ${fmt(nearest.v,1)} task</tspan>`;
       dHover.style.display='';
     });
     dHit.addEventListener('mouseleave',()=>{dHover.style.display='none';});

@@ -1,4 +1,4 @@
-const CACHE = 'tnh-kpi-pwa-v37-simulator-day-colors';
+const CACHE = 'tnh-kpi-pwa-v38-chart-tooltip-gap';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)));
